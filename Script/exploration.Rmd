@@ -1,0 +1,199 @@
+---
+title: "Exploration des données"
+author: "Jordan"
+date: "28/06/2022"
+output:
+  html_document:
+    df_print: paged
+---
+
+## Chargement des paquets
+
+```{r Import, message=FALSE, warning=FALSE, include=FALSE, results='hide', paged.print=FALSE}
+library("readxl")
+library(dplyr)
+library(plotly)
+library(ggplot2)
+#library(ggpubr)
+#library(knitr)
+#library(kableExtra)
+#library(scales)
+#library(devEMF)
+library(vegan) # Un premier lot de fonctions pour ordination
+library(FactoMineR) # Deux autres packages faisant la m?me chose mais en plus esth?tique
+library(factoextra)
+library(ape) #PCoA
+library(ade4)
+
+```
+
+## Importation des données
+```{r Import, message=FALSE, warning=FALSE, include=FALSE, results='hide', paged.print=FALSE}
+# Import
+setwd("D:/OneDrive - UMONS/UMONS/MA2/MEMOIRE/Statistique/R/MEMOIRE/RAW1/From DFF")
+# fam_bee_site <- read_excel("Fam_bee-vs-site.xlsx")
+fam <- read_excel("Nbre individus par famille.xls")
+genus <- read_excel("Nbre individus par genre.xls")
+data_bee_sp <- read_excel("Site-vs-bee.xls")
+data_bee_genus <- read_excel("Site-vs-bee_genus3.xls")
+data_pla_sp <- read_excel("Site-vs-plante.xls")
+bee_sp <- read_excel("nbr_sp.xls")
+data_pla_sp <- read_excel("Site-vs-plante.XLS")
+soil <- read_excel("../Soil_R.xlsx")
+
+# Rename
+rename(fam, "Familly" = "GR2", "Individual" = "Donnees") -> fam
+rename(genus, "Genus" = "GEN", "Individual" = "Donnees") -> genus
+rename(bee_sp, "Specie" = "TAXPRIO", "Individual" = "Donnees") -> bee_sp
+rename(data_bee_sp, "Site" = "TOPO") -> data_bee_sp
+rename(data_bee_genus, "Site" = "TOPO") -> data_bee_genus
+rename(data_pla_sp, "Site" = "TOPO", "Total plant " = "<>") -> data_pla_sp
+
+
+# Remplacer les NA par "0"
+data_bee_sp[is.na(data_bee_sp)] <- 0
+data_bee_genus[is.na(data_bee_genus)] <- 0
+data_pla_sp[is.na(data_pla_sp)] <- 0
+
+```
+
+## Fusion des données
+```{r Fusion des données}
+# Merge soil analysis (soil) and site with bees sp
+data_bee_sp <- data_bee_sp[-3,] # Retirer Condorcet où il n'y a pas d'analyses
+soil_data_bee_sp <- dplyr::full_join(data_bee_sp, soil, by = "Site")
+
+# Merge soil analysis (soil) and site with bees genus
+data_bee_genus <- data_bee_genus[-3,] # Retirer Condorcet où il n'y a pas d'analyses
+soil_data_bee_genus <- dplyr::full_join(data_bee_genus, soil, by = "Site")
+
+# Merge soil analysis (soil) and site with plants
+data_pla_sp <- data_pla_sp[-3,] # Retirer Condorcet où il n'y a pas d'analyses
+soil_data_pla_sp <- dplyr::full_join(data_pla_sp, soil, by = "Site")
+```
+
+## Exploration des données
+
+```{r Exploration famille}
+fam
+```
+
+```{r Exploration genus}
+genus
+```
+
+```{r Exploration espèce}
+bee_sp
+```
+
+```{r Exploration espèce d'abeilles par site}
+data_bee_sp
+```
+
+```{r Exploration espèce de plantes par site}
+data_pla_sp
+```
+
+```{r Exploration métaux lourds et azotes}
+soil
+```
+
+## Analyse des données
+
+```{r Analyses des données}
+# Site abeilles vs sol
+soil_data_bee_sp <- soil_data_bee_sp[,-1] # Retirer le nom des sites
+res.pca_bee <- rda(soil_data_bee_sp, scale = TRUE)
+summary(res.pca_bee)
+screeplot(res.pca_bee, bstick = TRUE)
+
+# Site abeilles genre vs sol
+soil_data_bee_genus <- soil_data_bee_genus[,-1] # Retirer le nom des sites
+res.pca_bee_genus <- rda(soil_data_bee_genus, scale = TRUE)
+summary(res.pca_bee_genus)
+screeplot(res.pca_bee_genus, bstick = TRUE)
+
+# Site plante vs sol
+soil_data_pla_sp <- soil_data_pla_sp[,-1] # Retirer le nom des sites
+res.pca_pla <- rda(soil_data_pla_sp, scale = TRUE)
+summary(res.pca_pla)
+screeplot(res.pca_pla, bstick = TRUE)
+```
+```{r}
+biplot(res.pca_bee_genus, scaling = "sites")
+biplot(res.pca_bee_genus, scaling = "species", display = "species")
+res.pca2_bee_genus = PCA(soil_data_bee_genus, scale.unit = TRUE)
+fviz_pca_biplot(res.pca2_bee_genus)
+
+
+soil_data_bee_genus.w <- hclust(dist(scale(soil_data_bee_genus)), "ward.D") # On cr?e ici une classification des sites
+grp <- as.factor(cutree(soil_data_bee_genus.w, k = 4)) # Je conserve les 4 principaux groupes de cette classification
+fviz_pca_ind (res.pca2_bee_genus,col.ind = grp, # Je colorie les points par groupes
+              repel = TRUE, # ?vite le chevauchement de texte,
+              legend.title = "Groups",
+              palette = c("blue", "red", "black","green"))
+```
+```{r}
+### CA ####
+res.ca_bee_genus = cca(soil_data_bee_genus)
+summary(res.ca_bee_genus)# Se lit comme une PCA
+screeplot(res.ca_bee_genus, bstick = TRUE)# L'axe 1 repr?sente beaucoup plus de dispersion que dan sun mod?le al?atoire !
+plot(res.ca_bee_genus, scaling =1) # Des sites proches ont des communaut?s de poissons similaires. Si un site est proche d'une esp?ce, celle-ci est probablement abondante sur ce site, ou en tout cas plus abondante en comparaison des autres sites plus ?loign?s de l'esp?ce.
+plot(res.ca_bee_genus, scaling =2) # Des poissons proches sont distribu?s de fa?on similaire parmi les sites. Si un poisson est proche d'un site, il y abonde probablement.
+```
+```{r}
+### CA ####
+res.ca_bee_genus = cca(soil_data_bee_genus)
+summary(res.ca_bee_genus)# Se lit comme une PCA
+screeplot(res.ca_bee_genus, bstick = TRUE)# L'axe 1 repr?sente beaucoup plus de dispersion que dan sun mod?le al?atoire !
+plot(res.ca_bee_genus, scaling =1) # Des sites proches ont des communaut?s de poissons similaires. Si un site est proche d'une esp?ce, celle-ci est probablement abondante sur ce site, ou en tout cas plus abondante en comparaison des autres sites plus ?loign?s de l'esp?ce.
+plot(res.ca_bee_genus, scaling =2) # Des poissons proches sont distribu?s de fa?on similaire parmi les sites. Si un poisson est proche d'un site, il y abonde probablement.
+```
+
+```{r}
+### PCoA ####
+bray = vegdist(soil_data_bee_genus, method ="bray") # matrice des distances de Bray-Curtis
+res.pcoa_bee_genus = pcoa(bray)#calcul de la PCoA
+barplot(res.pcoa_bee_genus$values$Eigenvalues)#Screeplot, observez les valeurs n?gatives
+abline(h =0, col = "red")
+
+```
+
+```{r}
+bray2 = sqrt(bray)# La petite astuce qui tue
+res.pcoa_bee_genus= pcoa(bray2)
+barplot(res.pcoa_bee_genus$values$Eigenvalues)# Screeplot, observez les valeurs positives
+abline(h =0, col = "red")
+biplot.pcoa(res.pcoa_bee_genus, soil_data_bee_genus) #A int?rpr?ter comme une CA
+```
+
+```{r}
+### NMDS ####
+soil_data_bee_genus.nmds <- metaMDS(soil_data_bee_genus, distance = "bray", k =2, try = 999999999999)#Indiquer le nombre d'essais
+soil_data_bee_genus.nmds$stress # Valeur de stress
+plot(soil_data_bee_genus.nmds,
+  main = paste("NMDS/Percentage difference - Stress =",round(soil_data_bee_genus.nmds$stress, 3)
+  )
+)
+
+orditorp(soil_data_bee_genus.nmds,display="species",col="red",air=0.01)
+orditorp(soil_data_bee_genus.nmds,display="sites",cex=0.9,air=0.01)
+```
+
+```{r}
+#Diagramme de Shepard
+stressplot(soil_data_bee_genus.nmds)
+```
+
+```{r}
+data_bee_genus <- data_bee_genus[,-1]
+soil <- soil[,-1]
+soil_data_bee_genus.cca <- cca(data_bee_genus, soil)
+plot(soil_data_bee_genus.cca)
+```
+```{r}
+data_bee_genus <- data_bee_genus[,-1]
+soil <- soil[,-1]
+data_bee_genus_soil.cca <- cca(soil, data_bee_genus)
+plot(data_bee_genus_soil.cca)
+```
