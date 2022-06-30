@@ -11,12 +11,15 @@ Note :
 Alt + "-"
 ## Chargement des paquets
 
-```{r Import, message=FALSE, warning=FALSE, include=FALSE, results='hide', paged.print=FALSE}
+```{r Library, message=FALSE, warning=FALSE, include=FALSE, results='hide', paged.print=FALSE}
 library("readxl") 
 library(dplyr)
 library(plotly)
 library(ggplot2)
 library(viridis) # couleur daltonien
+library(tidyr) # fonction gather
+library(qcc)
+library(gplots)
 #library(RColorBrewer)
 #library(ggpubr)
 #library(knitr)
@@ -35,9 +38,9 @@ library(ade4)
 ```{r Import, message=FALSE, warning=FALSE, include=FALSE, results='hide', paged.print=FALSE}
 # Import
 # Tour PC
-#setwd("D:/OneDrive - UMONS/UMONS/MA2/MEMOIRE/Statistique/R/STAT-MEMOIRE/RAW1/From DFF")
+setwd("D:/OneDrive - UMONS/UMONS/MA2/MEMOIRE/Statistique/R/STAT-MEMOIRE/RAW1/From DFF")
 # Laptop
-setwd("C:/Users/Jordan/OneDrive - UMONS/UMONS/MA2/MEMOIRE/Statistique/R/STAT-MEMOIRE/RAW1/From DFF")
+#setwd("C:/Users/Jordan/OneDrive - UMONS/UMONS/MA2/MEMOIRE/Statistique/R/STAT-MEMOIRE/RAW1/From DFF")
 
 # fam_bee_site <- read_excel("Fam_bee-vs-site.xlsx")
 fam <- read_excel("Nbre individus par famille.xls")
@@ -64,6 +67,11 @@ data_bee_genus[is.na(data_bee_genus)] <- 0
 data_pla_sp[is.na(data_pla_sp)] <- 0
 
 ```
+
+```{r}
+sum(bee_sp$Individual) # Abeille total 
+```
+
 
 ## Fusion des données
 ```{r Fusion des données}
@@ -193,20 +201,20 @@ orditorp(soil_data_bee_genus.nmds,display="sites",cex=0.9,air=0.01)
 stressplot(soil_data_bee_genus.nmds)
 ```
 
-```{r}
+```{r CCA}
 data_bee_genus <- data_bee_genus[,-1]
 soil <- soil[,-1]
 soil_data_bee_genus.cca <- cca(data_bee_genus, soil)
 plot(soil_data_bee_genus.cca)
 ```
-```{r}
+```{r CCA}
 data_bee_genus <- data_bee_genus[,-1]
 soil <- soil[,-1]
 data_bee_genus_soil.cca <- cca(soil, data_bee_genus)
 plot(data_bee_genus_soil.cca)
 ```
 
-```{r}
+```{r Abondance + Pareto ggplot}
 bee_sp$cumulative <- cumsum(bee_sp$Individual)
 
 ggplot(bee_sp, aes(x = reorder(Specie, -Individual), y =  Individual)) + 
@@ -215,10 +223,10 @@ ggplot(bee_sp, aes(x = reorder(Specie, -Individual), y =  Individual)) +
   #scale_y_continuous(sec.axis = sec_axis(~.*scaleRight, name = "Cumulative (%)")) +
   geom_point(aes(y = cumulative), color = "blue", pch=16, size=1) + 
   geom_path(aes(y=cumulative, group=1), colour="slateblue1", lty=3, size=0.9) +
-  theme(axis.title.x = element_text(face="bold", size = 20), # Study site
-        axis.title.y = element_text(face="bold", size = 20), # Population estimate
-        axis.text.x = element_text(face="bold", color= "black", size=10, angle=90, hjust=0), # A C D
-        axis.text.y = element_text(face="bold", color= "black", size=10), # 0 100 200 300 400
+  theme(axis.title.x = element_text(face="bold", size = 20), # Titre axe x
+        axis.title.y = element_text(face="bold", size = 20), # Titre axe y
+        axis.text.x = element_text(face="bold", color= "black", size=10, angle=90, hjust=0), # Echelle x
+        axis.text.y = element_text(face="bold", color= "black", size=10), # Echelle y
         panel.grid.major = element_blank(),panel.grid.minor = element_blank(),
         panel.background = element_rect(fill='white', colour='black')) #+
   # stat_pareto(point.color = "red",
@@ -229,7 +237,7 @@ ggplot(bee_sp, aes(x = reorder(Specie, -Individual), y =  Individual)) +
 ```
 
 
-```{r}
+```{r Abondance + Pareto pareto.chart}
 pareto.bee_sp <- bee_sp$Individual
 names(pareto.bee_sp) <- bee_sp$Specie
 pareto.chart(pareto.bee_sp, cumperc = seq(0, 100, by = 5), 
@@ -238,8 +246,9 @@ pareto.chart(pareto.bee_sp, cumperc = seq(0, 100, by = 5),
 ```
 
 
-```{r}
+```{r Heatmap ggplot}
 # Remodeler le jeux de données pour le heatmap
+sum(hm.bee_sp$nbr) # total abeille 
 hm.bee_sp <- gather(data_bee_sp, key="sp", value="nbr", 2:79)
 
 hm.bee_sp$sp <- factor(hm.bee_sp$sp)
@@ -250,17 +259,25 @@ hm.bee_sp <- hm.bee_sp %>%
 
 hm.bee_sp <- select(hm.bee_sp, sp, Site, nbr)
 ggplot(hm.bee_sp, aes(x = Site, y = sp, fill = nbr)) +
-  labs(title = "Abondance des abeilles sauvages", x = 'Sites', y = 'Espèces') +
+  labs(title = "Abondance des abeilles sauvages", x = '', y = '') + # Titre et titre axe
   geom_tile(color = "black") +
   coord_fixed() +
   guides(fill = guide_colourbar(label = FALSE,
                                 ticks = FALSE)) +
-  theme(axis.text.x = element_text(angle = 90, vjust = 1, 
-                                   size = 8, hjust = 1)) +
-  guides(fill = guide_colourbar(title = "Abondance")) +
-  scale_fill_viridis(discrete=FALSE) 
+  theme(axis.text.x = element_text(angle = 90, vjust = 1, size = 8, hjust = 0),
+        axis.text.y = element_text(size = 8, hjust = 0, vjust = 1),
+        legend.position="left") + # position légende
+  scale_y_discrete(position = "right") + # y label à droite
+  guides(fill = guide_colourbar(title = "Abondance")) + # Titre légende
+  scale_fill_viridis(discrete=FALSE)  # couleur
 
 ```
 
+```{r Heatmap gplot}
+#heatmap.2(t(hm.bee_sp))
+#https://www.royfrancis.com/a-guide-to-elegant-tiled-heatmaps-in-r-2019/
 
+
+
+```
 
