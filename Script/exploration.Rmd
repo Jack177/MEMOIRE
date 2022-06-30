@@ -6,14 +6,18 @@ output:
   html_document:
     df_print: paged
 ---
-
+Note : 
+<- 
+Alt + "-"
 ## Chargement des paquets
 
 ```{r Import, message=FALSE, warning=FALSE, include=FALSE, results='hide', paged.print=FALSE}
-library("readxl")
+library("readxl") 
 library(dplyr)
 library(plotly)
 library(ggplot2)
+library(viridis) # couleur daltonien
+#library(RColorBrewer)
 #library(ggpubr)
 #library(knitr)
 #library(kableExtra)
@@ -228,15 +232,35 @@ ggplot(bee_sp, aes(x = reorder(Specie, -Individual), y =  Individual)) +
 ```{r}
 pareto.bee_sp <- bee_sp$Individual
 names(pareto.bee_sp) <- bee_sp$Specie
-# pareto.chart(defect, ylab = "Error frequency")
-# pareto.chart(defect, ylab = "Error frequency", xlab = "Error causes", las=1)
-# pareto.chart(defect, ylab = "Error frequency", col=rainbow(length(defect)))
 pareto.chart(pareto.bee_sp, cumperc = seq(0, 100, by = 5), 
              ylab = "Abondance", ylab2 = "Pourcentage cumulative",
              main = "Espèce par rang d'abondance")
 ```
 
 
+```{r}
+# Remodeler le jeux de données pour le heatmap
+hm.bee_sp <- gather(data_bee_sp, key="sp", value="nbr", 2:79)
+
+hm.bee_sp$sp <- factor(hm.bee_sp$sp)
+
+hm.bee_sp <- hm.bee_sp %>%
+  # convert state to factor and reverse order of levels
+  mutate(sp=factor(sp, levels=rev(sort(unique(sp)))))
+
+hm.bee_sp <- select(hm.bee_sp, sp, Site, nbr)
+ggplot(hm.bee_sp, aes(x = Site, y = sp, fill = nbr)) +
+  labs(title = "Abondance des abeilles sauvages", x = 'Sites', y = 'Espèces') +
+  geom_tile(color = "black") +
+  coord_fixed() +
+  guides(fill = guide_colourbar(label = FALSE,
+                                ticks = FALSE)) +
+  theme(axis.text.x = element_text(angle = 90, vjust = 1, 
+                                   size = 8, hjust = 1)) +
+  guides(fill = guide_colourbar(title = "Abondance")) +
+  scale_fill_viridis(discrete=FALSE) 
+
+```
 
 
 
