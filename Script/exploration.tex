@@ -1,0 +1,1582 @@
+% Options for packages loaded elsewhere
+\PassOptionsToPackage{unicode}{hyperref}
+\PassOptionsToPackage{hyphens}{url}
+%
+\documentclass[
+]{article}
+\usepackage{amsmath,amssymb}
+\usepackage{lmodern}
+\usepackage{iftex}
+\ifPDFTeX
+  \usepackage[T1]{fontenc}
+  \usepackage[utf8]{inputenc}
+  \usepackage{textcomp} % provide euro and other symbols
+\else % if luatex or xetex
+  \usepackage{unicode-math}
+  \defaultfontfeatures{Scale=MatchLowercase}
+  \defaultfontfeatures[\rmfamily]{Ligatures=TeX,Scale=1}
+\fi
+% Use upquote if available, for straight quotes in verbatim environments
+\IfFileExists{upquote.sty}{\usepackage{upquote}}{}
+\IfFileExists{microtype.sty}{% use microtype if available
+  \usepackage[]{microtype}
+  \UseMicrotypeSet[protrusion]{basicmath} % disable protrusion for tt fonts
+}{}
+\makeatletter
+\@ifundefined{KOMAClassName}{% if non-KOMA class
+  \IfFileExists{parskip.sty}{%
+    \usepackage{parskip}
+  }{% else
+    \setlength{\parindent}{0pt}
+    \setlength{\parskip}{6pt plus 2pt minus 1pt}}
+}{% if KOMA class
+  \KOMAoptions{parskip=half}}
+\makeatother
+\usepackage{xcolor}
+\IfFileExists{xurl.sty}{\usepackage{xurl}}{} % add URL line breaks if available
+\IfFileExists{bookmark.sty}{\usepackage{bookmark}}{\usepackage{hyperref}}
+\hypersetup{
+  pdftitle={Exploration des données},
+  pdfauthor={Jordan},
+  hidelinks,
+  pdfcreator={LaTeX via pandoc}}
+\urlstyle{same} % disable monospaced font for URLs
+\usepackage[margin=1in]{geometry}
+\usepackage{color}
+\usepackage{fancyvrb}
+\newcommand{\VerbBar}{|}
+\newcommand{\VERB}{\Verb[commandchars=\\\{\}]}
+\DefineVerbatimEnvironment{Highlighting}{Verbatim}{commandchars=\\\{\}}
+% Add ',fontsize=\small' for more characters per line
+\usepackage{framed}
+\definecolor{shadecolor}{RGB}{248,248,248}
+\newenvironment{Shaded}{\begin{snugshade}}{\end{snugshade}}
+\newcommand{\AlertTok}[1]{\textcolor[rgb]{0.94,0.16,0.16}{#1}}
+\newcommand{\AnnotationTok}[1]{\textcolor[rgb]{0.56,0.35,0.01}{\textbf{\textit{#1}}}}
+\newcommand{\AttributeTok}[1]{\textcolor[rgb]{0.77,0.63,0.00}{#1}}
+\newcommand{\BaseNTok}[1]{\textcolor[rgb]{0.00,0.00,0.81}{#1}}
+\newcommand{\BuiltInTok}[1]{#1}
+\newcommand{\CharTok}[1]{\textcolor[rgb]{0.31,0.60,0.02}{#1}}
+\newcommand{\CommentTok}[1]{\textcolor[rgb]{0.56,0.35,0.01}{\textit{#1}}}
+\newcommand{\CommentVarTok}[1]{\textcolor[rgb]{0.56,0.35,0.01}{\textbf{\textit{#1}}}}
+\newcommand{\ConstantTok}[1]{\textcolor[rgb]{0.00,0.00,0.00}{#1}}
+\newcommand{\ControlFlowTok}[1]{\textcolor[rgb]{0.13,0.29,0.53}{\textbf{#1}}}
+\newcommand{\DataTypeTok}[1]{\textcolor[rgb]{0.13,0.29,0.53}{#1}}
+\newcommand{\DecValTok}[1]{\textcolor[rgb]{0.00,0.00,0.81}{#1}}
+\newcommand{\DocumentationTok}[1]{\textcolor[rgb]{0.56,0.35,0.01}{\textbf{\textit{#1}}}}
+\newcommand{\ErrorTok}[1]{\textcolor[rgb]{0.64,0.00,0.00}{\textbf{#1}}}
+\newcommand{\ExtensionTok}[1]{#1}
+\newcommand{\FloatTok}[1]{\textcolor[rgb]{0.00,0.00,0.81}{#1}}
+\newcommand{\FunctionTok}[1]{\textcolor[rgb]{0.00,0.00,0.00}{#1}}
+\newcommand{\ImportTok}[1]{#1}
+\newcommand{\InformationTok}[1]{\textcolor[rgb]{0.56,0.35,0.01}{\textbf{\textit{#1}}}}
+\newcommand{\KeywordTok}[1]{\textcolor[rgb]{0.13,0.29,0.53}{\textbf{#1}}}
+\newcommand{\NormalTok}[1]{#1}
+\newcommand{\OperatorTok}[1]{\textcolor[rgb]{0.81,0.36,0.00}{\textbf{#1}}}
+\newcommand{\OtherTok}[1]{\textcolor[rgb]{0.56,0.35,0.01}{#1}}
+\newcommand{\PreprocessorTok}[1]{\textcolor[rgb]{0.56,0.35,0.01}{\textit{#1}}}
+\newcommand{\RegionMarkerTok}[1]{#1}
+\newcommand{\SpecialCharTok}[1]{\textcolor[rgb]{0.00,0.00,0.00}{#1}}
+\newcommand{\SpecialStringTok}[1]{\textcolor[rgb]{0.31,0.60,0.02}{#1}}
+\newcommand{\StringTok}[1]{\textcolor[rgb]{0.31,0.60,0.02}{#1}}
+\newcommand{\VariableTok}[1]{\textcolor[rgb]{0.00,0.00,0.00}{#1}}
+\newcommand{\VerbatimStringTok}[1]{\textcolor[rgb]{0.31,0.60,0.02}{#1}}
+\newcommand{\WarningTok}[1]{\textcolor[rgb]{0.56,0.35,0.01}{\textbf{\textit{#1}}}}
+\usepackage{graphicx}
+\makeatletter
+\def\maxwidth{\ifdim\Gin@nat@width>\linewidth\linewidth\else\Gin@nat@width\fi}
+\def\maxheight{\ifdim\Gin@nat@height>\textheight\textheight\else\Gin@nat@height\fi}
+\makeatother
+% Scale images if necessary, so that they will not overflow the page
+% margins by default, and it is still possible to overwrite the defaults
+% using explicit options in \includegraphics[width, height, ...]{}
+\setkeys{Gin}{width=\maxwidth,height=\maxheight,keepaspectratio}
+% Set default figure placement to htbp
+\makeatletter
+\def\fps@figure{htbp}
+\makeatother
+\setlength{\emergencystretch}{3em} % prevent overfull lines
+\providecommand{\tightlist}{%
+  \setlength{\itemsep}{0pt}\setlength{\parskip}{0pt}}
+\setcounter{secnumdepth}{-\maxdimen} % remove section numbering
+\ifLuaTeX
+  \usepackage{selnolig}  % disable illegal ligatures
+\fi
+
+\title{Exploration des données}
+\author{Jordan}
+\date{28/06/2022}
+
+\begin{document}
+\maketitle
+
+Note : \textless- Alt + ``-'' \#\# Chargement des paquets
+
+\hypertarget{importation-des-donnuxe9es}{%
+\subsection{Importation des données}\label{importation-des-donnuxe9es}}
+
+\begin{Shaded}
+\begin{Highlighting}[]
+\FunctionTok{sum}\NormalTok{(bee\_sp}\SpecialCharTok{$}\NormalTok{Individual) }\CommentTok{\# Abeille total }
+\end{Highlighting}
+\end{Shaded}
+
+\begin{verbatim}
+## [1] 1361
+\end{verbatim}
+
+\hypertarget{fusion-des-donnuxe9es}{%
+\subsection{Fusion des données}\label{fusion-des-donnuxe9es}}
+
+\begin{Shaded}
+\begin{Highlighting}[]
+\CommentTok{\# Merge soil analysis (soil) and site with bees sp}
+\NormalTok{data\_bee\_sp }\OtherTok{\textless{}{-}}\NormalTok{ data\_bee\_sp[}\SpecialCharTok{{-}}\DecValTok{3}\NormalTok{,] }\CommentTok{\# Retirer Condorcet où il n\textquotesingle{}y a pas d\textquotesingle{}analyses}
+\NormalTok{soil\_data\_bee\_sp }\OtherTok{\textless{}{-}}\NormalTok{ dplyr}\SpecialCharTok{::}\FunctionTok{full\_join}\NormalTok{(data\_bee\_sp, soil, }\AttributeTok{by =} \StringTok{"Site"}\NormalTok{)}
+
+\CommentTok{\# Merge soil analysis (soil) and site with bees genus}
+\NormalTok{data\_bee\_genus }\OtherTok{\textless{}{-}}\NormalTok{ data\_bee\_genus[}\SpecialCharTok{{-}}\DecValTok{3}\NormalTok{,] }\CommentTok{\# Retirer Condorcet où il n\textquotesingle{}y a pas d\textquotesingle{}analyses}
+\NormalTok{soil\_data\_bee\_genus }\OtherTok{\textless{}{-}}\NormalTok{ dplyr}\SpecialCharTok{::}\FunctionTok{full\_join}\NormalTok{(data\_bee\_genus, soil, }\AttributeTok{by =} \StringTok{"Site"}\NormalTok{)}
+
+\CommentTok{\# Merge soil analysis (soil) and site with plants}
+\NormalTok{data\_pla\_sp }\OtherTok{\textless{}{-}}\NormalTok{ data\_pla\_sp[}\SpecialCharTok{{-}}\DecValTok{3}\NormalTok{,] }\CommentTok{\# Retirer Condorcet où il n\textquotesingle{}y a pas d\textquotesingle{}analyses}
+\NormalTok{soil\_data\_pla\_sp }\OtherTok{\textless{}{-}}\NormalTok{ dplyr}\SpecialCharTok{::}\FunctionTok{full\_join}\NormalTok{(data\_pla\_sp, soil, }\AttributeTok{by =} \StringTok{"Site"}\NormalTok{)}
+\end{Highlighting}
+\end{Shaded}
+
+\hypertarget{exploration-des-donnuxe9es}{%
+\subsection{Exploration des données}\label{exploration-des-donnuxe9es}}
+
+\begin{Shaded}
+\begin{Highlighting}[]
+\NormalTok{fam}
+\end{Highlighting}
+\end{Shaded}
+
+\begin{verbatim}
+## # A tibble: 6 x 2
+##   Familly      Individual
+##   <chr>             <dbl>
+## 1 APIDAE              631
+## 2 MEGACHILIDAE        255
+## 3 ANDRENIDAE          245
+## 4 HALICTIDAE          189
+## 5 MELITTIDAE           36
+## 6 COLLETIDAE            5
+\end{verbatim}
+
+\begin{Shaded}
+\begin{Highlighting}[]
+\NormalTok{genus}
+\end{Highlighting}
+\end{Shaded}
+
+\begin{verbatim}
+## # A tibble: 19 x 2
+##    Genus        Individual
+##    <chr>             <dbl>
+##  1 Bombus              496
+##  2 Andrena             245
+##  3 Osmia               184
+##  4 Lasioglossum        158
+##  5 Nomada               76
+##  6 Anthophora           45
+##  7 Anthidium            42
+##  8 Dasypoda             36
+##  9 Sphecodes            16
+## 10 Halictus             15
+## 11 Xylocopa             12
+## 12 Hoplitis              7
+## 13 Heriades              7
+## 14 Chelostoma            6
+## 15 Colletes              5
+## 16 Megachile             5
+## 17 Chalicodoma           3
+## 18 Apis                  2
+## 19 Stelis                1
+\end{verbatim}
+
+\begin{Shaded}
+\begin{Highlighting}[]
+\NormalTok{bee\_sp}
+\end{Highlighting}
+\end{Shaded}
+
+\begin{verbatim}
+## # A tibble: 78 x 2
+##    Specie                 Individual
+##    <chr>                       <dbl>
+##  1 Bombus pascuorum              258
+##  2 Osmia bicornis                132
+##  3 Bombus (Bombus)  sp.           96
+##  4 Andrena flavipes               64
+##  5 Lasioglossum pauxillum         53
+##  6 Bombus terrestris              46
+##  7 Lasioglossum morio             45
+##  8 Andrena gravida                43
+##  9 Anthidium manicatum            42
+## 10 Anthophora plumipes            39
+## # ... with 68 more rows
+\end{verbatim}
+
+\begin{Shaded}
+\begin{Highlighting}[]
+\NormalTok{data\_bee\_sp}
+\end{Highlighting}
+\end{Shaded}
+
+\begin{verbatim}
+## # A tibble: 15 x 79
+##    Site      `Andrena bicol~` `Andrena caran~` `Andrena chrys~` `Andrena ciner~`
+##    <chr>                <dbl>            <dbl>            <dbl>            <dbl>
+##  1 Abbaye S~                0                0                0                0
+##  2 Chasse C~                0                0                0                0
+##  3 Ecole de~                0                0                0                0
+##  4 Fond du ~                1                0                0                0
+##  5 Jardin S~                0                5                0                0
+##  6 Jean d'A~                1                0                0                1
+##  7 Les Gour~                0                0                0                0
+##  8 Mel Legu~                0                0                0                0
+##  9 Parc Bon~                0                0                0                0
+## 10 Parc du ~                0                0                0                1
+## 11 Parc du ~                0                1                0                0
+## 12 Rue de l~                0                0                0                0
+## 13 Siege so~                1                0                8                1
+## 14 Stievena~                0                0                0                0
+## 15 Village ~                0                0                0                0
+## # ... with 74 more variables: `Andrena dorsata` <dbl>,
+## #   `Andrena flavipes` <dbl>, `Andrena fulva` <dbl>, `Andrena gravida` <dbl>,
+## #   `Andrena haemorrhoa` <dbl>, `Andrena humilis` <dbl>,
+## #   `Andrena labiata` <dbl>, `Andrena minutula` <dbl>,
+## #   `Andrena minutuloides` <dbl>, `Andrena nigroaenea` <dbl>,
+## #   `Andrena nitida` <dbl>, `Andrena propinqua` <dbl>,
+## #   `Andrena strohmella` <dbl>, `Andrena subopaca` <dbl>, ...
+\end{verbatim}
+
+\begin{Shaded}
+\begin{Highlighting}[]
+\NormalTok{data\_pla\_sp}
+\end{Highlighting}
+\end{Shaded}
+
+\begin{verbatim}
+## # A tibble: 15 x 84
+##    Site        `Total plant ` `Aegopodium po~` `Aesculus hipp~` `Alliaria peti~`
+##    <chr>                <dbl>            <dbl>            <dbl>            <dbl>
+##  1 Abbaye St-~             52                0                0                0
+##  2 Chasse Cam~             20                0                0                0
+##  3 Ecole de l~             59                0                0                0
+##  4 Fond du pe~             50                0                0                2
+##  5 Jardin Sus~             63                0                0                0
+##  6 Jean d'Ave~             26                5                4                0
+##  7 Les Gourma~             39                0                0                0
+##  8 Mel Legumes             34                0                0                0
+##  9 Parc Bonae~             16                0                0                0
+## 10 Parc du Be~             55                0                2                0
+## 11 Parc du bo~             28                0                0                0
+## 12 Rue de l'E~             50                0                0                0
+## 13 Siege soci~             52                0                0                0
+## 14 Stievenart              84                0                0                0
+## 15 Village de~            140                0                0                0
+## # ... with 79 more variables: `Allium schoenoprasum` <dbl>,
+## #   `Angelica archangelica` <dbl>, `Asparagus officinalis` <dbl>,
+## #   `Ballota nigra` <dbl>, `Barbarea vulgaris` <dbl>, `Bellis perennis` <dbl>,
+## #   `Borago officinalis` <dbl>, `Brassica  sp_` <dbl>,
+## #   `Brassica oleracea` <dbl>, `Carduus  sp_` <dbl>,
+## #   `Carduus acanthoides` <dbl>, `Centaurea  sp_` <dbl>,
+## #   `Centaurea montana` <dbl>, `Chelidonium  sp_` <dbl>, ...
+\end{verbatim}
+
+\begin{Shaded}
+\begin{Highlighting}[]
+\NormalTok{soil}
+\end{Highlighting}
+\end{Shaded}
+
+\begin{verbatim}
+## # A tibble: 15 x 12
+##    Site          As    Cd    Cr     Cu    Hg    Ni    Pb    Zn   NH4   NO3     N
+##    <chr>      <dbl> <dbl> <dbl>  <dbl> <dbl> <dbl> <dbl> <dbl> <dbl> <dbl> <dbl>
+##  1 Abbaye St~  6.27  0.46  36.2  29.5  0.12  13.7   89.6 115     5.3  10.9  16.2
+##  2 Rue de l'~  6.33  0.64  39.6  20.7  0.08  16.5   34.1  93.2   0    13.3  13.3
+##  3 Chasse Ca~  6.97  0.4   28    24.8  0.21   6.69 135   123     2.9  29.5  32.4
+##  4 Mel Legum~  7.91  0.72  66.7  25    0.335 15.8   72.1  80.1   1    11    12  
+##  5 Les Gourm~  3.18  0.38  24.1  15.4  0.276  4.79  58.7  56.1   2.7  35.2  37.9
+##  6 Jean d'Av~  8.14  0.57  34.2  96.2  1.55  19.3  412   143     5.3  33.3  38.6
+##  7 Parc du b~  6.06  0.16  26.2   8.56 0.07   7.2   27.2  40.6   1.9   7.9   9.8
+##  8 Jardin Su~  7.87  0.68  41.4  29.4  0.174 20     62.8  93.8   4.2  30.1  34.3
+##  9 Ecole de ~  6.44  0.39  32.6  31.3  0.13  16.2   89.6 119     4.7  21.4  26.1
+## 10 Fond du p~ 11.2   0.92  42.3  33.8  0.331 25.6   84.9 144     2.4  59.9  62.3
+## 11 Village d~ 11.4   0.68  49.9 103    0.37  24.6  491   460     3.4  27.4  30.8
+## 12 Siege soc~  8.38  0.67  45.8  25.7  0.278 23.1   93.5 117     2.7  19.9  22.6
+## 13 Parc du B~  5.8   0.47  40.7  43.6  0.518 13.6  128   102     9.7  19.1  28.8
+## 14 Stievenart  7.46  0.46  38.6  18.7  0.12  20.6   39.7  65.2   0    14.6  14.6
+## 15 Parc Bona~  4.53  0.44  25.3   9.91 0.082  7.99  50.4  64.7   4.6  30.1  34.7
+\end{verbatim}
+
+\hypertarget{analyse-des-donnuxe9es}{%
+\subsection{Analyse des données}\label{analyse-des-donnuxe9es}}
+
+\begin{Shaded}
+\begin{Highlighting}[]
+\CommentTok{\# Site abeilles vs sol}
+\NormalTok{soil\_data\_bee\_sp }\OtherTok{\textless{}{-}}\NormalTok{ soil\_data\_bee\_sp[,}\SpecialCharTok{{-}}\DecValTok{1}\NormalTok{] }\CommentTok{\# Retirer le nom des sites}
+\NormalTok{res.pca\_bee }\OtherTok{\textless{}{-}} \FunctionTok{rda}\NormalTok{(soil\_data\_bee\_sp, }\AttributeTok{scale =} \ConstantTok{TRUE}\NormalTok{)}
+\FunctionTok{summary}\NormalTok{(res.pca\_bee)}
+\end{Highlighting}
+\end{Shaded}
+
+\begin{verbatim}
+## 
+## Call:
+## rda(X = soil_data_bee_sp, scale = TRUE) 
+## 
+## Partitioning of correlations:
+##               Inertia Proportion
+## Total              80          1
+## Unconstrained      80          1
+## 
+## Eigenvalues, and their contribution to the correlations 
+## 
+## Importance of components:
+##                           PC1    PC2    PC3     PC4     PC5     PC6     PC7
+## Eigenvalue            11.3756 9.3921 8.6037 7.36200 6.53290 6.15072 5.57947
+## Proportion Explained   0.1422 0.1174 0.1075 0.09202 0.08166 0.07688 0.06974
+## Cumulative Proportion  0.1422 0.2596 0.3671 0.45917 0.54083 0.61771 0.68745
+##                           PC8     PC9    PC10    PC11    PC12    PC13    PC14
+## Eigenvalue            5.25065 4.43365 4.20431 4.03317 3.28990 2.43470 1.35723
+## Proportion Explained  0.06563 0.05542 0.05255 0.05041 0.04112 0.03043 0.01697
+## Cumulative Proportion 0.75309 0.80851 0.86106 0.91148 0.95260 0.98303 1.00000
+## 
+## Scaling 2 for species and site scores
+## * Species are scaled proportional to eigenvalues
+## * Sites are unscaled: weighted dispersion equal on all dimensions
+## * General scaling constant of scores:  5.785015 
+## 
+## 
+## Species scores
+## 
+##                                 PC1       PC2       PC3       PC4       PC5
+## Andrena bicolor            0.327547  0.040761 -0.106945 -0.199166  0.305724
+## Andrena carantonica       -0.011359 -0.152133  0.252953 -0.444037 -0.111939
+## Andrena chrysosceles       0.251657 -0.391985 -0.165770 -0.081148  0.093461
+## Andrena cineraria          0.311719 -0.069923 -0.426177 -0.091640  0.254505
+## Andrena dorsata            0.341154 -0.269891 -0.324016  0.045242  0.015702
+## Andrena flavipes          -0.155524 -0.056479  0.018699  0.110722  0.340882
+## Andrena fulva             -0.097992  0.099673 -0.228695 -0.070225 -0.150812
+## Andrena gravida            0.163286 -0.369982  0.078140  0.172006 -0.054655
+## Andrena haemorrhoa         0.515422  0.126467 -0.136647 -0.107203 -0.021139
+## Andrena humilis            0.283084 -0.104774  0.256442  0.345248 -0.202175
+## Andrena labiata           -0.100187 -0.161302  0.221206  0.212091  0.132375
+## Andrena minutula           0.511980 -0.014475  0.080793  0.066880 -0.102664
+## Andrena minutuloides      -0.045757 -0.259931  0.157234  0.213209 -0.031078
+## Andrena nigroaenea        -0.142929  0.018698 -0.127156  0.172112 -0.171421
+## Andrena nitida             0.232946 -0.317112  0.031621 -0.297245  0.189569
+## Andrena propinqua         -0.080870  0.239563 -0.066013 -0.080531 -0.264162
+## Andrena strohmella         0.291900 -0.468181 -0.020079 -0.032171  0.063618
+## Andrena subopaca          -0.158291  0.053171  0.067732  0.029378  0.181784
+## Andrena tibialis          -0.119314  0.039493 -0.049094 -0.041994 -0.158688
+## Andrena vaga               0.237540  0.058583 -0.252418  0.278880 -0.228738
+## Andrena ventralis          0.082322 -0.306721 -0.164246 -0.128728 -0.046613
+## Andrena wilkella          -0.096260  0.034929  0.110165  0.062640  0.244590
+## Anthidium manicatum        0.125767  0.365395 -0.311596 -0.068009  0.221095
+## Anthophora plumipes        0.442606  0.122873  0.139083  0.204877 -0.237178
+## Anthophora quadrimaculata  0.000000  0.000000  0.000000  0.000000  0.000000
+## Apis mellifera             0.000000  0.000000  0.000000  0.000000  0.000000
+## Bombus (Bombus)  sp_      -0.285090  0.274062  0.049515  0.159853 -0.031795
+## Bombus hortorum           -0.335905 -0.041423 -0.022740  0.189048 -0.137781
+## Bombus hypnorum            0.197930  0.162387  0.332611 -0.391078 -0.008515
+## Bombus lapidarius         -0.314920 -0.010764 -0.025147  0.098374 -0.032417
+## Bombus lucorum             0.124259  0.274623  0.027732  0.044317 -0.355909
+## Bombus pascuorum          -0.154466  0.069449  0.106561  0.324439  0.087963
+## Bombus pratorum           -0.100393 -0.049675  0.264580  0.040310  0.048054
+## Bombus sylvestris          0.032108 -0.144588  0.254905 -0.456274 -0.109551
+## Bombus terrestris          0.127402  0.388139  0.097118  0.075283  0.234114
+## Bombus vestalis           -0.010016 -0.296836  0.302428 -0.178361 -0.103194
+## Chalicodoma ericetorum     0.000000  0.000000  0.000000  0.000000  0.000000
+## Chelostoma florisomne      0.077778  0.304998 -0.102579  0.002256  0.165693
+## Colletes cunicularius     -0.158291  0.053171  0.067732  0.029378  0.181784
+## Colletes daviesanus        0.000000  0.000000  0.000000  0.000000  0.000000
+## Dasypoda hirtipes         -0.021802 -0.026709 -0.393667  0.083635  0.173321
+## Halictus scabiosae        -0.208146 -0.038747  0.193533  0.209000  0.287675
+## Heriades truncorum         0.000000  0.000000  0.000000  0.000000  0.000000
+## Hoplitis adunca            0.000000  0.000000  0.000000  0.000000  0.000000
+## Lasioglossum calceatum     0.191311 -0.361452  0.356643  0.253587 -0.042766
+## Lasioglossum laticeps      0.310644 -0.400442 -0.271504 -0.089513  0.080019
+## Lasioglossum leucozonium  -0.096790 -0.085790  0.269082  0.057187  0.218935
+## Lasioglossum morio         0.147521 -0.027598 -0.399032  0.094494 -0.121154
+## Lasioglossum nitidulum     0.125366 -0.258917 -0.475674  0.067829 -0.018020
+## Lasioglossum pauxillum     0.214116 -0.110233  0.123963  0.381964  0.255473
+## Lasioglossum villosulum   -0.064053  0.001106  0.242237 -0.357610 -0.046288
+## Lasioglossum zonulum      -0.175462  0.012037 -0.139811  0.146592 -0.207901
+## Megachile centuncularis    0.000000  0.000000  0.000000  0.000000  0.000000
+## Megachile willughbiella    0.155902  0.321763 -0.047783 -0.083608  0.265590
+## Nomada bifasciata          0.065072 -0.536727 -0.025501  0.026322  0.085770
+## Nomada flava               0.007819 -0.172322  0.287695 -0.438420 -0.095386
+## Nomada flavoguttata        0.113903  0.146825  0.230975 -0.152711  0.182693
+## Nomada fucata             -0.151513  0.195459  0.178227  0.063125  0.499657
+## Nomada goodeniana          0.216738 -0.484037 -0.194785 -0.213447  0.071614
+## Nomada lathburiana         0.154089  0.068743 -0.313913 -0.100395  0.132276
+## Nomada marshamella         0.032108 -0.144588  0.254905 -0.456274 -0.109551
+## Nomada panzeri             0.076303  0.286398  0.106788 -0.214406  0.143584
+## Nomada signata            -0.047896 -0.229701 -0.031826 -0.321267 -0.204457
+## Nomada succincta           0.092304 -0.041904 -0.469850  0.017805  0.049065
+## Nomada zonata              0.000000  0.000000  0.000000  0.000000  0.000000
+## Osmia bicolor             -0.080642 -0.053878  0.161948  0.191491  0.185764
+## Osmia bicornis             0.434774  0.116633  0.230560  0.189179 -0.243136
+## Osmia caerulescens         0.417231  0.156764  0.180877  0.243381 -0.287897
+## Osmia cornuta              0.471397  0.017623  0.225700  0.230310 -0.245545
+## Osmia leaiana             -0.217657 -0.042059 -0.002555  0.048534 -0.015127
+## Sphecodes albilabris      -0.158291  0.053171  0.067732  0.029378  0.181784
+## Sphecodes crassus          0.092304 -0.041904 -0.469850  0.017805  0.049065
+## Sphecodes ephippius       -0.013912 -0.274577 -0.021302  0.132801  0.238187
+## Sphecodes miniatus        -0.080870  0.239563 -0.066013 -0.080531 -0.264162
+## Sphecodes monilicornis    -0.152904  0.020197  0.074736  0.014278  0.152998
+## Sphecodes pellucidus      -0.080870  0.239563 -0.066013 -0.080531 -0.264162
+## Stelis punctulatissima     0.000000  0.000000  0.000000  0.000000  0.000000
+## Xylocopa violacea          0.051253  0.432497  0.067749 -0.119277  0.342059
+## As                         0.460734 -0.025584  0.253770  0.053035  0.141795
+## Cd                         0.369698 -0.008739  0.180219 -0.130598  0.186253
+## Cr                         0.285501 -0.178787  0.178090  0.181579  0.214140
+## Cu                         0.497989  0.295292  0.042677  0.111772  0.063254
+## Hg                         0.292056  0.325405 -0.133807 -0.065314  0.254180
+## Ni                         0.467578 -0.137136  0.215524  0.007862  0.243693
+## Pb                         0.480514  0.300986  0.044903  0.141722 -0.021949
+## Zn                         0.498024  0.158545  0.153400  0.206747 -0.145983
+## NH4                        0.144964  0.118891 -0.423648 -0.124859 -0.035613
+## NO3                        0.238109  0.288813  0.039000 -0.344444 -0.037868
+## N                          0.255425  0.299680 -0.037803 -0.354390 -0.042858
+##                                  PC6
+## Andrena bicolor            0.1137592
+## Andrena carantonica       -0.2091465
+## Andrena chrysosceles       0.2859648
+## Andrena cineraria          0.0475953
+## Andrena dorsata            0.1789992
+## Andrena flavipes           0.1894449
+## Andrena fulva             -0.2555114
+## Andrena gravida            0.1165732
+## Andrena haemorrhoa        -0.0010153
+## Andrena humilis            0.0124710
+## Andrena labiata           -0.1196331
+## Andrena minutula           0.2689573
+## Andrena minutuloides       0.0319525
+## Andrena nigroaenea        -0.2775907
+## Andrena nitida             0.1196348
+## Andrena propinqua          0.3532680
+## Andrena strohmella         0.2592264
+## Andrena subopaca           0.1832986
+## Andrena tibialis          -0.0105959
+## Andrena vaga              -0.3154071
+## Andrena ventralis          0.2276764
+## Andrena wilkella           0.0425265
+## Anthidium manicatum       -0.0293233
+## Anthophora plumipes        0.1247893
+## Anthophora quadrimaculata  0.0000000
+## Apis mellifera             0.0000000
+## Bombus (Bombus)  sp_       0.1048608
+## Bombus hortorum           -0.2651374
+## Bombus hypnorum           -0.1082819
+## Bombus lapidarius          0.1294779
+## Bombus lucorum             0.3185177
+## Bombus pascuorum          -0.1694421
+## Bombus pratorum           -0.4170820
+## Bombus sylvestris         -0.2213441
+## Bombus terrestris          0.2386054
+## Bombus vestalis           -0.1389754
+## Chalicodoma ericetorum     0.0000000
+## Chelostoma florisomne     -0.1245458
+## Colletes cunicularius      0.1832986
+## Colletes daviesanus        0.0000000
+## Dasypoda hirtipes         -0.1634768
+## Halictus scabiosae        -0.0601972
+## Heriades truncorum         0.0000000
+## Hoplitis adunca            0.0000000
+## Lasioglossum calceatum    -0.0387689
+## Lasioglossum laticeps      0.1989266
+## Lasioglossum leucozonium  -0.1846998
+## Lasioglossum morio        -0.2843664
+## Lasioglossum nitidulum    -0.1277491
+## Lasioglossum pauxillum    -0.0112876
+## Lasioglossum villosulum   -0.0101941
+## Lasioglossum zonulum      -0.2679493
+## Megachile centuncularis    0.0000000
+## Megachile willughbiella    0.0035858
+## Nomada bifasciata          0.2209999
+## Nomada flava              -0.2247021
+## Nomada flavoguttata       -0.0419019
+## Nomada fucata              0.0341951
+## Nomada goodeniana          0.0131315
+## Nomada lathburiana        -0.2350788
+## Nomada marshamella        -0.2213441
+## Nomada panzeri             0.0016778
+## Nomada signata             0.0429359
+## Nomada succincta          -0.2132284
+## Nomada zonata              0.0000000
+## Osmia bicolor             -0.1350848
+## Osmia bicornis            -0.0354504
+## Osmia caerulescens         0.0438337
+## Osmia cornuta             -0.0005017
+## Osmia leaiana              0.0550294
+## Sphecodes albilabris       0.1832986
+## Sphecodes crassus         -0.2132284
+## Sphecodes ephippius        0.0589176
+## Sphecodes miniatus         0.3532680
+## Sphecodes monilicornis     0.0503669
+## Sphecodes pellucidus       0.3532680
+## Stelis punctulatissima     0.0000000
+## Xylocopa violacea          0.1191804
+## As                        -0.1867009
+## Cd                        -0.1287822
+## Cr                        -0.2059463
+## Cu                        -0.1218912
+## Hg                        -0.0410856
+## Ni                        -0.1200771
+## Pb                        -0.0577514
+## Zn                        -0.0707114
+## NH4                       -0.2931624
+## NO3                        0.0163334
+## N                         -0.0364345
+## 
+## 
+## Site scores (weighted sums of species scores)
+## 
+##           PC1     PC2      PC3     PC4     PC5      PC6
+## sit1  -1.2350  0.1616 -1.09875  1.4872 -1.4812 -2.39866
+## sit2  -1.0310  0.3413 -0.42422 -0.3629 -1.3712 -0.09156
+## sit3  -0.8318  0.3018  0.95193  0.5413  2.1135  0.36747
+## sit4   1.0169  1.1716  0.36343 -1.3361  1.1337 -0.92571
+## sit5   0.2774 -1.2494  2.20263 -3.9427 -0.9466 -1.91263
+## sit6   1.3471  2.7804 -0.41290 -0.7225  2.2950  0.03099
+## sit7  -0.6988  2.0701 -0.57042 -0.6959 -2.2826  3.05258
+## sit8  -0.6968 -0.4656  1.39939  1.6547  1.6052 -1.16727
+## sit9  -1.2052 -0.2247 -0.50169 -0.8147 -1.3565  0.21003
+## sit10  0.7976 -0.3621 -4.05997  0.1538  0.4240 -1.84250
+## sit11 -1.8808 -0.3634 -0.02207  0.4194 -0.1307  0.47551
+## sit12 -1.3678  0.4595  0.58528  0.2539  1.5708  1.58388
+## sit13  2.1746 -3.3871 -1.43241 -0.7012  0.8076  2.47102
+## sit14 -0.3954 -2.2461  1.35866  1.8423 -0.2685  0.27610
+## sit15  3.7289  1.0123  1.66112  2.2232 -2.1122 -0.12925
+\end{verbatim}
+
+\begin{Shaded}
+\begin{Highlighting}[]
+\FunctionTok{screeplot}\NormalTok{(res.pca\_bee, }\AttributeTok{bstick =} \ConstantTok{TRUE}\NormalTok{)}
+\end{Highlighting}
+\end{Shaded}
+
+\includegraphics{exploration_files/figure-latex/Analyses des donnees-1.pdf}
+
+\begin{Shaded}
+\begin{Highlighting}[]
+\CommentTok{\# Site abeilles genre vs sol}
+\NormalTok{soil\_data\_bee\_genus }\OtherTok{\textless{}{-}}\NormalTok{ soil\_data\_bee\_genus[,}\SpecialCharTok{{-}}\DecValTok{1}\NormalTok{] }\CommentTok{\# Retirer le nom des sites}
+\NormalTok{res.pca\_bee\_genus }\OtherTok{\textless{}{-}} \FunctionTok{rda}\NormalTok{(soil\_data\_bee\_genus, }\AttributeTok{scale =} \ConstantTok{TRUE}\NormalTok{)}
+\FunctionTok{summary}\NormalTok{(res.pca\_bee\_genus)}
+\end{Highlighting}
+\end{Shaded}
+
+\begin{verbatim}
+## 
+## Call:
+## rda(X = soil_data_bee_genus, scale = TRUE) 
+## 
+## Partitioning of correlations:
+##               Inertia Proportion
+## Total              25          1
+## Unconstrained      25          1
+## 
+## Eigenvalues, and their contribution to the correlations 
+## 
+## Importance of components:
+##                          PC1    PC2    PC3    PC4     PC5     PC6    PC7
+## Eigenvalue            6.6076 4.4744 2.8237 2.6097 2.35550 1.79697 1.4425
+## Proportion Explained  0.2643 0.1790 0.1129 0.1044 0.09422 0.07188 0.0577
+## Cumulative Proportion 0.2643 0.4433 0.5562 0.6606 0.75483 0.82671 0.8844
+##                           PC8     PC9    PC10    PC11    PC12     PC13     PC14
+## Eigenvalue            1.00463 0.67274 0.45788 0.30617 0.26337 0.122643 0.062186
+## Proportion Explained  0.04019 0.02691 0.01832 0.01225 0.01053 0.004906 0.002487
+## Cumulative Proportion 0.92460 0.95151 0.96983 0.98207 0.99261 0.997513 1.000000
+## 
+## Scaling 2 for species and site scores
+## * Species are scaled proportional to eigenvalues
+## * Sites are unscaled: weighted dispersion equal on all dimensions
+## * General scaling constant of scores:  4.325308 
+## 
+## 
+## Species scores
+## 
+##            PC1        PC2        PC3        PC4        PC5        PC6
+## And  1.071e-01 -5.365e-01 -2.037e-01  2.717e-01  1.826e-01 -4.146e-02
+## Ani  2.425e-01  5.709e-01 -4.032e-01  2.434e-01 -3.567e-02  2.882e-01
+## Ano  5.193e-01 -3.684e-01  3.893e-02 -1.490e-01 -3.502e-01  3.436e-01
+## Api  1.054e-17 -7.915e-17 -1.321e-17 -1.157e-16  4.566e-17  5.024e-17
+## Bom -6.239e-02  2.496e-01  2.190e-01 -3.630e-01  4.059e-01  3.122e-01
+## Cha  1.598e-16 -8.703e-17  1.373e-17 -8.379e-17 -8.864e-17  1.538e-17
+## Che  3.653e-01  5.952e-01 -2.946e-02 -2.213e-01  2.853e-01 -2.691e-01
+## Col -1.681e-01 -1.170e-01  1.206e-01  2.439e-02  2.229e-01  8.703e-02
+## Das -1.615e-01  1.034e-01 -6.809e-01  2.025e-01 -1.649e-02  2.293e-01
+## Hal -2.286e-01 -6.069e-02 -1.049e-01 -2.613e-01  3.656e-01  4.189e-01
+## Her  1.926e-16 -9.393e-17 -3.060e-17 -1.120e-16 -1.359e-16  4.888e-17
+## Hop -5.746e-17  4.918e-17  1.372e-17  2.687e-17  3.131e-17 -3.643e-18
+## Las  1.206e-01 -2.822e-01 -6.680e-01  4.874e-02  1.467e-01 -3.366e-02
+## Meg  4.372e-01  6.081e-01 -5.388e-03 -8.568e-02  2.848e-01 -2.009e-01
+## Nom -1.261e-02 -2.725e-01 -1.474e-01  5.589e-01  1.722e-01 -3.657e-01
+## Osm  5.705e-01 -3.655e-01 -4.424e-02 -3.218e-01 -3.458e-01  1.036e-01
+## Sph -3.536e-01  4.314e-02 -2.392e-01  2.941e-01  1.469e-03  5.363e-01
+## Ste  0.000e+00  0.000e+00  0.000e+00  0.000e+00  0.000e+00  0.000e+00
+## Xyl  3.080e-01  4.644e-01  2.786e-01  2.613e-01  2.803e-01  4.350e-01
+## As   6.677e-01 -3.729e-01  1.264e-01  5.623e-02  1.731e-01 -5.636e-03
+## Cd   5.287e-01 -3.339e-01  2.057e-01  3.439e-01  3.075e-01  1.691e-02
+## Cr   3.348e-01 -4.880e-01 -1.551e-01 -6.524e-02  4.696e-01  8.597e-02
+## Cu   7.944e-01  1.328e-01 -1.988e-01 -1.924e-01 -1.861e-02  4.326e-03
+## Hg   5.634e-01  5.382e-01 -1.395e-01  6.070e-05  2.318e-01 -1.207e-01
+## Ni   5.944e-01 -3.869e-01 -3.486e-02  2.374e-01  3.475e-01 -1.301e-02
+## Pb   7.632e-01  1.250e-01 -1.360e-01 -2.917e-01 -1.331e-01 -1.998e-02
+## Zn   6.904e-01 -2.902e-01 -7.604e-02 -2.501e-01 -2.738e-01  1.237e-01
+## NH4  1.668e-01  3.715e-01 -5.760e-01  1.861e-01 -2.939e-01 -1.134e-01
+## NO3  4.306e-01  1.872e-01  4.188e-01  5.049e-01 -2.479e-01  1.177e-01
+## N    4.449e-01  2.467e-01  3.013e-01  5.200e-01 -2.914e-01  9.336e-02
+## 
+## 
+## Site scores (weighted sums of species scores)
+## 
+##            PC1     PC2      PC3     PC4      PC5     PC6
+## sit1  -0.39251  0.3674 -0.25688 -1.4929  0.24010 -0.8806
+## sit2  -0.50252  0.2875  1.04221 -0.4808 -1.17371 -0.8958
+## sit3  -0.54895  0.3539 -0.95416  0.3277  0.33387  2.2893
+## sit4   1.27939 -0.1228  1.94516  2.3024  0.15251  1.1838
+## sit5   0.06288 -0.6828  0.16218  1.3158  0.09598 -1.8822
+## sit6   2.11190  2.9374 -0.02603 -0.4139  1.37583 -0.9707
+## sit7  -0.70488  1.0927  0.72978  0.2099 -1.27143  1.3865
+## sit8  -0.24914 -0.8113  0.08499 -1.2549  2.22422  0.9176
+## sit9  -0.89411  0.4330  0.84433  0.1136 -1.60342 -0.7216
+## sit10 -0.15111  0.5863 -3.23754  1.3092 -0.71578  0.1871
+## sit11 -1.45406  0.3547 -0.01330 -1.1551 -0.50844 -0.1820
+## sit12 -0.81183 -0.5650  0.58239  0.1178  1.07669  0.4204
+## sit13  0.20441 -1.6555 -0.75952  1.0954  0.50216 -1.3858
+## sit14 -0.64818 -0.8572  0.22325 -0.2709  0.98736 -0.1860
+## sit15  2.69870 -1.7181 -0.36685 -1.7234 -1.71593  0.7200
+\end{verbatim}
+
+\begin{Shaded}
+\begin{Highlighting}[]
+\FunctionTok{screeplot}\NormalTok{(res.pca\_bee\_genus, }\AttributeTok{bstick =} \ConstantTok{TRUE}\NormalTok{)}
+\end{Highlighting}
+\end{Shaded}
+
+\includegraphics{exploration_files/figure-latex/Analyses des donnees-2.pdf}
+
+\begin{Shaded}
+\begin{Highlighting}[]
+\CommentTok{\# Site plante vs sol}
+\NormalTok{soil\_data\_pla\_sp }\OtherTok{\textless{}{-}}\NormalTok{ soil\_data\_pla\_sp[,}\SpecialCharTok{{-}}\DecValTok{1}\NormalTok{] }\CommentTok{\# Retirer le nom des sites}
+\NormalTok{res.pca\_pla }\OtherTok{\textless{}{-}} \FunctionTok{rda}\NormalTok{(soil\_data\_pla\_sp, }\AttributeTok{scale =} \ConstantTok{TRUE}\NormalTok{)}
+\FunctionTok{summary}\NormalTok{(res.pca\_pla)}
+\end{Highlighting}
+\end{Shaded}
+
+\begin{verbatim}
+## 
+## Call:
+## rda(X = soil_data_pla_sp, scale = TRUE) 
+## 
+## Partitioning of correlations:
+##               Inertia Proportion
+## Total              94          1
+## Unconstrained      94          1
+## 
+## Eigenvalues, and their contribution to the correlations 
+## 
+## Importance of components:
+##                           PC1     PC2     PC3    PC4     PC5     PC6     PC7
+## Eigenvalue            13.1539 11.5323 10.8543 9.6079 7.64314 7.43948 6.38907
+## Proportion Explained   0.1399  0.1227  0.1155 0.1022 0.08131 0.07914 0.06797
+## Cumulative Proportion  0.1399  0.2626  0.3781 0.4803 0.56161 0.64076 0.70873
+##                           PC8     PC9    PC10    PC11    PC12    PC13    PC14
+## Eigenvalue            6.06103 5.62977 4.46975 3.96780 3.07178 2.61392 1.56579
+## Proportion Explained  0.06448 0.05989 0.04755 0.04221 0.03268 0.02781 0.01666
+## Cumulative Proportion 0.77320 0.83310 0.88065 0.92286 0.95553 0.98334 1.00000
+## 
+## Scaling 2 for species and site scores
+## * Species are scaled proportional to eigenvalues
+## * Sites are unscaled: weighted dispersion equal on all dimensions
+## * General scaling constant of scores:  6.023015 
+## 
+## 
+## Species scores
+## 
+##                                PC1       PC2       PC3       PC4        PC5
+## Total plant               0.163352 -0.270679  0.190841  0.428331  0.0067748
+## Aegopodium podagraria     0.475492  0.315895  0.048110 -0.205521 -0.0299483
+## Aesculus hippocastanum    0.439636  0.349162  0.052684 -0.140018 -0.0156694
+## Alliaria petiolata        0.166541 -0.347745 -0.414713 -0.123029  0.1225362
+## Allium schoenoprasum     -0.236390  0.141918  0.020527  0.035217  0.0812057
+## Angelica archangelica    -0.077317 -0.041270 -0.035477 -0.010367 -0.0527541
+## Asparagus officinalis     0.166541 -0.347745 -0.414713 -0.123029  0.1225362
+## Ballota nigra             0.003572  0.126326  0.018169  0.107031  0.0258746
+## Barbarea vulgaris        -0.114606  0.077446 -0.188207  0.039218 -0.2486679
+## Bellis perennis           0.059926  0.028959  0.039819  0.027086  0.0872862
+## Borago officinalis        0.408781  0.276516 -0.108048 -0.207293 -0.1194981
+## Brassica  sp_            -0.087220 -0.067825  0.005637 -0.053304 -0.0554131
+## Brassica oleracea        -0.201931  0.071959 -0.062062  0.010551  0.1051140
+## Carduus  sp_             -0.087744 -0.237922  0.369932 -0.385578 -0.0230510
+## Carduus acanthoides       0.166541 -0.347745 -0.414713 -0.123029  0.1225362
+## Centaurea  sp_           -0.082888  0.042423 -0.165056  0.022244 -0.1784485
+## Centaurea montana        -0.138196  0.155461  0.054885  0.114681  0.5141278
+## Chelidonium  sp_          0.221133 -0.222468  0.224988  0.422334 -0.1401569
+## Chelidonium majus        -0.063545 -0.097415 -0.360030 -0.022566 -0.1893795
+## Cichorium endivia        -0.236390  0.141918  0.020527  0.035217  0.0812057
+## Colutea arborescens       0.166541 -0.347745 -0.414713 -0.123029  0.1225362
+## Corydalis solida         -0.077401  0.054605 -0.045100 -0.025439 -0.0310805
+## Cosmos bipinnatus        -0.296602  0.213978 -0.039983  0.027315 -0.0517692
+## Cotoneaster  sp_          0.475492  0.315895  0.048110 -0.205521 -0.0299483
+## Cucurbita maxima          0.005178 -0.145937 -0.411647 -0.041046 -0.1381302
+## Cynara scolymus          -0.087744 -0.237922  0.369932 -0.385578 -0.0230510
+## Cytisus scoparius         0.125669 -0.295279 -0.295178 -0.062423  0.1159250
+## Echium vulgare           -0.004687  0.139483  0.060000  0.217740  0.3916752
+## Erica  sp_                0.475492  0.315895  0.048110 -0.205521 -0.0299483
+## Erica vagans              0.475492  0.315895  0.048110 -0.205521 -0.0299483
+## Euonymus  sp_             0.004716 -0.054652  0.012453  0.037960  0.0354430
+## Euonymus japonicus        0.004716 -0.054652  0.012453  0.037960  0.0354430
+## Fuchsia magellanica       0.475492  0.315895  0.048110 -0.205521 -0.0299483
+## Geranium robertianum     -0.011930 -0.063118  0.044821  0.015012 -0.0004440
+## Glechoma hederacea        0.214057 -0.215800  0.217420  0.426746 -0.1570527
+## Hedera helix             -0.011930 -0.063118  0.044821  0.015012 -0.0004440
+## Helianthus annuus        -0.159955  0.168122 -0.118084 -0.010042 -0.2535322
+## Helianthus tuberosus      0.065473 -0.285459 -0.330349 -0.097886  0.0512061
+## Hibiscus syriacus        -0.082888  0.042423 -0.165056  0.022244 -0.1784485
+## Iris sibirica             0.475492  0.315895  0.048110 -0.205521 -0.0299483
+## Lamium album             -0.103446  0.089961 -0.094372  0.021901 -0.1681962
+## Lamium purpureum         -0.045658 -0.083718 -0.028583 -0.260753 -0.0243714
+## Linaria vulgaris         -0.087744 -0.237922  0.369932 -0.385578 -0.0230510
+## Lonicera etrusca         -0.031833  0.097812  0.049321  0.106892  0.5175448
+## Malva  sp_                0.003572  0.126326  0.018169  0.107031  0.0258746
+## Malva sylvestris         -0.129557  0.214829 -0.093662  0.070849 -0.2071378
+## Medicago lupulina        -0.236390  0.141918  0.020527  0.035217  0.0812057
+## Medicago sativa           0.221133 -0.222468  0.224988  0.422334 -0.1401569
+## Melissa officinalis      -0.077317 -0.041270 -0.035477 -0.010367 -0.0527541
+## Onobrychis  sp_          -0.031833  0.097812  0.049321  0.106892  0.5175448
+## Origanum vulgare          0.221133 -0.222468  0.224988  0.422334 -0.1401569
+## Origanum vulgare vulgare -0.031833  0.097812  0.049321  0.106892  0.5175448
+## Papaver  sp_             -0.087744 -0.237922  0.369932 -0.385578 -0.0230510
+## Papaver rhoeas           -0.031833  0.097812  0.049321  0.106892  0.5175448
+## Phacelia tanacetifolia   -0.171909  0.138949 -0.111722 -0.024684 -0.2335116
+## Prunus laurocerasus       0.475492  0.315895  0.048110 -0.205521 -0.0299483
+## Pulmonaria officinalis    0.211705 -0.227881  0.220800  0.421509 -0.1469152
+## Pyracantha coccinea       0.003572  0.126326  0.018169  0.107031  0.0258746
+## Ranunculus  sp_           0.461727  0.312049  0.090708 -0.221139  0.0620552
+## Ranunculus acris         -0.061393 -0.281816  0.290302 -0.332426 -0.0049665
+## Ranunculus bulbosus      -0.087744 -0.237922  0.369932 -0.385578 -0.0230510
+## Ranunculus repens         0.143836 -0.346893 -0.389089 -0.120378  0.1289435
+## Reseda  sp_              -0.087744 -0.237922  0.369932 -0.385578 -0.0230510
+## Ribes rubrum             -0.126661  0.024426 -0.278758  0.016310 -0.1929913
+## Rosmarinus officinalis   -0.236390  0.141918  0.020527  0.035217  0.0812057
+## Salvia officinalis       -0.011930 -0.063118  0.044821  0.015012 -0.0004440
+## Sonchus asper             0.003572  0.126326  0.018169  0.107031  0.0258746
+## Sonchus oleraceus        -0.135976  0.146866 -0.088027 -0.028384 -0.1924453
+## Spiraea  sp_              0.006082  0.052594  0.022470  0.106395  0.0449949
+## Symphytum officinale     -0.128395 -0.217297  0.291324 -0.351935 -0.0184366
+## Syringa vulgaris         -0.082888  0.042423 -0.165056  0.022244 -0.1784485
+## Tagetes patula           -0.077317 -0.041270 -0.035477 -0.010367 -0.0527541
+## Taraxacum  sp_            0.011299 -0.277128  0.434546  0.120639  0.0874865
+## Tilia cordata             0.221133 -0.222468  0.224988  0.422334 -0.1401569
+## Tithonia rotundifolia    -0.135976  0.146866 -0.088027 -0.028384 -0.1924453
+## Trifolium pratense       -0.213547  0.082146  0.044699  0.023393  0.0825663
+## Tropaeolum majus         -0.075349  0.071302 -0.080335  0.034964 -0.1655888
+## Urtica dioica             0.166541 -0.347745 -0.414713 -0.123029  0.1225362
+## Verbena bonariensis      -0.031833  0.097812  0.049321  0.106892  0.5175448
+## Veronica chamaedrys       0.166541 -0.347745 -0.414713 -0.123029  0.1225362
+## Veronica persica          0.290080  0.115611  0.004001 -0.150759  0.4347130
+## Vinca major              -0.135976  0.146866 -0.088027 -0.028384 -0.1924453
+## Viola  sp_               -0.087744 -0.237922  0.369932 -0.385578 -0.0230510
+## As                        0.376687 -0.417189  0.021531  0.089474  0.0574390
+## Cd                        0.319294 -0.461832 -0.035139 -0.128760 -0.0271146
+## Cr                        0.132607 -0.421985  0.343220 -0.134024 -0.0002396
+## Cu                        0.544689  0.007747  0.174536  0.186902 -0.0729948
+## Hg                        0.522290  0.232248  0.072317 -0.175614 -0.0582839
+## Ni                        0.382909 -0.352012  0.051218  0.071204  0.1548800
+## Pb                        0.505604  0.027962  0.181711  0.218177 -0.1310126
+## Zn                        0.342073 -0.232551  0.147568  0.391016 -0.0993677
+## NH4                       0.170675  0.267264 -0.030150  0.157556  0.0537097
+## NO3                       0.310265 -0.165901 -0.387639 -0.038508  0.0025039
+## N                         0.329585 -0.112411 -0.379186 -0.009089  0.0119754
+##                                PC6
+## Total plant               0.007491
+## Aegopodium podagraria    -0.111583
+## Aesculus hippocastanum    0.070065
+## Alliaria petiolata       -0.064875
+## Allium schoenoprasum     -0.456760
+## Angelica archangelica     0.005305
+## Asparagus officinalis    -0.064875
+## Ballota nigra             0.375293
+## Barbarea vulgaris         0.051460
+## Bellis perennis           0.193967
+## Borago officinalis       -0.076803
+## Brassica  sp_             0.010553
+## Brassica oleracea        -0.467074
+## Carduus  sp_              0.047065
+## Carduus acanthoides      -0.064875
+## Centaurea  sp_            0.019933
+## Centaurea montana        -0.140441
+## Chelidonium  sp_         -0.119480
+## Chelidonium majus         0.016756
+## Cichorium endivia        -0.456760
+## Colutea arborescens      -0.064875
+## Corydalis solida          0.017410
+## Cosmos bipinnatus        -0.379330
+## Cotoneaster  sp_         -0.111583
+## Cucurbita maxima          0.009241
+## Cynara scolymus           0.047065
+## Cytisus scoparius         0.036074
+## Echium vulgare            0.299852
+## Erica  sp_               -0.111583
+## Erica vagans             -0.111583
+## Euonymus  sp_             0.114035
+## Euonymus japonicus        0.114035
+## Fuchsia magellanica      -0.111583
+## Geranium robertianum      0.037329
+## Glechoma hederacea       -0.113748
+## Hedera helix              0.037329
+## Helianthus annuus         0.079944
+## Helianthus tuberosus     -0.043713
+## Hibiscus syriacus         0.019933
+## Iris sibirica            -0.111583
+## Lamium album              0.063336
+## Lamium purpureum         -0.126769
+## Linaria vulgaris          0.047065
+## Lonicera etrusca          0.075915
+## Malva  sp_                0.375293
+## Malva sylvestris          0.306792
+## Medicago lupulina        -0.456760
+## Medicago sativa          -0.119480
+## Melissa officinalis       0.005305
+## Onobrychis  sp_           0.075915
+## Origanum vulgare         -0.119480
+## Origanum vulgare vulgare  0.075915
+## Papaver  sp_              0.047065
+## Papaver rhoeas            0.075915
+## Phacelia tanacetifolia    0.067289
+## Prunus laurocerasus      -0.111583
+## Pulmonaria officinalis   -0.118950
+## Pyracantha coccinea       0.375293
+## Ranunculus  sp_          -0.093501
+## Ranunculus acris          0.054604
+## Ranunculus bulbosus       0.047065
+## Ranunculus repens        -0.081092
+## Reseda  sp_               0.047065
+## Ribes rubrum             -0.073960
+## Rosmarinus officinalis   -0.456760
+## Salvia officinalis        0.037329
+## Sonchus asper             0.375293
+## Sonchus oleraceus         0.056908
+## Spiraea  sp_              0.359069
+## Symphytum officinale      0.022013
+## Syringa vulgaris          0.019933
+## Tagetes patula            0.005305
+## Taraxacum  sp_           -0.241424
+## Tilia cordata            -0.119480
+## Tithonia rotundifolia     0.056908
+## Trifolium pratense       -0.376450
+## Tropaeolum majus          0.059760
+## Urtica dioica            -0.064875
+## Verbena bonariensis       0.075915
+## Veronica chamaedrys      -0.064875
+## Veronica persica         -0.041324
+## Vinca major               0.056908
+## Viola  sp_                0.047065
+## As                       -0.129911
+## Cd                        0.147739
+## Cr                        0.134208
+## Cu                       -0.026134
+## Hg                        0.006977
+## Ni                        0.027297
+## Pb                       -0.077420
+## Zn                       -0.053361
+## NH4                       0.326274
+## NO3                       0.024030
+## N                         0.081253
+## 
+## 
+## Site scores (weighted sums of species scores)
+## 
+##            PC1     PC2     PC3      PC4       PC5      PC6
+## sit1  -0.70577  0.6679 -0.7525  0.32750 -1.551006  0.55975
+## sit2  -0.77638  0.3974 -1.5460  0.20835 -1.671457  0.18670
+## sit3  -0.29817  0.9162  0.4620  1.00121  4.847638  0.71106
+## sit4   1.55992 -3.2572 -3.8845 -1.15236  1.147748 -0.60766
+## sit5  -0.11175 -0.5912  0.4198  0.14061 -0.004159  0.34964
+## sit6   4.45375  2.9589  0.4506 -1.92504 -0.280514 -1.04515
+## sit7  -1.27364  1.3756 -0.8245 -0.26586 -1.802560  0.53304
+## sit8  -0.82187 -2.2285  3.4650 -3.61155 -0.215910  0.44084
+## sit9  -0.72498  0.5115 -0.4224 -0.23827 -0.291119  0.16307
+## sit10  0.03345  1.1832  0.1702  1.00252  0.242358  3.51522
+## sit11 -2.21417  1.3293  0.1923  0.32986  0.760622 -4.27829
+## sit12 -0.72419 -0.3866 -0.3323 -0.09711 -0.494127  0.04969
+## sit13  0.04418 -0.5119  0.1166  0.35556  0.331981  1.06812
+## sit14 -0.51166 -0.2807  0.3783 -0.03126  0.293299 -0.52692
+## sit15  2.07127 -2.0838  2.1074  3.95584 -1.312795 -1.11912
+\end{verbatim}
+
+\begin{Shaded}
+\begin{Highlighting}[]
+\FunctionTok{screeplot}\NormalTok{(res.pca\_pla, }\AttributeTok{bstick =} \ConstantTok{TRUE}\NormalTok{)}
+\end{Highlighting}
+\end{Shaded}
+
+\includegraphics{exploration_files/figure-latex/Analyses des donnees-3.pdf}
+
+\begin{Shaded}
+\begin{Highlighting}[]
+\FunctionTok{biplot}\NormalTok{(res.pca\_bee\_genus, }\AttributeTok{scaling =} \StringTok{"sites"}\NormalTok{)}
+\end{Highlighting}
+\end{Shaded}
+
+\begin{verbatim}
+## Warning in arrows(0, 0, g$species[, 1] * arrlen, g$species[, 2] * arrlen, :
+## zero-length arrow is of indeterminate angle and so skipped
+
+## Warning in arrows(0, 0, g$species[, 1] * arrlen, g$species[, 2] * arrlen, :
+## zero-length arrow is of indeterminate angle and so skipped
+
+## Warning in arrows(0, 0, g$species[, 1] * arrlen, g$species[, 2] * arrlen, :
+## zero-length arrow is of indeterminate angle and so skipped
+
+## Warning in arrows(0, 0, g$species[, 1] * arrlen, g$species[, 2] * arrlen, :
+## zero-length arrow is of indeterminate angle and so skipped
+
+## Warning in arrows(0, 0, g$species[, 1] * arrlen, g$species[, 2] * arrlen, :
+## zero-length arrow is of indeterminate angle and so skipped
+\end{verbatim}
+
+\includegraphics{exploration_files/figure-latex/unnamed-chunk-2-1.pdf}
+
+\begin{Shaded}
+\begin{Highlighting}[]
+\FunctionTok{biplot}\NormalTok{(res.pca\_bee\_genus, }\AttributeTok{scaling =} \StringTok{"species"}\NormalTok{, }\AttributeTok{display =} \StringTok{"species"}\NormalTok{)}
+\end{Highlighting}
+\end{Shaded}
+
+\begin{verbatim}
+## Warning in arrows(0, 0, g$species[, 1] * arrlen, g$species[, 2] * arrlen, :
+## zero-length arrow is of indeterminate angle and so skipped
+
+## Warning in arrows(0, 0, g$species[, 1] * arrlen, g$species[, 2] * arrlen, :
+## zero-length arrow is of indeterminate angle and so skipped
+
+## Warning in arrows(0, 0, g$species[, 1] * arrlen, g$species[, 2] * arrlen, :
+## zero-length arrow is of indeterminate angle and so skipped
+
+## Warning in arrows(0, 0, g$species[, 1] * arrlen, g$species[, 2] * arrlen, :
+## zero-length arrow is of indeterminate angle and so skipped
+
+## Warning in arrows(0, 0, g$species[, 1] * arrlen, g$species[, 2] * arrlen, :
+## zero-length arrow is of indeterminate angle and so skipped
+\end{verbatim}
+
+\includegraphics{exploration_files/figure-latex/unnamed-chunk-2-2.pdf}
+
+\begin{Shaded}
+\begin{Highlighting}[]
+\NormalTok{res.pca2\_bee\_genus }\OtherTok{=} \FunctionTok{PCA}\NormalTok{(soil\_data\_bee\_genus, }\AttributeTok{scale.unit =} \ConstantTok{TRUE}\NormalTok{)}
+\end{Highlighting}
+\end{Shaded}
+
+\includegraphics{exploration_files/figure-latex/unnamed-chunk-2-3.pdf}
+\includegraphics{exploration_files/figure-latex/unnamed-chunk-2-4.pdf}
+
+\begin{Shaded}
+\begin{Highlighting}[]
+\FunctionTok{fviz\_pca\_biplot}\NormalTok{(res.pca2\_bee\_genus)}
+\end{Highlighting}
+\end{Shaded}
+
+\includegraphics{exploration_files/figure-latex/unnamed-chunk-2-5.pdf}
+
+\begin{Shaded}
+\begin{Highlighting}[]
+\NormalTok{soil\_data\_bee\_genus.w }\OtherTok{\textless{}{-}} \FunctionTok{hclust}\NormalTok{(}\FunctionTok{dist}\NormalTok{(}\FunctionTok{scale}\NormalTok{(soil\_data\_bee\_genus)), }\StringTok{"ward.D"}\NormalTok{) }\CommentTok{\# On cr?e ici une classification des sites}
+\NormalTok{grp }\OtherTok{\textless{}{-}} \FunctionTok{as.factor}\NormalTok{(}\FunctionTok{cutree}\NormalTok{(soil\_data\_bee\_genus.w, }\AttributeTok{k =} \DecValTok{4}\NormalTok{)) }\CommentTok{\# Je conserve les 4 principaux groupes de cette classification}
+\FunctionTok{fviz\_pca\_ind}\NormalTok{ (res.pca2\_bee\_genus,}\AttributeTok{col.ind =}\NormalTok{ grp, }\CommentTok{\# Je colorie les points par groupes}
+              \AttributeTok{repel =} \ConstantTok{TRUE}\NormalTok{, }\CommentTok{\# ?vite le chevauchement de texte,}
+              \AttributeTok{legend.title =} \StringTok{"Groups"}\NormalTok{,}
+              \AttributeTok{palette =} \FunctionTok{c}\NormalTok{(}\StringTok{"blue"}\NormalTok{, }\StringTok{"red"}\NormalTok{, }\StringTok{"black"}\NormalTok{,}\StringTok{"green"}\NormalTok{))}
+\end{Highlighting}
+\end{Shaded}
+
+\includegraphics{exploration_files/figure-latex/unnamed-chunk-2-6.pdf}
+
+\begin{Shaded}
+\begin{Highlighting}[]
+\DocumentationTok{\#\#\# CA \#\#\#\#}
+\NormalTok{res.ca\_bee\_genus }\OtherTok{=} \FunctionTok{cca}\NormalTok{(soil\_data\_bee\_genus)}
+\FunctionTok{summary}\NormalTok{(res.ca\_bee\_genus)}\CommentTok{\# Se lit comme une PCA}
+\end{Highlighting}
+\end{Shaded}
+
+\begin{verbatim}
+## 
+## Call:
+## cca(X = soil_data_bee_genus) 
+## 
+## Partitioning of scaled Chi-square:
+##               Inertia Proportion
+## Total          0.3013          1
+## Unconstrained  0.3013          1
+## 
+## Eigenvalues, and their contribution to the scaled Chi-square 
+## 
+## Importance of components:
+##                          CA1     CA2     CA3     CA4     CA5     CA6     CA7
+## Eigenvalue            0.1161 0.04706 0.03934 0.02647 0.02031 0.01644 0.01046
+## Proportion Explained  0.3853 0.15617 0.13054 0.08786 0.06739 0.05456 0.03473
+## Cumulative Proportion 0.3853 0.54143 0.67197 0.75983 0.82722 0.88178 0.91650
+##                            CA8      CA9     CA10     CA11     CA12      CA13
+## Eigenvalue            0.008127 0.006698 0.003786 0.003265 0.001760 0.0009203
+## Proportion Explained  0.026969 0.022228 0.012565 0.010836 0.005842 0.0030538
+## Cumulative Proportion 0.943474 0.965702 0.978266 0.989102 0.994944 0.9979975
+##                            CA14
+## Eigenvalue            0.0006035
+## Proportion Explained  0.0020025
+## Cumulative Proportion 1.0000000
+## 
+## Scaling 2 for species and site scores
+## * Species are scaled proportional to eigenvalues
+## * Sites are unscaled: weighted dispersion equal on all dimensions
+## 
+## 
+## Species scores
+## 
+##          CA1      CA2        CA3        CA4       CA5       CA6
+## And  0.46717 -0.25343  0.1602158 -0.1645795 -0.355446 -0.076706
+## Ani  0.16618  0.58722  0.2136664 -0.3622567  0.529120 -0.144833
+## Ano -0.08292 -0.31722 -0.3753508 -0.0321145  0.257358  0.208462
+## Bom  0.46541  0.07655  0.0498762  0.4169963  0.125424  0.025677
+## Che -0.68109  1.29771  0.4390294  0.8369458 -0.648069  0.047886
+## Col  1.18638 -1.02172  0.6724101  0.2051328 -0.373019 -4.215289
+## Das  0.59662  0.40206  1.2145411 -1.0126077  1.028393 -0.286529
+## Hal  0.85649 -0.10075  0.9066019  0.9584354  1.000273  0.522536
+## Las  0.37180 -0.07786  0.4619894 -0.1985257 -0.130702  0.386128
+## Meg -1.17301  1.85367  0.3277169  0.5294720 -0.920532 -0.281571
+## Nom  0.60485 -0.19982 -0.0003734 -0.4474361 -0.310037  0.233721
+## Osm -0.74637 -0.82239 -0.1499259 -0.0001685  0.278546  0.116335
+## Sph  0.79903  0.01555  0.1346483 -0.1842427  0.326083 -0.288984
+## Xyl  0.29891  0.61576 -0.3965825  0.2357116  0.172944 -0.360059
+## As   0.30731 -0.07724 -0.0115673  0.0554874 -0.041800  0.007927
+## Cd   0.37434 -0.04038 -0.0723607 -0.0007925 -0.098380 -0.068856
+## Cr   0.40055 -0.07595  0.1192210  0.0854071 -0.001606  0.021063
+## Cu  -0.14763  0.12724  0.1103072 -0.0162222 -0.041541 -0.024522
+## Hg  -0.15548  0.61736  0.1542252 -0.0130199 -0.158535  0.003695
+## Ni   0.33283 -0.12427  0.0457235 -0.0143503 -0.181360 -0.003280
+## Pb  -0.38493  0.15969  0.0550644  0.0206055 -0.046042  0.001273
+## Zn  -0.07247 -0.16350 -0.0334511 -0.0159817  0.027739 -0.043118
+## NH4  0.18698  0.36607  0.0893357 -0.3683306  0.238483  0.217051
+## NO3  0.30116  0.17838 -0.4666954 -0.1078683  0.028379 -0.006729
+## N    0.28717  0.20139 -0.3985332 -0.1397976  0.054135  0.020703
+## 
+## 
+## Site scores (weighted averages of species scores)
+## 
+##           CA1      CA2     CA3      CA4     CA5      CA6
+## sit1   0.3028  0.18579  0.6617  1.45189 -0.1031  0.70680
+## sit2  -0.2316  0.58156 -0.7958  0.26105 -0.3921 -0.56271
+## sit3   0.6135  0.28039  0.5573 -0.06403  0.7243  0.16253
+## sit4   0.6479  0.17773 -1.9071 -0.40893  0.1744 -0.31639
+## sit5   0.6540 -0.55532 -0.7177 -0.91375 -0.7130  1.10115
+## sit6  -1.1730  1.85367  0.3277  0.52947 -0.9205 -0.28157
+## sit7   0.8805  0.92375 -1.5505  0.33704  1.3143  0.29356
+## sit8   0.9878 -0.09168  1.2933  1.71578  0.6096  0.77628
+## sit9   0.6865  0.54269 -2.0240 -0.33286  0.3891  0.13972
+## sit10  0.3136  0.98283  1.7186 -2.47825  1.2923  0.03524
+## sit11  0.9582 -0.69060  0.6573  0.97745  2.1957  0.55505
+## sit12  1.1864 -1.02172  0.6724  0.20513 -0.3730 -4.21529
+## sit13  0.5216 -0.85018  0.4493 -1.37331 -2.3988  0.74924
+## sit14  1.3775 -0.91109  0.5344  1.15903 -1.2536  0.68575
+## sit15 -1.5286 -1.21647 -0.1042 -0.01593  0.4917  0.04232
+\end{verbatim}
+
+\begin{Shaded}
+\begin{Highlighting}[]
+\FunctionTok{screeplot}\NormalTok{(res.ca\_bee\_genus, }\AttributeTok{bstick =} \ConstantTok{TRUE}\NormalTok{)}\CommentTok{\# L\textquotesingle{}axe 1 repr?sente beaucoup plus de dispersion que dan sun mod?le al?atoire !}
+\end{Highlighting}
+\end{Shaded}
+
+\includegraphics{exploration_files/figure-latex/unnamed-chunk-3-1.pdf}
+
+\begin{Shaded}
+\begin{Highlighting}[]
+\FunctionTok{plot}\NormalTok{(res.ca\_bee\_genus, }\AttributeTok{scaling =}\DecValTok{1}\NormalTok{) }\CommentTok{\# Des sites proches ont des communaut?s de poissons similaires. Si un site est proche d\textquotesingle{}une esp?ce, celle{-}ci est probablement abondante sur ce site, ou en tout cas plus abondante en comparaison des autres sites plus ?loign?s de l\textquotesingle{}esp?ce.}
+\end{Highlighting}
+\end{Shaded}
+
+\includegraphics{exploration_files/figure-latex/unnamed-chunk-3-2.pdf}
+
+\begin{Shaded}
+\begin{Highlighting}[]
+\FunctionTok{plot}\NormalTok{(res.ca\_bee\_genus, }\AttributeTok{scaling =}\DecValTok{2}\NormalTok{) }\CommentTok{\# Des poissons proches sont distribu?s de fa?on similaire parmi les sites. Si un poisson est proche d\textquotesingle{}un site, il y abonde probablement.}
+\end{Highlighting}
+\end{Shaded}
+
+\includegraphics{exploration_files/figure-latex/unnamed-chunk-3-3.pdf}
+
+\begin{Shaded}
+\begin{Highlighting}[]
+\DocumentationTok{\#\#\# CA \#\#\#\#}
+\NormalTok{res.ca\_bee\_genus }\OtherTok{=} \FunctionTok{cca}\NormalTok{(soil\_data\_bee\_genus)}
+\FunctionTok{summary}\NormalTok{(res.ca\_bee\_genus)}\CommentTok{\# Se lit comme une PCA}
+\end{Highlighting}
+\end{Shaded}
+
+\begin{verbatim}
+## 
+## Call:
+## cca(X = soil_data_bee_genus) 
+## 
+## Partitioning of scaled Chi-square:
+##               Inertia Proportion
+## Total          0.3013          1
+## Unconstrained  0.3013          1
+## 
+## Eigenvalues, and their contribution to the scaled Chi-square 
+## 
+## Importance of components:
+##                          CA1     CA2     CA3     CA4     CA5     CA6     CA7
+## Eigenvalue            0.1161 0.04706 0.03934 0.02647 0.02031 0.01644 0.01046
+## Proportion Explained  0.3853 0.15617 0.13054 0.08786 0.06739 0.05456 0.03473
+## Cumulative Proportion 0.3853 0.54143 0.67197 0.75983 0.82722 0.88178 0.91650
+##                            CA8      CA9     CA10     CA11     CA12      CA13
+## Eigenvalue            0.008127 0.006698 0.003786 0.003265 0.001760 0.0009203
+## Proportion Explained  0.026969 0.022228 0.012565 0.010836 0.005842 0.0030538
+## Cumulative Proportion 0.943474 0.965702 0.978266 0.989102 0.994944 0.9979975
+##                            CA14
+## Eigenvalue            0.0006035
+## Proportion Explained  0.0020025
+## Cumulative Proportion 1.0000000
+## 
+## Scaling 2 for species and site scores
+## * Species are scaled proportional to eigenvalues
+## * Sites are unscaled: weighted dispersion equal on all dimensions
+## 
+## 
+## Species scores
+## 
+##          CA1      CA2        CA3        CA4       CA5       CA6
+## And  0.46717 -0.25343  0.1602158 -0.1645795 -0.355446 -0.076706
+## Ani  0.16618  0.58722  0.2136664 -0.3622567  0.529120 -0.144833
+## Ano -0.08292 -0.31722 -0.3753508 -0.0321145  0.257358  0.208462
+## Bom  0.46541  0.07655  0.0498762  0.4169963  0.125424  0.025677
+## Che -0.68109  1.29771  0.4390294  0.8369458 -0.648069  0.047886
+## Col  1.18638 -1.02172  0.6724101  0.2051328 -0.373019 -4.215289
+## Das  0.59662  0.40206  1.2145411 -1.0126077  1.028393 -0.286529
+## Hal  0.85649 -0.10075  0.9066019  0.9584354  1.000273  0.522536
+## Las  0.37180 -0.07786  0.4619894 -0.1985257 -0.130702  0.386128
+## Meg -1.17301  1.85367  0.3277169  0.5294720 -0.920532 -0.281571
+## Nom  0.60485 -0.19982 -0.0003734 -0.4474361 -0.310037  0.233721
+## Osm -0.74637 -0.82239 -0.1499259 -0.0001685  0.278546  0.116335
+## Sph  0.79903  0.01555  0.1346483 -0.1842427  0.326083 -0.288984
+## Xyl  0.29891  0.61576 -0.3965825  0.2357116  0.172944 -0.360059
+## As   0.30731 -0.07724 -0.0115673  0.0554874 -0.041800  0.007927
+## Cd   0.37434 -0.04038 -0.0723607 -0.0007925 -0.098380 -0.068856
+## Cr   0.40055 -0.07595  0.1192210  0.0854071 -0.001606  0.021063
+## Cu  -0.14763  0.12724  0.1103072 -0.0162222 -0.041541 -0.024522
+## Hg  -0.15548  0.61736  0.1542252 -0.0130199 -0.158535  0.003695
+## Ni   0.33283 -0.12427  0.0457235 -0.0143503 -0.181360 -0.003280
+## Pb  -0.38493  0.15969  0.0550644  0.0206055 -0.046042  0.001273
+## Zn  -0.07247 -0.16350 -0.0334511 -0.0159817  0.027739 -0.043118
+## NH4  0.18698  0.36607  0.0893357 -0.3683306  0.238483  0.217051
+## NO3  0.30116  0.17838 -0.4666954 -0.1078683  0.028379 -0.006729
+## N    0.28717  0.20139 -0.3985332 -0.1397976  0.054135  0.020703
+## 
+## 
+## Site scores (weighted averages of species scores)
+## 
+##           CA1      CA2     CA3      CA4     CA5      CA6
+## sit1   0.3028  0.18579  0.6617  1.45189 -0.1031  0.70680
+## sit2  -0.2316  0.58156 -0.7958  0.26105 -0.3921 -0.56271
+## sit3   0.6135  0.28039  0.5573 -0.06403  0.7243  0.16253
+## sit4   0.6479  0.17773 -1.9071 -0.40893  0.1744 -0.31639
+## sit5   0.6540 -0.55532 -0.7177 -0.91375 -0.7130  1.10115
+## sit6  -1.1730  1.85367  0.3277  0.52947 -0.9205 -0.28157
+## sit7   0.8805  0.92375 -1.5505  0.33704  1.3143  0.29356
+## sit8   0.9878 -0.09168  1.2933  1.71578  0.6096  0.77628
+## sit9   0.6865  0.54269 -2.0240 -0.33286  0.3891  0.13972
+## sit10  0.3136  0.98283  1.7186 -2.47825  1.2923  0.03524
+## sit11  0.9582 -0.69060  0.6573  0.97745  2.1957  0.55505
+## sit12  1.1864 -1.02172  0.6724  0.20513 -0.3730 -4.21529
+## sit13  0.5216 -0.85018  0.4493 -1.37331 -2.3988  0.74924
+## sit14  1.3775 -0.91109  0.5344  1.15903 -1.2536  0.68575
+## sit15 -1.5286 -1.21647 -0.1042 -0.01593  0.4917  0.04232
+\end{verbatim}
+
+\begin{Shaded}
+\begin{Highlighting}[]
+\FunctionTok{screeplot}\NormalTok{(res.ca\_bee\_genus, }\AttributeTok{bstick =} \ConstantTok{TRUE}\NormalTok{)}\CommentTok{\# L\textquotesingle{}axe 1 repr?sente beaucoup plus de dispersion que dan sun mod?le al?atoire !}
+\end{Highlighting}
+\end{Shaded}
+
+\includegraphics{exploration_files/figure-latex/unnamed-chunk-4-1.pdf}
+
+\begin{Shaded}
+\begin{Highlighting}[]
+\FunctionTok{plot}\NormalTok{(res.ca\_bee\_genus, }\AttributeTok{scaling =}\DecValTok{1}\NormalTok{) }\CommentTok{\# Des sites proches ont des communaut?s de poissons similaires. Si un site est proche d\textquotesingle{}une esp?ce, celle{-}ci est probablement abondante sur ce site, ou en tout cas plus abondante en comparaison des autres sites plus ?loign?s de l\textquotesingle{}esp?ce.}
+\end{Highlighting}
+\end{Shaded}
+
+\includegraphics{exploration_files/figure-latex/unnamed-chunk-4-2.pdf}
+
+\begin{Shaded}
+\begin{Highlighting}[]
+\FunctionTok{plot}\NormalTok{(res.ca\_bee\_genus, }\AttributeTok{scaling =}\DecValTok{2}\NormalTok{) }\CommentTok{\# Des poissons proches sont distribu?s de fa?on similaire parmi les sites. Si un poisson est proche d\textquotesingle{}un site, il y abonde probablement.}
+\end{Highlighting}
+\end{Shaded}
+
+\includegraphics{exploration_files/figure-latex/unnamed-chunk-4-3.pdf}
+
+\begin{Shaded}
+\begin{Highlighting}[]
+\DocumentationTok{\#\#\# PCoA \#\#\#\#}
+\NormalTok{bray }\OtherTok{=} \FunctionTok{vegdist}\NormalTok{(soil\_data\_bee\_genus, }\AttributeTok{method =}\StringTok{"bray"}\NormalTok{) }\CommentTok{\# matrice des distances de Bray{-}Curtis}
+\NormalTok{res.pcoa\_bee\_genus }\OtherTok{=} \FunctionTok{pcoa}\NormalTok{(bray)}\CommentTok{\#calcul de la PCoA}
+\FunctionTok{barplot}\NormalTok{(res.pcoa\_bee\_genus}\SpecialCharTok{$}\NormalTok{values}\SpecialCharTok{$}\NormalTok{Eigenvalues)}\CommentTok{\#Screeplot, observez les valeurs n?gatives}
+\FunctionTok{abline}\NormalTok{(}\AttributeTok{h =}\DecValTok{0}\NormalTok{, }\AttributeTok{col =} \StringTok{"red"}\NormalTok{)}
+\end{Highlighting}
+\end{Shaded}
+
+\includegraphics{exploration_files/figure-latex/unnamed-chunk-5-1.pdf}
+
+\begin{Shaded}
+\begin{Highlighting}[]
+\NormalTok{bray2 }\OtherTok{=} \FunctionTok{sqrt}\NormalTok{(bray)}\CommentTok{\# La petite astuce qui tue}
+\NormalTok{res.pcoa\_bee\_genus}\OtherTok{=} \FunctionTok{pcoa}\NormalTok{(bray2)}
+\FunctionTok{barplot}\NormalTok{(res.pcoa\_bee\_genus}\SpecialCharTok{$}\NormalTok{values}\SpecialCharTok{$}\NormalTok{Eigenvalues)}\CommentTok{\# Screeplot, observez les valeurs positives}
+\FunctionTok{abline}\NormalTok{(}\AttributeTok{h =}\DecValTok{0}\NormalTok{, }\AttributeTok{col =} \StringTok{"red"}\NormalTok{)}
+\end{Highlighting}
+\end{Shaded}
+
+\includegraphics{exploration_files/figure-latex/unnamed-chunk-6-1.pdf}
+
+\begin{Shaded}
+\begin{Highlighting}[]
+\FunctionTok{biplot.pcoa}\NormalTok{(res.pcoa\_bee\_genus, soil\_data\_bee\_genus) }\CommentTok{\#A int?rpr?ter comme une CA}
+\end{Highlighting}
+\end{Shaded}
+
+\begin{verbatim}
+## Warning in arrows(0, 0, y[, 1L] * 0.8, y[, 2L] * 0.8, col = col[2L], length =
+## arrow.len): zero-length arrow is of indeterminate angle and so skipped
+
+## Warning in arrows(0, 0, y[, 1L] * 0.8, y[, 2L] * 0.8, col = col[2L], length =
+## arrow.len): zero-length arrow is of indeterminate angle and so skipped
+
+## Warning in arrows(0, 0, y[, 1L] * 0.8, y[, 2L] * 0.8, col = col[2L], length =
+## arrow.len): zero-length arrow is of indeterminate angle and so skipped
+
+## Warning in arrows(0, 0, y[, 1L] * 0.8, y[, 2L] * 0.8, col = col[2L], length =
+## arrow.len): zero-length arrow is of indeterminate angle and so skipped
+
+## Warning in arrows(0, 0, y[, 1L] * 0.8, y[, 2L] * 0.8, col = col[2L], length =
+## arrow.len): zero-length arrow is of indeterminate angle and so skipped
+
+## Warning in arrows(0, 0, y[, 1L] * 0.8, y[, 2L] * 0.8, col = col[2L], length =
+## arrow.len): zero-length arrow is of indeterminate angle and so skipped
+\end{verbatim}
+
+\includegraphics{exploration_files/figure-latex/unnamed-chunk-6-2.pdf}
+
+\begin{Shaded}
+\begin{Highlighting}[]
+\DocumentationTok{\#\#\# NMDS \#\#\#\#}
+\NormalTok{soil\_data\_bee\_genus.nmds }\OtherTok{\textless{}{-}} \FunctionTok{metaMDS}\NormalTok{(soil\_data\_bee\_genus, }\AttributeTok{distance =} \StringTok{"bray"}\NormalTok{, }\AttributeTok{k =}\DecValTok{2}\NormalTok{, }\AttributeTok{try =} \DecValTok{999999999999}\NormalTok{)}\CommentTok{\#Indiquer le nombre d\textquotesingle{}essais}
+\end{Highlighting}
+\end{Shaded}
+
+\begin{verbatim}
+## Square root transformation
+## Wisconsin double standardization
+## Run 0 stress 0.1560055 
+## Run 1 stress 0.1560055 
+## ... New best solution
+## ... Procrustes: rmse 2.658617e-06  max resid 5.179971e-06 
+## ... Similar to previous best
+## Run 2 stress 0.1786982 
+## Run 3 stress 0.1560055 
+## ... New best solution
+## ... Procrustes: rmse 1.081329e-06  max resid 2.004817e-06 
+## ... Similar to previous best
+## Run 4 stress 0.1560055 
+## ... Procrustes: rmse 1.749868e-06  max resid 5.078714e-06 
+## ... Similar to previous best
+## Run 5 stress 0.1560055 
+## ... New best solution
+## ... Procrustes: rmse 1.956786e-06  max resid 4.78424e-06 
+## ... Similar to previous best
+## Run 6 stress 0.1560055 
+## ... Procrustes: rmse 2.06742e-06  max resid 4.770835e-06 
+## ... Similar to previous best
+## Run 7 stress 0.1560055 
+## ... Procrustes: rmse 1.412281e-06  max resid 3.287636e-06 
+## ... Similar to previous best
+## Run 8 stress 0.1560055 
+## ... Procrustes: rmse 2.823813e-06  max resid 6.723556e-06 
+## ... Similar to previous best
+## Run 9 stress 0.1560055 
+## ... Procrustes: rmse 2.492782e-06  max resid 5.027393e-06 
+## ... Similar to previous best
+## Run 10 stress 0.1560055 
+## ... Procrustes: rmse 1.322839e-06  max resid 3.057496e-06 
+## ... Similar to previous best
+## Run 11 stress 0.2172668 
+## Run 12 stress 0.2700999 
+## Run 13 stress 0.1786983 
+## Run 14 stress 0.1560055 
+## ... Procrustes: rmse 4.519582e-07  max resid 1.105755e-06 
+## ... Similar to previous best
+## Run 15 stress 0.1560055 
+## ... Procrustes: rmse 2.085197e-06  max resid 5.008267e-06 
+## ... Similar to previous best
+## Run 16 stress 0.1560055 
+## ... Procrustes: rmse 1.540442e-06  max resid 3.779747e-06 
+## ... Similar to previous best
+## Run 17 stress 0.1560055 
+## ... Procrustes: rmse 2.122147e-06  max resid 4.558316e-06 
+## ... Similar to previous best
+## Run 18 stress 0.1786984 
+## Run 19 stress 0.1560055 
+## ... Procrustes: rmse 1.160946e-06  max resid 2.773617e-06 
+## ... Similar to previous best
+## Run 20 stress 0.1560055 
+## ... Procrustes: rmse 7.418125e-07  max resid 1.496529e-06 
+## ... Similar to previous best
+## *** Solution reached
+\end{verbatim}
+
+\begin{Shaded}
+\begin{Highlighting}[]
+\NormalTok{soil\_data\_bee\_genus.nmds}\SpecialCharTok{$}\NormalTok{stress }\CommentTok{\# Valeur de stress}
+\end{Highlighting}
+\end{Shaded}
+
+\begin{verbatim}
+## [1] 0.1560055
+\end{verbatim}
+
+\begin{Shaded}
+\begin{Highlighting}[]
+\FunctionTok{plot}\NormalTok{(soil\_data\_bee\_genus.nmds,}
+  \AttributeTok{main =} \FunctionTok{paste}\NormalTok{(}\StringTok{"NMDS/Percentage difference {-} Stress ="}\NormalTok{,}\FunctionTok{round}\NormalTok{(soil\_data\_bee\_genus.nmds}\SpecialCharTok{$}\NormalTok{stress, }\DecValTok{3}\NormalTok{)}
+\NormalTok{  )}
+\NormalTok{)}
+
+\FunctionTok{orditorp}\NormalTok{(soil\_data\_bee\_genus.nmds,}\AttributeTok{display=}\StringTok{"species"}\NormalTok{,}\AttributeTok{col=}\StringTok{"red"}\NormalTok{,}\AttributeTok{air=}\FloatTok{0.01}\NormalTok{)}
+\FunctionTok{orditorp}\NormalTok{(soil\_data\_bee\_genus.nmds,}\AttributeTok{display=}\StringTok{"sites"}\NormalTok{,}\AttributeTok{cex=}\FloatTok{0.9}\NormalTok{,}\AttributeTok{air=}\FloatTok{0.01}\NormalTok{)}
+\end{Highlighting}
+\end{Shaded}
+
+\includegraphics{exploration_files/figure-latex/unnamed-chunk-7-1.pdf}
+
+\begin{Shaded}
+\begin{Highlighting}[]
+\CommentTok{\#Diagramme de Shepard}
+\FunctionTok{stressplot}\NormalTok{(soil\_data\_bee\_genus.nmds)}
+\end{Highlighting}
+\end{Shaded}
+
+\includegraphics{exploration_files/figure-latex/unnamed-chunk-8-1.pdf}
+
+\begin{Shaded}
+\begin{Highlighting}[]
+\NormalTok{data\_bee\_genus }\OtherTok{\textless{}{-}}\NormalTok{ data\_bee\_genus[,}\SpecialCharTok{{-}}\DecValTok{1}\NormalTok{]}
+\NormalTok{soil }\OtherTok{\textless{}{-}}\NormalTok{ soil[,}\SpecialCharTok{{-}}\DecValTok{1}\NormalTok{]}
+\NormalTok{soil\_data\_bee\_genus.cca }\OtherTok{\textless{}{-}} \FunctionTok{cca}\NormalTok{(data\_bee\_genus, soil)}
+\FunctionTok{plot}\NormalTok{(soil\_data\_bee\_genus.cca)}
+\end{Highlighting}
+\end{Shaded}
+
+\includegraphics{exploration_files/figure-latex/CCA1-1.pdf}
+
+\begin{Shaded}
+\begin{Highlighting}[]
+\NormalTok{data\_bee\_genus }\OtherTok{\textless{}{-}}\NormalTok{ data\_bee\_genus[,}\SpecialCharTok{{-}}\DecValTok{1}\NormalTok{]}
+\NormalTok{soil }\OtherTok{\textless{}{-}}\NormalTok{ soil[,}\SpecialCharTok{{-}}\DecValTok{1}\NormalTok{]}
+\NormalTok{data\_bee\_genus\_soil.cca }\OtherTok{\textless{}{-}} \FunctionTok{cca}\NormalTok{(soil, data\_bee\_genus)}
+\FunctionTok{plot}\NormalTok{(data\_bee\_genus\_soil.cca)}
+\end{Highlighting}
+\end{Shaded}
+
+\includegraphics{exploration_files/figure-latex/CCA2-1.pdf}
+
+\begin{Shaded}
+\begin{Highlighting}[]
+\NormalTok{bee\_sp}\SpecialCharTok{$}\NormalTok{cumulative }\OtherTok{\textless{}{-}} \FunctionTok{cumsum}\NormalTok{(bee\_sp}\SpecialCharTok{$}\NormalTok{Individual)}
+
+\FunctionTok{ggplot}\NormalTok{(bee\_sp, }\FunctionTok{aes}\NormalTok{(}\AttributeTok{x =} \FunctionTok{reorder}\NormalTok{(Specie, }\SpecialCharTok{{-}}\NormalTok{Individual), }\AttributeTok{y =}\NormalTok{  Individual)) }\SpecialCharTok{+} 
+  \FunctionTok{geom\_bar}\NormalTok{(}\AttributeTok{stat=}\StringTok{"identity"}\NormalTok{) }\SpecialCharTok{+}
+  \FunctionTok{labs}\NormalTok{(}\AttributeTok{title =} \StringTok{"Espèce par rang d\textquotesingle{}abondance"}\NormalTok{, }\AttributeTok{x =} \StringTok{\textquotesingle{}Espèces\textquotesingle{}}\NormalTok{, }\AttributeTok{y =} \StringTok{\textquotesingle{}Abondance\textquotesingle{}}\NormalTok{) }\SpecialCharTok{+}
+  \CommentTok{\#scale\_y\_continuous(sec.axis = sec\_axis(\textasciitilde{}.*scaleRight, name = "Cumulative (\%)")) +}
+  \FunctionTok{geom\_point}\NormalTok{(}\FunctionTok{aes}\NormalTok{(}\AttributeTok{y =}\NormalTok{ cumulative), }\AttributeTok{color =} \StringTok{"blue"}\NormalTok{, }\AttributeTok{pch=}\DecValTok{16}\NormalTok{, }\AttributeTok{size=}\DecValTok{1}\NormalTok{) }\SpecialCharTok{+} 
+  \FunctionTok{geom\_path}\NormalTok{(}\FunctionTok{aes}\NormalTok{(}\AttributeTok{y=}\NormalTok{cumulative, }\AttributeTok{group=}\DecValTok{1}\NormalTok{), }\AttributeTok{colour=}\StringTok{"slateblue1"}\NormalTok{, }\AttributeTok{lty=}\DecValTok{3}\NormalTok{, }\AttributeTok{size=}\FloatTok{0.9}\NormalTok{) }\SpecialCharTok{+}
+  \FunctionTok{theme}\NormalTok{(}\AttributeTok{axis.title.x =} \FunctionTok{element\_text}\NormalTok{(}\AttributeTok{face=}\StringTok{"bold"}\NormalTok{, }\AttributeTok{size =} \DecValTok{20}\NormalTok{), }\CommentTok{\# Titre axe x}
+        \AttributeTok{axis.title.y =} \FunctionTok{element\_text}\NormalTok{(}\AttributeTok{face=}\StringTok{"bold"}\NormalTok{, }\AttributeTok{size =} \DecValTok{20}\NormalTok{), }\CommentTok{\# Titre axe y}
+        \AttributeTok{axis.text.x =} \FunctionTok{element\_text}\NormalTok{(}\AttributeTok{face=}\StringTok{"bold"}\NormalTok{, }\AttributeTok{color=} \StringTok{"black"}\NormalTok{, }\AttributeTok{size=}\DecValTok{10}\NormalTok{, }\AttributeTok{angle=}\DecValTok{90}\NormalTok{, }\AttributeTok{hjust=}\DecValTok{0}\NormalTok{), }\CommentTok{\# Echelle x}
+        \AttributeTok{axis.text.y =} \FunctionTok{element\_text}\NormalTok{(}\AttributeTok{face=}\StringTok{"bold"}\NormalTok{, }\AttributeTok{color=} \StringTok{"black"}\NormalTok{, }\AttributeTok{size=}\DecValTok{10}\NormalTok{), }\CommentTok{\# Echelle y}
+        \AttributeTok{panel.grid.major =} \FunctionTok{element\_blank}\NormalTok{(),}\AttributeTok{panel.grid.minor =} \FunctionTok{element\_blank}\NormalTok{(),}
+        \AttributeTok{panel.background =} \FunctionTok{element\_rect}\NormalTok{(}\AttributeTok{fill=}\StringTok{\textquotesingle{}white\textquotesingle{}}\NormalTok{, }\AttributeTok{colour=}\StringTok{\textquotesingle{}black\textquotesingle{}}\NormalTok{)) }\CommentTok{\#+}
+\end{Highlighting}
+\end{Shaded}
+
+\includegraphics{exploration_files/figure-latex/Abondance + Pareto ggplot-1.pdf}
+
+\begin{Shaded}
+\begin{Highlighting}[]
+  \CommentTok{\# stat\_pareto(point.color = "red",}
+  \CommentTok{\#             point.size = 2,}
+  \CommentTok{\#             line.color = "black",}
+  \CommentTok{\#             \#size.line = 1,}
+  \CommentTok{\#             bars.fill = c("blue", "orange"))}
+\end{Highlighting}
+\end{Shaded}
+
+\begin{Shaded}
+\begin{Highlighting}[]
+\NormalTok{pareto.bee\_sp }\OtherTok{\textless{}{-}}\NormalTok{ bee\_sp}\SpecialCharTok{$}\NormalTok{Individual}
+\FunctionTok{names}\NormalTok{(pareto.bee\_sp) }\OtherTok{\textless{}{-}}\NormalTok{ bee\_sp}\SpecialCharTok{$}\NormalTok{Specie}
+\FunctionTok{pareto.chart}\NormalTok{(pareto.bee\_sp, }\AttributeTok{cumperc =} \FunctionTok{seq}\NormalTok{(}\DecValTok{0}\NormalTok{, }\DecValTok{100}\NormalTok{, }\AttributeTok{by =} \DecValTok{10}\NormalTok{), }
+             \AttributeTok{ylab =} \StringTok{"Abondance"}\NormalTok{, }\AttributeTok{ylab2 =} \StringTok{"Pourcentage cumulative"}\NormalTok{,}
+             \AttributeTok{main =} \StringTok{"Espèce par rang d\textquotesingle{}abondance"}\NormalTok{)}
+\end{Highlighting}
+\end{Shaded}
+
+\includegraphics{exploration_files/figure-latex/Abondance + Pareto pareto.chart-1.pdf}
+
+\begin{verbatim}
+##                            
+## Pareto chart analysis for pareto.bee_sp
+##                                Frequency    Cum.Freq.   Percentage Cum.Percent.
+##   Bombus pascuorum          2.580000e+02 2.580000e+02 1.895665e+01 1.895665e+01
+##   Osmia bicornis            1.320000e+02 3.900000e+02 9.698751e+00 2.865540e+01
+##   Bombus (Bombus)  sp.      9.600000e+01 4.860000e+02 7.053637e+00 3.570904e+01
+##   Andrena flavipes          6.400000e+01 5.500000e+02 4.702425e+00 4.041146e+01
+##   Lasioglossum pauxillum    5.300000e+01 6.030000e+02 3.894195e+00 4.430566e+01
+##   Bombus terrestris         4.600000e+01 6.490000e+02 3.379868e+00 4.768553e+01
+##   Lasioglossum morio        4.500000e+01 6.940000e+02 3.306392e+00 5.099192e+01
+##   Andrena gravida           4.300000e+01 7.370000e+02 3.159442e+00 5.415136e+01
+##   Anthidium manicatum       4.200000e+01 7.790000e+02 3.085966e+00 5.723733e+01
+##   Anthophora plumipes       3.900000e+01 8.180000e+02 2.865540e+00 6.010287e+01
+##   Dasypoda hirtipes         3.600000e+01 8.540000e+02 2.645114e+00 6.274798e+01
+##   Osmia cornuta             3.600000e+01 8.900000e+02 2.645114e+00 6.539309e+01
+##   Bombus pratorum           3.100000e+01 9.210000e+02 2.277737e+00 6.767083e+01
+##   Andrena minutula          2.400000e+01 9.450000e+02 1.763409e+00 6.943424e+01
+##   Andrena haemorrhoa        2.400000e+01 9.690000e+02 1.763409e+00 7.119765e+01
+##   Bombus hypnorum           2.300000e+01 9.920000e+02 1.689934e+00 7.288758e+01
+##   Bombus lapidarius         2.200000e+01 1.014000e+03 1.616458e+00 7.450404e+01
+##   Lasioglossum laticeps     2.000000e+01 1.034000e+03 1.469508e+00 7.597355e+01
+##   Lasioglossum calceatum    1.700000e+01 1.051000e+03 1.249082e+00 7.722263e+01
+##   Andrena fulva             1.700000e+01 1.068000e+03 1.249082e+00 7.847171e+01
+##   Nomada bifasciata         1.600000e+01 1.084000e+03 1.175606e+00 7.964732e+01
+##   Halictus scabiosae        1.500000e+01 1.099000e+03 1.102131e+00 8.074945e+01
+##   Nomada goodeniana         1.400000e+01 1.113000e+03 1.028655e+00 8.177810e+01
+##   Osmia caerulescens        1.400000e+01 1.127000e+03 1.028655e+00 8.280676e+01
+##   Xylocopa violacea         1.200000e+01 1.139000e+03 8.817046e-01 8.368846e+01
+##   Andrena strohmella        1.100000e+01 1.150000e+03 8.082292e-01 8.449669e+01
+##   Bombus hortorum           1.100000e+01 1.161000e+03 8.082292e-01 8.530492e+01
+##   Lasioglossum villosulum   9.000000e+00 1.170000e+03 6.612785e-01 8.596620e+01
+##   Nomada flava              9.000000e+00 1.179000e+03 6.612785e-01 8.662748e+01
+##   Andrena chrysosceles      8.000000e+00 1.187000e+03 5.878031e-01 8.721528e+01
+##   Andrena dorsata           8.000000e+00 1.195000e+03 5.878031e-01 8.780309e+01
+##   Sphecodes ephippius       8.000000e+00 1.203000e+03 5.878031e-01 8.839089e+01
+##   Nomada flavoguttata       8.000000e+00 1.211000e+03 5.878031e-01 8.897869e+01
+##   Andrena minutuloides      7.000000e+00 1.218000e+03 5.143277e-01 8.949302e+01
+##   Andrena carantonica       7.000000e+00 1.225000e+03 5.143277e-01 9.000735e+01
+##   Andrena labiata           7.000000e+00 1.232000e+03 5.143277e-01 9.052168e+01
+##   Heriades truncorum        7.000000e+00 1.239000e+03 5.143277e-01 9.103600e+01
+##   Hoplitis adunca           7.000000e+00 1.246000e+03 5.143277e-01 9.155033e+01
+##   Nomada fucata             7.000000e+00 1.253000e+03 5.143277e-01 9.206466e+01
+##   Lasioglossum leucozonium  6.000000e+00 1.259000e+03 4.408523e-01 9.250551e+01
+##   Anthophora quadrimaculata 6.000000e+00 1.265000e+03 4.408523e-01 9.294636e+01
+##   Chelostoma florisomne     6.000000e+00 1.271000e+03 4.408523e-01 9.338722e+01
+##   Nomada signata            6.000000e+00 1.277000e+03 4.408523e-01 9.382807e+01
+##   Nomada panzeri            5.000000e+00 1.282000e+03 3.673769e-01 9.419544e+01
+##   Andrena nitida            5.000000e+00 1.287000e+03 3.673769e-01 9.456282e+01
+##   Lasioglossum zonulum      5.000000e+00 1.292000e+03 3.673769e-01 9.493020e+01
+##   Nomada marshamella        4.000000e+00 1.296000e+03 2.939015e-01 9.522410e+01
+##   Colletes cunicularius     4.000000e+00 1.300000e+03 2.939015e-01 9.551800e+01
+##   Megachile willughbiella   4.000000e+00 1.304000e+03 2.939015e-01 9.581190e+01
+##   Andrena cineraria         3.000000e+00 1.307000e+03 2.204262e-01 9.603233e+01
+##   Sphecodes monilicornis    3.000000e+00 1.310000e+03 2.204262e-01 9.625276e+01
+##   Nomada lathburiana        3.000000e+00 1.313000e+03 2.204262e-01 9.647318e+01
+##   Bombus sylvestris         3.000000e+00 1.316000e+03 2.204262e-01 9.669361e+01
+##   Andrena vaga              3.000000e+00 1.319000e+03 2.204262e-01 9.691403e+01
+##   Lasioglossum nitidulum    3.000000e+00 1.322000e+03 2.204262e-01 9.713446e+01
+##   Bombus lucorum            3.000000e+00 1.325000e+03 2.204262e-01 9.735489e+01
+##   Bombus vestalis           3.000000e+00 1.328000e+03 2.204262e-01 9.757531e+01
+##   Andrena bicolor           3.000000e+00 1.331000e+03 2.204262e-01 9.779574e+01
+##   Chalicodoma ericetorum    3.000000e+00 1.334000e+03 2.204262e-01 9.801616e+01
+##   Nomada succincta          2.000000e+00 1.336000e+03 1.469508e-01 9.816312e+01
+##   Sphecodes albilabris      2.000000e+00 1.338000e+03 1.469508e-01 9.831007e+01
+##   Andrena humilis           2.000000e+00 1.340000e+03 1.469508e-01 9.845702e+01
+##   Nomada zonata             2.000000e+00 1.342000e+03 1.469508e-01 9.860397e+01
+##   Andrena nigroaenea        2.000000e+00 1.344000e+03 1.469508e-01 9.875092e+01
+##   Andrena tibialis          2.000000e+00 1.346000e+03 1.469508e-01 9.889787e+01
+##   Apis mellifera            2.000000e+00 1.348000e+03 1.469508e-01 9.904482e+01
+##   Andrena ventralis         2.000000e+00 1.350000e+03 1.469508e-01 9.919177e+01
+##   Colletes daviesanus       1.000000e+00 1.351000e+03 7.347539e-02 9.926525e+01
+##   Megachile centuncularis   1.000000e+00 1.352000e+03 7.347539e-02 9.933872e+01
+##   Andrena subopaca          1.000000e+00 1.353000e+03 7.347539e-02 9.941220e+01
+##   Andrena propinqua         1.000000e+00 1.354000e+03 7.347539e-02 9.948567e+01
+##   Osmia leaiana             1.000000e+00 1.355000e+03 7.347539e-02 9.955915e+01
+##   Sphecodes crassus         1.000000e+00 1.356000e+03 7.347539e-02 9.963262e+01
+##   Sphecodes miniatus        1.000000e+00 1.357000e+03 7.347539e-02 9.970610e+01
+##   Andrena wilkella          1.000000e+00 1.358000e+03 7.347539e-02 9.977957e+01
+##   Sphecodes pellucidus      1.000000e+00 1.359000e+03 7.347539e-02 9.985305e+01
+##   Stelis punctulatissima    1.000000e+00 1.360000e+03 7.347539e-02 9.992652e+01
+##   Osmia bicolor             1.000000e+00 1.361000e+03 7.347539e-02 1.000000e+02
+\end{verbatim}
+
+\begin{Shaded}
+\begin{Highlighting}[]
+\CommentTok{\# Remodeler le jeux de données pour le heatmap}
+
+\NormalTok{hm.bee\_sp }\OtherTok{\textless{}{-}} \FunctionTok{gather}\NormalTok{(data\_bee\_sp, }\AttributeTok{key=}\StringTok{"sp"}\NormalTok{, }\AttributeTok{value=}\StringTok{"nbr"}\NormalTok{, }\DecValTok{2}\SpecialCharTok{:}\DecValTok{79}\NormalTok{)}
+
+\NormalTok{hm.bee\_sp}\SpecialCharTok{$}\NormalTok{sp }\OtherTok{\textless{}{-}} \FunctionTok{factor}\NormalTok{(hm.bee\_sp}\SpecialCharTok{$}\NormalTok{sp)}
+
+\NormalTok{hm.bee\_sp }\OtherTok{\textless{}{-}}\NormalTok{ hm.bee\_sp }\SpecialCharTok{\%\textgreater{}\%}
+  \CommentTok{\# convert state to factor and reverse order of levels}
+  \FunctionTok{mutate}\NormalTok{(}\AttributeTok{sp=}\FunctionTok{factor}\NormalTok{(sp, }\AttributeTok{levels=}\FunctionTok{rev}\NormalTok{(}\FunctionTok{sort}\NormalTok{(}\FunctionTok{unique}\NormalTok{(sp)))))}
+
+\NormalTok{hm.bee\_sp }\OtherTok{\textless{}{-}} \FunctionTok{select}\NormalTok{(hm.bee\_sp, sp, Site, nbr)}
+\FunctionTok{ggplot}\NormalTok{(hm.bee\_sp, }\FunctionTok{aes}\NormalTok{(}\AttributeTok{x =}\NormalTok{ Site, }\AttributeTok{y =}\NormalTok{ sp, }\AttributeTok{fill =}\NormalTok{ nbr)) }\SpecialCharTok{+}
+  \FunctionTok{labs}\NormalTok{(}\AttributeTok{title =} \StringTok{"Abondance des abeilles sauvages"}\NormalTok{, }\AttributeTok{x =} \StringTok{\textquotesingle{}\textquotesingle{}}\NormalTok{, }\AttributeTok{y =} \StringTok{\textquotesingle{}\textquotesingle{}}\NormalTok{) }\SpecialCharTok{+} \CommentTok{\# Titre et titre axe}
+  \FunctionTok{geom\_tile}\NormalTok{(}\AttributeTok{color =} \StringTok{"black"}\NormalTok{) }\SpecialCharTok{+}
+  \FunctionTok{coord\_fixed}\NormalTok{() }\SpecialCharTok{+}
+  \FunctionTok{guides}\NormalTok{(}\AttributeTok{fill =} \FunctionTok{guide\_colourbar}\NormalTok{(}\AttributeTok{label =} \ConstantTok{FALSE}\NormalTok{,}
+                                \AttributeTok{ticks =} \ConstantTok{FALSE}\NormalTok{)) }\SpecialCharTok{+}
+  \FunctionTok{theme}\NormalTok{(}\AttributeTok{axis.text.x =} \FunctionTok{element\_text}\NormalTok{(}\AttributeTok{angle =} \DecValTok{90}\NormalTok{, }\AttributeTok{vjust =} \DecValTok{1}\NormalTok{, }\AttributeTok{size =} \DecValTok{8}\NormalTok{, }\AttributeTok{hjust =} \DecValTok{0}\NormalTok{),}
+        \AttributeTok{axis.text.y =} \FunctionTok{element\_text}\NormalTok{(}\AttributeTok{size =} \DecValTok{8}\NormalTok{, }\AttributeTok{hjust =} \DecValTok{0}\NormalTok{, }\AttributeTok{vjust =} \DecValTok{1}\NormalTok{),}
+        \AttributeTok{legend.position=}\StringTok{"left"}\NormalTok{) }\SpecialCharTok{+} \CommentTok{\# position légende}
+  \FunctionTok{scale\_y\_discrete}\NormalTok{(}\AttributeTok{position =} \StringTok{"right"}\NormalTok{) }\SpecialCharTok{+} \CommentTok{\# y label à droite}
+  \FunctionTok{guides}\NormalTok{(}\AttributeTok{fill =} \FunctionTok{guide\_colourbar}\NormalTok{(}\AttributeTok{title =} \StringTok{"Abondance"}\NormalTok{)) }\SpecialCharTok{+} \CommentTok{\# Titre légende}
+  \FunctionTok{scale\_fill\_viridis}\NormalTok{(}\AttributeTok{discrete=}\ConstantTok{FALSE}\NormalTok{)  }\CommentTok{\# couleur}
+\end{Highlighting}
+\end{Shaded}
+
+\includegraphics{exploration_files/figure-latex/Heatmap ggplot-1.pdf}
+
+\begin{Shaded}
+\begin{Highlighting}[]
+\FunctionTok{sum}\NormalTok{(hm.bee\_sp}\SpecialCharTok{$}\NormalTok{nbr) }\CommentTok{\# total abeille }
+\end{Highlighting}
+\end{Shaded}
+
+\begin{verbatim}
+## [1] 1278
+\end{verbatim}
+
+\begin{Shaded}
+\begin{Highlighting}[]
+\CommentTok{\#heatmap.2(t(hm.bee\_sp))}
+\CommentTok{\#https://www.royfrancis.com/a{-}guide{-}to{-}elegant{-}tiled{-}heatmaps{-}in{-}r{-}2019/}
+\end{Highlighting}
+\end{Shaded}
+
+
+\end{document}

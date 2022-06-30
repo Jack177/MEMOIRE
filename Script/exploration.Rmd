@@ -5,6 +5,7 @@ date: "28/06/2022"
 output:
   html_document:
     df_print: paged
+  pdf_document: default
 ---
 Note : 
 <- 
@@ -98,25 +99,25 @@ fam
 genus
 ```
 
-```{r Exploration espèce}
+```{r Exploration espece}
 bee_sp
 ```
 
-```{r Exploration espèce d'abeilles par site}
+```{r Exploration_espece_ abeilles par site}
 data_bee_sp
 ```
 
-```{r Exploration espèce de plantes par site}
+```{r Exploration_espece_de_plantes_par_site}
 data_pla_sp
 ```
 
-```{r Exploration métaux lourds et azotes}
+```{r Exploration metaux lourds et azotes}
 soil
 ```
 
 ## Analyse des données
 
-```{r Analyses des données}
+```{r Analyses des donnees}
 # Site abeilles vs sol
 soil_data_bee_sp <- soil_data_bee_sp[,-1] # Retirer le nom des sites
 res.pca_bee <- rda(soil_data_bee_sp, scale = TRUE)
@@ -201,13 +202,13 @@ orditorp(soil_data_bee_genus.nmds,display="sites",cex=0.9,air=0.01)
 stressplot(soil_data_bee_genus.nmds)
 ```
 
-```{r CCA}
+```{r CCA1}
 data_bee_genus <- data_bee_genus[,-1]
 soil <- soil[,-1]
 soil_data_bee_genus.cca <- cca(data_bee_genus, soil)
 plot(soil_data_bee_genus.cca)
 ```
-```{r CCA}
+```{r CCA2}
 data_bee_genus <- data_bee_genus[,-1]
 soil <- soil[,-1]
 data_bee_genus_soil.cca <- cca(soil, data_bee_genus)
@@ -240,7 +241,7 @@ ggplot(bee_sp, aes(x = reorder(Specie, -Individual), y =  Individual)) +
 ```{r Abondance + Pareto pareto.chart}
 pareto.bee_sp <- bee_sp$Individual
 names(pareto.bee_sp) <- bee_sp$Specie
-pareto.chart(pareto.bee_sp, cumperc = seq(0, 100, by = 5), 
+pareto.chart(pareto.bee_sp, cumperc = seq(0, 100, by = 10), 
              ylab = "Abondance", ylab2 = "Pourcentage cumulative",
              main = "Espèce par rang d'abondance")
 ```
@@ -248,7 +249,7 @@ pareto.chart(pareto.bee_sp, cumperc = seq(0, 100, by = 5),
 
 ```{r Heatmap ggplot}
 # Remodeler le jeux de données pour le heatmap
-sum(hm.bee_sp$nbr) # total abeille 
+
 hm.bee_sp <- gather(data_bee_sp, key="sp", value="nbr", 2:79)
 
 hm.bee_sp$sp <- factor(hm.bee_sp$sp)
@@ -271,9 +272,11 @@ ggplot(hm.bee_sp, aes(x = Site, y = sp, fill = nbr)) +
   guides(fill = guide_colourbar(title = "Abondance")) + # Titre légende
   scale_fill_viridis(discrete=FALSE)  # couleur
 
+sum(hm.bee_sp$nbr) # total abeille 
+
 ```
 
-```{r Heatmap gplot}
+```{r Heatmap gplot, message=FALSE, warning=FALSE}
 #heatmap.2(t(hm.bee_sp))
 #https://www.royfrancis.com/a-guide-to-elegant-tiled-heatmaps-in-r-2019/
 
