@@ -30,7 +30,11 @@ library(ade4)
 ## Importation des données
 ```{r Import, message=FALSE, warning=FALSE, include=FALSE, results='hide', paged.print=FALSE}
 # Import
-setwd("D:/OneDrive - UMONS/UMONS/MA2/MEMOIRE/Statistique/R/MEMOIRE/RAW1/From DFF")
+# Tour PC
+#setwd("D:/OneDrive - UMONS/UMONS/MA2/MEMOIRE/Statistique/R/STAT-MEMOIRE/RAW1/From DFF")
+# Laptop
+setwd("C:/Users/Jordan/OneDrive - UMONS/UMONS/MA2/MEMOIRE/Statistique/R/STAT-MEMOIRE/RAW1/From DFF")
+
 # fam_bee_site <- read_excel("Fam_bee-vs-site.xlsx")
 fam <- read_excel("Nbre individus par famille.xls")
 genus <- read_excel("Nbre individus par genre.xls")
@@ -197,3 +201,42 @@ soil <- soil[,-1]
 data_bee_genus_soil.cca <- cca(soil, data_bee_genus)
 plot(data_bee_genus_soil.cca)
 ```
+
+```{r}
+bee_sp$cumulative <- cumsum(bee_sp$Individual)
+
+ggplot(bee_sp, aes(x = reorder(Specie, -Individual), y =  Individual)) + 
+  geom_bar(stat="identity") +
+  labs(title = "Espèce par rang d'abondance", x = 'Espèces', y = 'Abondance') +
+  #scale_y_continuous(sec.axis = sec_axis(~.*scaleRight, name = "Cumulative (%)")) +
+  geom_point(aes(y = cumulative), color = "blue", pch=16, size=1) + 
+  geom_path(aes(y=cumulative, group=1), colour="slateblue1", lty=3, size=0.9) +
+  theme(axis.title.x = element_text(face="bold", size = 20), # Study site
+        axis.title.y = element_text(face="bold", size = 20), # Population estimate
+        axis.text.x = element_text(face="bold", color= "black", size=10, angle=90, hjust=0), # A C D
+        axis.text.y = element_text(face="bold", color= "black", size=10), # 0 100 200 300 400
+        panel.grid.major = element_blank(),panel.grid.minor = element_blank(),
+        panel.background = element_rect(fill='white', colour='black')) #+
+  # stat_pareto(point.color = "red",
+  #             point.size = 2,
+  #             line.color = "black",
+  #             #size.line = 1,
+  #             bars.fill = c("blue", "orange"))
+```
+
+
+```{r}
+pareto.bee_sp <- bee_sp$Individual
+names(pareto.bee_sp) <- bee_sp$Specie
+# pareto.chart(defect, ylab = "Error frequency")
+# pareto.chart(defect, ylab = "Error frequency", xlab = "Error causes", las=1)
+# pareto.chart(defect, ylab = "Error frequency", col=rainbow(length(defect)))
+pareto.chart(pareto.bee_sp, cumperc = seq(0, 100, by = 5), 
+             ylab = "Abondance", ylab2 = "Pourcentage cumulative",
+             main = "Espèce par rang d'abondance")
+```
+
+
+
+
+
