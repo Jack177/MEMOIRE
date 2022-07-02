@@ -21,6 +21,7 @@ library(viridis) # couleur daltonien
 library(tidyr) # fonction gather
 library(qcc)
 library(gplots)
+library(RColorBrewer)
 #library(RColorBrewer)
 #library(ggpubr)
 #library(knitr)
@@ -92,11 +93,38 @@ soil_data_pla_sp <- dplyr::full_join(data_pla_sp, soil, by = "Site")
 ## Exploration des données
 
 ```{r Exploration famille}
-fam
+# fam
+
+ggplot(data=fam, aes(x=reorder(Familly, +Individual), y=Individual,fill=Familly)) +
+  geom_bar(stat="identity") + coord_flip() + 
+  geom_text(aes(label=Individual), vjust=0.5, hjust = -0.1, color="black", size=3.5, fontface = "bold") +
+  labs(title = "", x = '', y = '') +
+  scale_color_brewer(palette = "Dark2") +
+  theme_void() +
+  theme(axis.title.x = element_text(face="bold", size = 20), # Titre axe x
+        axis.title.y = element_text(face="bold", size = 20), # Titre axe y
+        axis.text.x = element_text(face="bold", color= "white", size=10, hjust=0), # Echelle x
+        axis.text.y = element_text(face="bold", color= "black", size=10), # Echelle y
+        legend.position = "none") +
+  scale_fill_viridis_d("")
+
 ```
 
 ```{r Exploration genus}
-genus
+# genus
+ggplot(data=genus, aes(x=reorder(Genus, +Individual), y=Individual,fill=Genus)) +
+  geom_bar(stat="identity") + coord_flip() + 
+  geom_text(aes(label=Individual), vjust=0.4, hjust = 0, color="black", fontface = "bold", size=3.5) +
+  labs(title = "Abondance par genre", x = 'Genre', y = 'Individus') +
+  scale_color_brewer(palette = "Dark2") +
+  theme(axis.title.x = element_text(face="bold", size = 20), # Titre axe x
+        axis.title.y = element_text(face="bold", size = 20), # Titre axe y
+        axis.text.x = element_text(face="bold", color= "black", size=10, hjust=0), # Echelle x
+        axis.text.y = element_text(face="bold", color= "black", size=10), # Echelle y
+        panel.grid.major = element_blank(),panel.grid.minor = element_blank(),
+        panel.background = element_rect(fill='white', colour='black'),
+        legend.position = "none") +
+  scale_fill_viridis_d("") # couleur viridis, et titre légende
 ```
 
 ```{r Exploration espece}
@@ -239,12 +267,16 @@ ggplot(bee_sp, aes(x = reorder(Specie, -Individual), y =  Individual)) +
 
 
 ```{r Abondance + Pareto pareto.chart}
+# Rajouter avec ppt les singletons et doubletons (doublet/couple)
+qcc.options(bg.margin="white")
 pareto.bee_sp <- bee_sp$Individual
 names(pareto.bee_sp) <- bee_sp$Specie
 pareto.chart(pareto.bee_sp, cumperc = seq(0, 100, by = 10), 
              ylab = "Abondance", ylab2 = "Pourcentage cumulative",
              main = "Espèce par rang d'abondance",
              col = "dark red", border = "green")
+# x
+# abline(v = 0.3 , col = 2)
 ```
 
 
@@ -271,9 +303,11 @@ ggplot(hm.bee_sp, aes(x = Site, y = sp, fill = nbr)) +
         legend.position="left") + # position légende
   scale_y_discrete(position = "right") + # y label à droite
   guides(fill = guide_colourbar(title = "Abondance")) + # Titre légende
-  scale_fill_viridis(discrete=FALSE)  # couleur
+  #scale_fill_distiller(palette = "Reds", direction = +1)  # couleur
+  #scale_fill_distiller(palette = "YlOrBr", direction = 1, na.value = "grey50")
+  scale_fill_viridis(option = "B", direction = -1)  # couleur
 
-sum(hm.bee_sp$nbr) # total abeille 
+#sum(hm.bee_sp$nbr) # total abeille 
 
 ```
 
@@ -281,7 +315,58 @@ sum(hm.bee_sp$nbr) # total abeille
 #heatmap.2(t(hm.bee_sp))
 #https://www.royfrancis.com/a-guide-to-elegant-tiled-heatmaps-in-r-2019/
 
+plotweb(dados, arrow="down.center", method="normal", 
+        text.rot=90, high.lablength=50, low.lablength=70,
+        col.high = c("#66CC00", "#80FF00", "#80FF00", "#FF8000", "#66CC00","#FFFF00", "#66CC00", "#66CC00","#FFB266", "#FF0000"),
+        col.low = "#994C00", bor.col.low= "#404040", bor.col.high= c("#66CC00", "#80FF00","#80FF00", "#FF8000", "#66CC00","#FFFF00", "#66CC00", "#66CC00", "#FFB266", "#FF0000"), 
+col.interaction= col.high, bor.col.interaction =  col.high, y.lim=c(-0.26,6), low.y=0.69, high.y=3.7)
+
+legend <- unique(patch[,c("Habitat", "color")])
+par(xpd = T) #allow plotting outside the plot
+plotweb(ntw1, col.low = as.character(patch$color)) 
+legend(x=0, y=0.25, as.character(legend$Habitat), pch=21,
+       col="#777777", pt.bg=as.character(legend$color), 
+       pt.cex=1, cex=.6, bty="n", ncol=2)
+
+
+library(grDevices)
+
+plotweb(df, 
+    abuns.type='additional',
+    arrow="up.center",
+    text.rot=90,
+    col.low=c("olivedrab3"),
+    col.interaction = t(ifelse(df[,] < 15,
+                             adjustcolor('grey80', alpha.f = 0.5), #add alpha to colors
+                             adjustcolor('darkturquoise', alpha.f = 0.5))), 
+    col.high = c("grey10",
+                 "#FF0000",
+                 "grey10",
+                 "#FF0000",
+                 "grey10",
+                 "#FF0000",
+                 "grey10",
+                 "grey10",
+                 "grey10"),
+    bor.col.interaction = NA, #remove the black border color
+    high.lab.dis = 0,
+    ybig=1.2,
+    y.width.high = .06,
+    high.spacing = 0.011, 
+    y.lim = c(-1,2))
+```
+
+```{r}
+library (bipartite)
+
+b <- data_pla_sp[,-1:-2]
+b <- as.matrix(b)
+row.names(b) <- data_pla_sp$Site
+plotweb(b,arrow="down.center", method="normal", 
+        text.rot=90, high.lablength=500, low.lablength=500, # lablenght = nbr caractère limité
+        col.high = ) 
 
 
 ```
+
 
