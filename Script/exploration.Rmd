@@ -243,7 +243,8 @@ pareto.bee_sp <- bee_sp$Individual
 names(pareto.bee_sp) <- bee_sp$Specie
 pareto.chart(pareto.bee_sp, cumperc = seq(0, 100, by = 10), 
              ylab = "Abondance", ylab2 = "Pourcentage cumulative",
-             main = "Espèce par rang d'abondance")
+             main = "Espèce par rang d'abondance",
+             col = "dark red", border = "green")
 ```
 
 
