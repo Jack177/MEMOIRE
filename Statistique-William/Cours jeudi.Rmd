@@ -1,0 +1,23 @@
+---
+title: "Cours statistique"
+author: "Jordan Benrezkallah"
+date: "6/23/2022"
+output: pdf_document
+---
+
+```{r setup, include=FALSE}
+
+```
+
+## R Markdown
+
+
+
+```{r cars}
+summary(cars)
+```
+
+```{r pressure, echo=FALSE}
+plot(pressure)
+```
+
