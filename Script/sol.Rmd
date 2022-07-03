@@ -1,0 +1,162 @@
+---
+title: "Sols"
+author: "Jordan"
+date: "`r Sys.Date()`"
+output:
+  html_document:
+    df_print: paged
+---
+
+## Chargement des paquets
+
+```{r Library, message=FALSE, warning=FALSE, include=FALSE, results='hide', paged.print=FALSE}
+library("readxl") 
+library(dplyr)
+library(plotly)
+library(ggplot2)
+library(viridis) # couleur daltonien
+library(tidyr) # fonction gather
+library(qcc)
+library(gplots)
+library(RColorBrewer)
+library(vegan) # PCA RDA CCA
+library(FactoMineR) # Deux autres packages faisant la même chose mais en plus esthétique
+library(factoextra)
+library(ape) #PCoA
+library(ade4)
+```
+
+## Importation des données
+```{r Import, message=FALSE, warning=FALSE, include=FALSE, results='hide', paged.print=FALSE}
+# Import
+# Tour PC
+setwd("D:/OneDrive - UMONS/UMONS/MA2/MEMOIRE/Statistique/R/STAT-MEMOIRE/RAW1/From DFF")
+# Laptop
+#setwd("C:/Users/Jordan/OneDrive - UMONS/UMONS/MA2/MEMOIRE/Statistique/R/STAT-MEMOIRE/RAW1/From DFF")
+
+# Import
+soil <- read_excel("../Soil_R.xlsx")
+granulo <- read_excel("../granulo.xlsx")
+
+# Rename
+#rename(soil, "Familly" = "GR2", "Individual" = "Donnees") -> soil
+
+# Metaux
+soil_site_name <- select(soil, Site)
+metal <- soil[,-10:-12]
+metal <- metal[,-1]
+row.names(metal) <- soil_site_name$Site
+
+# Azote (Nitrogen) 
+# Nitrate NO3, ammonium NH4, azote total N
+azote <- soil[,9:12]
+azote <- azote[,-1]
+row.names(azote) <- soil_site_name$Site
+
+# Granulométrie
+granulo_site_name <- select(granulo, Site)
+granulo <- granulo[,1:6]
+granulo <- granulo[,-1]
+row.names(granulo) <- granulo_site_name$Site
+
+```
+
+## ACP (PCA)
+
+La PCA est une méthode linéaire qui doit respecter quelques hypothèses :
+-distribution multinormales des données (seulement pour faire des inférences).
+-nombre limité de zéros
+-le gradient d'intérêt (=PC1 ???) doit causer la majorité de la variance dans le jeu de données
+
+La PCA préserves les distances euclidiennes entre objets
+Fonctionne mieux pour les jeux de données plus long que larges
+
+### Metaux
+
+
+
+Le broken stick montre que la génération d'axe au hasard n'aurait pas donné les mêmes PC1 et PC2.
+
+Le premier biplot, montre que les sites ayant des valeurs hautes ou basses avec les variables environnementales.
+La projection des sites sur les variables environnmentales est important, pas les angles.
+Jean d'Avesne a des hautes valeurs pour Hg, Pb et Cu.
+
+Le deuxième biplot, montre les relations entre les variables. Les angles reflètent leurs corrélations.
+Un angle étroit montre une forte corrélation, une direction opposée montre une corellation négative et un angle droit montre une corrélation nulle.
+Les angles montrent que le Pb et Cu sont fortement corrélé positivement et Cd et Pb ont une corrélation nulle.
+
+Le dernier graphique montre les sites qui diverge le plus. Le site 6 (Village des abeilles) et 11 (Jean d'Avesne) se détache fortement des autres sites, ceci semble montrer une composition du sol très différentes par rapport aux autres sites.
+```{r ACP Metaux, echo=FALSE, message=FALSE, warning=FALSE, paged.print=FALSE, results='hide'}
+# Metaux
+
+pca.metal <- rda(metal, scale = TRUE) # Scale = TRUE, rend homogène càd, centré et réduit
+summary(pca.metal)
+screeplot(pca.metal, bstick = TRUE)
+
+biplot(pca.metal, scaling = "sites") # rajouter : display = "sites" enlève les variables environnementales
+biplot(pca.metal, scaling = "species") # rajouter : display = "species" enlève les sites
+pca2.metal = PCA(metal, scale.unit = TRUE)
+fviz_pca_biplot(pca2.metal)
+
+
+w.metal <- hclust(dist(scale(metal)), "ward.D") # On crée ici une classification des sites
+grp <- as.factor(cutree(w.metal, k = 5)) # Je conserve les k principaux groupes de cette classification
+fviz_pca_ind (pca2.metal,col.ind = grp, # Je colorie les points par groupes
+              repel = TRUE, # évite le chevauchement de texte,
+              legend.title = "Groups",
+              palette = "Dark2")
+```
+
+### Azote
+```{r ACP Azote, echo=FALSE, message=FALSE, warning=FALSE, paged.print=FALSE, results='hide'}
+# Azote
+
+pca.azote <- rda(azote, scale = TRUE) # Scale = TRUE, rend homogène càd, centré et réduit
+summary(pca.azote)
+screeplot(pca.azote, bstick = TRUE)
+
+biplot(pca.azote, scaling = "sites")
+biplot(pca.azote, scaling = "species", display = "species")
+pca2.azote = PCA(azote, scale.unit = TRUE)
+fviz_pca_biplot(pca2.azote)
+
+
+w.azote <- hclust(dist(scale(azote)), "ward.D") # On crée ici une classification des sites
+grp <- as.factor(cutree(w.azote, k = 5)) # Je conserve les 4 principaux groupes de cette classification
+fviz_pca_ind (pca2.azote,col.ind = grp, # Je colorie les points par groupes
+              repel = TRUE, # évite le chevauchement de texte,
+              legend.title = "Groups",
+              palette = "Dark")
+```
+
+### Granulométrie
+```{r ACP granulométrie, echo=FALSE, message=FALSE, warning=FALSE, paged.print=FALSE, results='hide'}
+# Granulométrie
+
+pca.granulo <- rda(granulo, scale = TRUE) # Scale = TRUE, rend homogène càd, centré et réduit
+summary(pca.granulo)
+screeplot(pca.granulo, bstick = TRUE)
+
+biplot(pca.granulo, scaling = "sites")
+biplot(pca.granulo, scaling = "species", display = "species")
+pca2.granulo = PCA(granulo, scale.unit = TRUE)
+fviz_pca_biplot(pca2.granulo)
+
+
+w.granulo <- hclust(dist(scale(granulo)), "ward.D") # On crée ici une classification des sites
+grp <- as.factor(cutree(w.granulo, k = 3)) # Je conserve les 4 principaux groupes de cette classification
+fviz_pca_ind (pca2.granulo,col.ind = grp, # Je colorie les points par groupes
+              repel = TRUE, # évite le chevauchement de texte,
+              legend.title = "Groups",
+              palette = "Dark")
+```
+
+```{r}
+
+```
+
+
+
+
+
+

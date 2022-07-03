@@ -1,0 +1,152 @@
+---
+title: "Garder pour rapport"
+author: "Jordan"
+date: "`r Sys.Date()`"
+output: pdf_document
+---
+
+## Chargement des paquets
+
+```{r Library, message=FALSE, warning=FALSE, include=FALSE, results='hide', paged.print=FALSE}
+library("readxl") 
+library(dplyr)
+library(plotly)
+library(ggplot2)
+library(viridis) # couleur daltonien
+library(tidyr) # fonction gather
+library(qcc)
+library(gplots)
+library(RColorBrewer)
+library(vegan) # Un premier lot de fonctions pour ordination
+library(FactoMineR) # Deux autres packages faisant la m?me chose mais en plus esth?tique
+library(factoextra)
+library(ape) #PCoA
+library(ade4)
+
+```
+
+## Importation des données
+```{r Import, message=FALSE, warning=FALSE, include=FALSE, results='hide', paged.print=FALSE}
+# Import
+# Tour PC
+setwd("D:/OneDrive - UMONS/UMONS/MA2/MEMOIRE/Statistique/R/STAT-MEMOIRE/RAW1/From DFF")
+# Laptop
+#setwd("C:/Users/Jordan/OneDrive - UMONS/UMONS/MA2/MEMOIRE/Statistique/R/STAT-MEMOIRE/RAW1/From DFF")
+
+# fam_bee_site <- read_excel("Fam_bee-vs-site.xlsx")
+fam <- read_excel("Nbre individus par famille.xls")
+genus <- read_excel("Nbre individus par genre.xls")
+data_bee_sp <- read_excel("Site-vs-bee.xls")
+data_bee_genus <- read_excel("Site-vs-bee_genus3.xls")
+data_pla_sp <- read_excel("Site-vs-plante.xls")
+bee_sp <- read_excel("nbr_sp.xls")
+data_pla_sp <- read_excel("Site-vs-plante.XLS")
+soil <- read_excel("../Soil_R.xlsx")
+
+bee_plante <- read_excel("plotweb2-r.xls")
+bee_plante <- bee_plante[-1,] # Retirer ligne total (NA)
+
+# Rename
+rename(fam, "Familly" = "GR2", "Individual" = "Donnees") -> fam
+rename(genus, "Genus" = "GEN", "Individual" = "Donnees") -> genus
+rename(bee_sp, "Specie" = "TAXPRIO", "Individual" = "Donnees") -> bee_sp
+rename(data_bee_sp, "Site" = "TOPO") -> data_bee_sp
+rename(data_bee_genus, "Site" = "TOPO") -> data_bee_genus
+rename(data_pla_sp, "Site" = "TOPO", "Total plant " = "<>") -> data_pla_sp
+rename(bee_plante, "plante" = "TAXPRIO") -> bee_plante
+
+# Conservation des NA pour la heatmap
+hm.data_bee_sp <- data_bee_sp
+
+# Remplacer les NA par "0"
+data_bee_sp[is.na(data_bee_sp)] <- 0
+data_bee_genus[is.na(data_bee_genus)] <- 0
+data_pla_sp[is.na(data_pla_sp)] <- 0
+bee_plante[is.na(bee_plante)] <- 0
+```
+
+
+## Exploration des données 
+### Famille
+
+```{r Exploration famille}
+# fam
+
+ggplot(data=fam, aes(x=reorder(Familly, +Individual), y=Individual,fill=Familly)) +
+  geom_bar(stat="identity") + coord_flip() + 
+  geom_text(aes(label=Individual), vjust=0.5, hjust = -0.1, color="black", size=3.5, fontface = "bold") +
+  labs(title = "", x = '', y = '') +
+  scale_color_brewer(palette = "Dark2") +
+  theme_void() +
+  theme(axis.title.x = element_text(face="bold", size = 20), # Titre axe x
+        axis.title.y = element_text(face="bold", size = 20), # Titre axe y
+        axis.text.x = element_text(face="bold", color= "white", size=10, hjust=0), # Echelle x
+        axis.text.y = element_text(face="bold", color= "black", size=10), # Echelle y
+        legend.position = "none") +
+  scale_fill_viridis_d("")
+
+```
+### Genre
+```{r Exploration genus}
+# genus
+ggplot(data=genus, aes(x=reorder(Genus, +Individual), y=Individual,fill=Genus)) +
+  geom_bar(stat="identity") + coord_flip() + 
+  geom_text(aes(label=Individual), vjust=0.4, hjust = 0, color="black", fontface = "bold", size=3.5) +
+  labs(title = "Abondance par genre", x = 'Genre', y = 'Individus') +
+  scale_color_brewer(palette = "Dark2") +
+  theme(axis.title.x = element_text(face="bold", size = 20), # Titre axe x
+        axis.title.y = element_text(face="bold", size = 20), # Titre axe y
+        axis.text.x = element_text(face="bold", color= "black", size=10, hjust=0), # Echelle x
+        axis.text.y = element_text(face="bold", color= "black", size=10), # Echelle y
+        panel.grid.major = element_blank(),panel.grid.minor = element_blank(),
+        panel.background = element_rect(fill='white', colour='black'),
+        legend.position = "none") +
+  scale_fill_viridis_d("") # couleur viridis, et titre légende
+```
+### Abondance sp + courbe Pareto
+
+```{r Abondance + Pareto pareto.chart}
+# Rajouter avec ppt les singletons et doubletons (doublet/couple)
+qcc.options(bg.margin="white")
+pareto.bee_sp <- bee_sp$Individual
+names(pareto.bee_sp) <- bee_sp$Specie
+pareto.chart(pareto.bee_sp, cumperc = seq(0, 100, by = 10), 
+             ylab = "Abondance", ylab2 = "Pourcentage cumulative",
+             main = "Espèce par rang d'abondance",
+             col = "dark red", border = "green")
+# x
+# abline(v = 0.3 , col = 2)
+```
+
+### Heatmap sp vs site
+
+```{r Heatmap ggplot}
+# Remodeler le jeux de données pour le heatmap
+
+hm.bee_sp <- gather(hm.data_bee_sp, key="sp", value="nbr", 2:79)
+
+hm.bee_sp$sp <- factor(hm.bee_sp$sp)
+
+hm.bee_sp <- hm.bee_sp %>%
+  # convert state to factor and reverse order of levels
+  mutate(sp=factor(sp, levels=rev(sort(unique(sp)))))
+
+hm.bee_sp <- select(hm.bee_sp, sp, Site, nbr)
+ggplot(hm.bee_sp, aes(x = Site, y = sp, fill = nbr)) +
+  labs(title = "Abondance des abeilles sauvages", x = '', y = '') + # Titre et titre axe
+  geom_tile(color = "black") +
+  coord_fixed() +
+  guides(fill = guide_colourbar(label = FALSE,
+                                ticks = FALSE)) +
+  theme(axis.text.x = element_text(angle = 90, vjust = 1, size = 8, hjust = 0),
+        axis.text.y = element_text(size = 8, hjust = 0, vjust = 1),
+        legend.position="left") + # position légende
+  scale_y_discrete(position = "right") + # y label à droite
+  guides(fill = guide_colourbar(title = "Abondance")) + # Titre légende
+  #scale_fill_distiller(palette = "Reds", direction = +1)  # couleur
+  #scale_fill_distiller(palette = "YlOrBr", direction = 1, na.value = "grey50")
+  scale_fill_viridis(option = "B", direction = -1, na.value = "white")  # couleur
+
+#sum(hm.bee_sp$nbr) # total abeille 
+
+```
