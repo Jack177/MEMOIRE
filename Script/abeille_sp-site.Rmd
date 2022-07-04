@@ -1,0 +1,161 @@
+---
+title: "Abeille et site"
+author: "Jordan"
+date: "`r Sys.Date()`"
+output: html_document
+---
+
+```{r Library, message=FALSE, warning=FALSE, include=FALSE, results='hide', paged.print=FALSE}
+library("readxl") 
+library(dplyr)
+library(plotly)
+library(ggplot2)
+library(viridis) # couleur daltonien
+library(tidyr) # fonction gather
+library(RColorBrewer)
+library(vegan) # PCA RDA CCA
+library(FactoMineR) # Deux autres packages faisant la même chose mais en plus esthétique
+library(ape) #PCoA
+library(ade4)
+library(corrplot)
+```
+
+## Importation des données
+```{r Import, message=FALSE, warning=FALSE, include=FALSE, results='hide', paged.print=FALSE}
+# Import
+# Tour PC
+setwd("D:/OneDrive - UMONS/UMONS/MA2/MEMOIRE/Statistique/R/STAT-MEMOIRE/RAW1/From DFF")
+# Laptop
+#setwd("C:/Users/Jordan/OneDrive - UMONS/UMONS/MA2/MEMOIRE/Statistique/R/STAT-MEMOIRE/RAW1/From DFF")
+
+# Importation
+wb_sp <- read_excel("Site-vs-bee.xls")
+
+# Rename
+rename(wb_sp, "site" = "TOPO") -> wb_sp
+site <- wb_sp$site
+wb_sp <- as.matrix(wb_sp[,-1])
+row.names(wb_sp) <- site
+
+# Remplacer les NA par "0"
+wb_sp[is.na(wb_sp)] <- 0
+```
+
+
+```{r CA Correspondence analysis}
+### CA ####
+ca.wb_sp <-  cca(wb_sp)
+summary(ca.wb_sp)# Se lit comme une PCA
+screeplot(ca.wb_sp, bstick = TRUE)# L'axe 1 repr?sente beaucoup plus de dispersion que dan sun mod?le al?atoire !
+plot(ca.wb_sp, scaling =1) # Des sites proches ont des communaut?s de poissons similaires. Si un site est proche d'une esp?ce, celle-ci est probablement abondante sur ce site, ou en tout cas plus abondante en comparaison des autres sites plus ?loign?s de l'esp?ce.
+plot(ca.wb_sp, scaling =2)
+```
+
+
+## CA 
+
+### Code provenant de Youtube (Mario Castro)
+
+Les eigenvalues de l'axe 1 et 2 forme à deux plus de 32% de la dispersion, ce qui semble faible.
+
+Le corrélogramme montre que le site Condorcet est fortement corrélé à l'axe Dim 1 et le village des abeilles est corrélé à Dim 2.
+Le site Condorcet contribue énormément à Dim 1, le village des abeilles y contribue un petit peu.
+Le site village des abeilles contribue énormément à Dim 2.
+Il semblerait que seul deux sites ont été correctement dispersé, faudrait-il les retirer et rééssayer ?
+
+
+```{r CA Correspondence analysis YT Mario Castro}
+
+# dt <- as.table(as.matrix(wb_sp))
+# balloonplot(t(dt), main ="wb_sp", xlab ="", ylab="",
+#             label = FALSE, show.margins = FALSE)
+
+### CA ####
+ca.wb_sp <- CA(wb_sp)
+ca.wb_sp$eig
+fviz_eig(ca.wb_sp, addlabels = TRUE, choice = "variance")
+fviz_ca_row(ca.wb_sp, addlabels = TRUE, repel = TRUE) # repel augmente la lisibilité
+
+# Correlogram
+corrplot(ca.wb_sp$row$contrib, is.corr = FALSE)
+corrplot(ca.wb_sp$col$contrib, is.corr = FALSE)
+
+corrplot(ca.wb_sp$row$coord, is.corr = FALSE)
+corrplot(ca.wb_sp$col$coord, is.corr = FALSE)
+
+# Contribution of rows
+fviz_contrib(ca.wb_sp,choice = 'row',top=10)
+fviz_contrib(ca.wb_sp,choice = 'row',top=10,axes = 2)
+
+fviz_ca_col(ca.wb_sp, repel = TRUE)
+
+# Contribution of columns
+fviz_contrib(ca.wb_sp, choice = "col", axes = 1)
+
+# Biplot
+fviz_ca_biplot(ca.wb_sp, repel = TRUE)
+fviz_ca_biplot(ca.wb_sp, 
+               map ="rowprincipal", arrow = c(TRUE, TRUE),
+               repel = TRUE)
+```
+
+## Retirer Village des abeilles et Condorcet
+On voit que la contribution de Dim 1 et 2 est maintenant monopolisé par Siège social et Jardin suspendus.
+```{r CA Correspondence analysis YT Mario Castro 2}
+
+wb_sp <- wb_sp[-3,]
+wb_sp <- wb_sp[-15,]
+
+### CA ####
+ca.wb_sp <- CA(wb_sp)
+ca.wb_sp$eig
+fviz_ca_row(ca.wb_sp, addlabels = TRUE, repel = TRUE) # repel augmente la lisibilité
+
+# Correlogram
+corrplot(ca.wb_sp$row$coord, is.corr = FALSE)
+corrplot(ca.wb_sp$col$coord, is.corr = FALSE)
+
+# Contribution of rows
+fviz_contrib(ca.wb_sp,choice = 'row',top=10)
+fviz_contrib(ca.wb_sp,choice = 'row',top=10,axes = 2)
+
+
+# Contribution of columns
+fviz_contrib(ca.wb_sp, choice = "col", axes = 1)
+
+# Biplot
+fviz_ca_biplot(ca.wb_sp, 
+               map ="rowprincipal", arrow = c(TRUE, TRUE),
+               repel = TRUE)
+```
+
+### Retirer Jardin suspendu et siège social
+On retombe dans le même problème que précédent.
+
+```{r CA Correspondence analysis YT Mario Castro 3}
+
+wb_sp <- wb_sp[-5,]
+wb_sp <- wb_sp[-12,]
+
+### CA ####
+ca.wb_sp <- CA(wb_sp)
+ca.wb_sp$eig
+fviz_ca_row(ca.wb_sp, addlabels = TRUE, repel = TRUE) # repel augmente la lisibilité
+
+# Correlogram
+corrplot(ca.wb_sp$row$coord, is.corr = FALSE)
+corrplot(ca.wb_sp$col$coord, is.corr = FALSE)
+
+# Contribution of rows
+fviz_contrib(ca.wb_sp,choice = 'row',top=10)
+fviz_contrib(ca.wb_sp,choice = 'row',top=10,axes = 2)
+
+
+# Contribution of columns
+fviz_contrib(ca.wb_sp, choice = "col", axes = 1)
+
+# Biplot
+fviz_ca_biplot(ca.wb_sp, 
+               map ="rowprincipal", arrow = c(TRUE, TRUE),
+               repel = TRUE)
+```

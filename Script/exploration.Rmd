@@ -85,6 +85,7 @@ bee_plante[is.na(bee_plante)] <- 0
 
 ```{r}
 sum(bee_sp$Individual) # Abeille total 
+nrow(bee_sp) # Nbr sp total
 ```
 
 
