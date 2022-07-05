@@ -8,8 +8,8 @@ output:
   pdf_document: default
 ---
 Note : 
-<- 
-Alt + "-"
+Insérer "<- "   =====> Alt + "-"
+Insérer new chunk ===> Ctrl + Alt + I
 ## Chargement des paquets
 
 ```{r Library, message=FALSE, warning=FALSE, include=FALSE, results='hide', paged.print=FALSE}

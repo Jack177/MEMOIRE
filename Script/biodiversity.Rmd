@@ -1,0 +1,61 @@
+---
+title: "Biodiversité"
+author: "Jordan"
+date: "`r Sys.Date()`"
+output: html_document
+---
+
+```{r Library, message=FALSE, warning=FALSE, include=FALSE, results='hide', paged.print=FALSE}
+library("readxl") 
+library(dplyr)
+library(ggplot2)
+library(viridis) # couleur daltonien
+library(tidyr) # fonction gather
+library(RColorBrewer)
+library(vegan) # Un premier lot de fonctions pour ordination
+
+```
+
+```{r Import, message=FALSE, warning=FALSE, include=FALSE, results='hide', paged.print=FALSE}
+# Import
+# Tour PC
+setwd("D:/OneDrive - UMONS/UMONS/MA2/MEMOIRE/Statistique/R/STAT-MEMOIRE/RAW1/From DFF")
+# Laptop
+#setwd("C:/Users/Jordan/OneDrive - UMONS/UMONS/MA2/MEMOIRE/Statistique/R/STAT-MEMOIRE/RAW1/From DFF")
+
+
+# # Import
+# soil <- read_excel("../Soil_R.xlsx")
+# granulo <- read_excel("../granulo.xlsx")
+# 
+# # Rename
+# #rename(soil, "Familly" = "GR2", "Individual" = "Donnees") -> soil
+# 
+# # Metaux
+# soil_site_name <- select(soil, Site)
+# metal <- soil[,-10:-12]
+# metal <- metal[,-1]
+# row.names(metal) <- soil_site_name$Site
+# 
+# # Azote (Nitrogen) 
+# # Nitrate NO3, ammonium NH4, azote total N
+# azote <- soil[,9:12]
+# azote <- azote[,-1]
+# row.names(azote) <- soil_site_name$Site
+# 
+# # Granulométrie
+# granulo_site_name <- select(granulo, Site)
+# granulo <- granulo[,1:6]
+# granulo <- granulo[,-1]
+# row.names(granulo) <- granulo_site_name$Site
+
+```
+
+L'allure de la courbe d'accumulation dépend de l'ordre dans laquel les sites sont accumulés. La fonction specaccum() du package vegan répète un très grand nombre de fois la courbe d'accumulation de manière aléatoire. La fonction specpool() estime le nombre réél d'espèces présentes sur les différents sites.
+```{species accumulation curve }
+# 
+# specaccum() 
+# specpool()
+
+```
+

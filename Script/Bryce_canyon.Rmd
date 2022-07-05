@@ -1,0 +1,243 @@
+---
+title: "Bryce Canyon"
+author: "Jordan"
+date: "`r Sys.Date()`"
+output: html_document
+---
+
+
+
+```{r library, include=FALSE}
+library("readxl")
+library(dplyr)
+library(tidyverse)
+library(knitr)
+library(ggplot2)
+library(labdsv)
+library(ggthemes)
+```
+
+/!\\ plot peut signifier terrain/site !!!
+/!\\ occurence signifie la presence sur différents lieux => distribution !!!
+# Site X Species 
+https://www.youtube.com/watch?v=fftppBYyexE
+## Importation
+
+Importation d'un tableau de 169 sp de plantes (colonne) x 160 sites.
+Les colonnes ont pour valeur la couverture des sites par les sp de plantes, modalité entre  0.2 et 6.0 (variable qualitative ordinale).
+Plus d'info : https://www.rdocumentation.org/packages/labdsv/versions/2.0-1/topics/bryceveg
+
+## Première question : abondance des sp
+Dans combien de sites chaque sp est présentes ?
+Original question: "In how many plots does each species occur?"
+
+La réponse doit donner le nombre d'occurence (individus) pour les sites.
+
+Un graphique d'accumulation peut donner cette information en donnant sur l'axe de y le nombre de site et en x le nombre d'espèces.
+```{r bryceveg plot cumulative}
+# Lien vers les fichiers
+# myweb.ttu.edu/nmcintyr/Stat_Analysis_Ecol_Communities/SAEC.html
+
+data(bryceveg)
+data(brycesite)
+# Besoin de faire ça pour avoir un bon format
+veg <- bryceveg
+site <- brycesite
+
+# 
+spc.pres <- apply(veg>0,2,sum) # on garde que les valeurs positives; "2" indique colonnes; somme les individus par sp
+
+# Courbe d'accumulation des espèces 
+plot(sort(spc.pres))
+
+```
+
+On obtient une courbe d'accumulation, il faut environ 100 sites pour les 169 sp.
+
+Si on linéarise la courbe, on peut obtenir plus d'information.
+
+Le second graphique a une échelle différente, log sur la préscence actuelle des sp (= abondance des sp).
+Le premier graphique est plus approprié. Il garde l'échelle original, ce qui rend l'intrepréation plus facile.
+Environ 100 des 169 sp sont trouvé sur 10 sites, ce qui signifie qu'un grand nombre d'espèce est rare, peu sont abondantes.
+
+
+
+```{r bryceveg plot cumulative log}
+# Linearisation de la courbe 
+plot(sort(spc.pres), log = 'y',
+     main = "Cumulative Distribution of Species Occurrences",
+     xlab = "Cumulative Count of Species", ylab = "Number of Plots")
+# Mauvais graph
+plot(sort(log(spc.pres)),
+     main = "Cumulative Distribution of Species Occurrences",
+     xlab = "Cumulative Count of Species", ylab = "")
+```
+
+## Question 2 : couverture 
+
+Quelle est la couverture moyenne de chaque espèce lorsqu'elle est présente (sans compter les 0 pour les sites où elle est absente) ?
+What is the mean cover of each species when it occurs (not including 0s for plots where it is absent)?
+
+
+On va se concentrer sur l'abondance mesurée en pourcentage de couverture dans chaque site.
+
+On calcule les sommes des colonnes de la matrice veg.
+
+Le graphique de la distribution de l'abondance des espèces est encore plus asymétrique, cela signifie que la plupart des espèces sont présentes a de très faibles abondances. La plupart ont moins de 5 % de couverture, seulement qq sp sont abondantes.
+La plupart des sp ont une abondance faible.
+```{r cover}
+# normalement "cover" est à la place de "veg", dans la vidéo YT le code n'est pas donné
+tmp <- apply(veg,2,sum)
+spc.mean <- tmp/spc.pres
+
+# 
+plot(sort(spc.mean), log = 'y',
+     main = "Cumulative Species Abundance Distribution",
+     xlab = "Cumulative Number of Species", ylab = "Mean Abundance")
+
+```
+## Question 3 : abondance corrélé avec le nombre de site ?
+L'abondance moyenne des espèces est-elle corrélée au nombre de sites dans lesquelles elle est présente ?
+Original: "Is the mean abundance of species correlated with the number of plots in which it occurs?"
+
+En bas à droite du graphique ont une abondance très faible.
+Le point en haut à droite indique une espèce répandue et abondante.
+Les deux pointes en haut à gauche : montre qu'ils sont abondant si présent.
+
+Réponse : non, il n'y a pas de corrélation entre l'abondance moyenne et la présence dans les sites.
+```{r abondance et prescence}
+
+plot(spc.pres,spc.mean)
+identify(spc.pres,spc.mean, names(veg))
+
+```
+
+## Question : Combien d'espèce sont présent sur chaque site ?
+
+Il y a 3 à 27 sur 169 espèces  par site.
+```{r sp by site}
+# On aurait du mettre la variable "cover", mais elle n'est pas expliqué
+# Le graphique resemble malgré tout
+#plt.pres <- apply(cover>0, 1,sum)
+plt.pres <- apply(veg>0, 1,sum)
+plot(sort(plt.pres))
+
+```
+
+## Question : L'abondance totale de la végétation est-elle corrélée au nombre d'espèces présentes dans une parcelle ?
+
+Original: "Is the total abundance of vegetation correlated with the number of species in a plot?"
+
+Il y a 3 à 27 sur 169 espèces  par site.
+```{r abundance corr. nbr sp by site}
+
+# On aurait du mettre la variable "cover", mais elle n'est pas expliqué
+# Le graphique resemble pas trop
+#plt.sum <- apply(cover,1,sum)
+plt.sum <- apply(veg,1,sum)
+
+plot(sort(plt.sum))
+plot(plt.pres,plt.sum)
+```
+
+#  Site x env
+
+## Exploration site x env
+
+On voit qu'il n'y a aucun patern, pas de tendance, ces variables ne sont pas corrélés entre elles.
+On pourrait parler de shotgun data.
+
+La fonction cor() donne une corrélation de Pearson qui va de 1 à -1. Il indique la force et la direction entre 2 variables.
+0.09244026 : il n'y a pas de corrélation.
+Par défaut, Pearson est utilisé, c'est une version paramétrique qui suppose une relation linéaire entre des variables continues. 
+La corrélation de Spearman est l'équivalent non-paramétrique, il utilise des rangs et peut-être utilise pour des variables qualitatives ordinales. 
+Il ne suppose pas de linéarité. Il relâche ces suppositions mais en contrepartie il est moins puissant statistiquement. 
+Spearman indique également qu'il n'y a pas de corrélation.
+
+```{r explo 1}
+attach(site)
+
+plot(av,elev)
+cor(av, elev)
+cor(av, elev, method = "spearman")
+
+```
+
+Le chevauchement de ces boîtes indique qu'il n'y a pas de corrélation entre eux.
+Il n'est pas possible d'utiliser la fonction cor(), celle-ci a besoin de données numériques.
+Le deuxième graph utilise deux variables catégorielles/nominale
+```{r explo 2}
+plot(depth, asp, ylab="aspect in degrees")
+plot(depth,pos)
+```
+Toujours pas de pattern ici.
+
+```{r explo 3}
+# Mettre des graph par 2
+par(mfcol=c(1,2))
+
+plot(elev[depth=='deep'],av[depth=='deep'])
+plot(elev[depth!='deep'],av[depth!='deep'])
+```
+
+
+
+
+Peu de chevauchement, faut faire un t-test pour savoir s'il y a une différence significative.
+La p-value indique que les "deep soils" ne sont pas présent à la même moyenne d'élévation "shallow". Ecologiquement cela fait sens.
+Le test équivalent non-paramétrique d'un t-test
+Les conditions des tests non paramétriques sont plus facile à satisfaire, mais perde beaucoup en puissance.
+
+```{r explo 4}
+
+plot(depth,elev)
+#plot(elev,depth)
+
+t.test(elev~depth,var.equal=FALSE) # on suppose pas que la variance est la même dans les données des 2 boîte
+```
+
+# Pattern in community data
+https://www.youtube.com/watch?v=oZsaNU-YXCw
+
+Deux propriétés des espèces stimule les patterns de biodiversités
+Occurence (distribution) et Abondance
+Ces deux facteurs définissent la biodiversité.
+Ensemble ils génèrent des patterns :
+- La plupart des espèces sont rare; peu sont communes
+- La plupart des communautés contiennent seulement un sous-ensemble des espèces présent dans cette région. Ce n'est pas parce qu'une espèce est présente dans une région qu'elle sera présente dans n'importe quelle communauté pour une variété de raisons (partages/limitations des ressources, limitation de la dispersion, biotique intéraction ou chance). Ce qu'on observe est alors ce qui pourrait être présent.
+- Les espèces communes tend à avoir une large distribution, tandis que les espèces rares ont une distributions plus faible. Une relation positive entre l'abondance et la présence.
+- Les communautés qui ont une grande richesse ont tendance a avoir une abondance globale. Càd, que des sites avec une grande richesse ont également beaucoup d'individus présent.
+
+Des patterns peuvent également apparaître dû à l'échantillonnage et non pas à la nature.
+La plus connue est que la richesse est positivement associé avec le nombre d'échantillon collecté (= effort de collecte).
+Si on retrouve ces patterns, ont doit essayer de savoir pourquoi on les as. Cela peut-être dû a des erreurs d'encodage/transcription, dû a une faible taille  d'échantillonnage ou quelques choses de réél et d'étrange qui serait important de savoir.
+
+Il y a de la rareté de l'abondance et de l'occurrence. La rareté est commune, les sp communes sont rares dans l'écologie des communautés.
+
+
+## Abondance et occurence
+Le premier graphique classe les sp les plus fréquemment rencontrées à celle trouvés sur un seul site (en bas à droite du graph). On remarque que peu d'espèces sont abondantes et bcp sont rares. 
+
+
+Note : sur YT le 2ème graphiques est différents. 
+
+Le deuxième graphique ici, montre peu de site ont une richesse très faible et peu de site ont une richesse très élevé, la plupart ont une richesse plus ou moins élevé.
+
+Note : sur YT le 4ème graphiques est différents. 
+
+Le troisième graphique ici, les sp rares (~faible abondance) ont été retrouvé sur peu de sites.
+Il y a une corrélation positive entre l'occurence et l'abondance si on fait une régression linéaire on aurait une droite.
+Avec les espèces les plus abondantes ayant la plus grandes distributions et l'inverse pour les sp rares.
+
+Le quatrième graphique ici (x= richesse, y= abondance totale), montre que plus un site possède de richesse plus il possède d'abondance des sp
+
+Ces graphiques montrent des patterns régulièrement observés dans les jeux de données des communautés.
+```{r}
+# abundance and occurence
+abuocc(veg)
+```
+
+
+
+
+
