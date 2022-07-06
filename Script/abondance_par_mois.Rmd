@@ -1,0 +1,164 @@
+---
+title: "Date sp"
+author: "Jordan Benrezkallah"
+date: "7/6/2022"
+output: html_document
+
+---
+```{r Library, echo=FALSE, message=FALSE, warning=FALSE, paged.print=FALSE, results='hide'}
+library("readxl") 
+library(dplyr)
+library(ggplot2)
+library(RColorBrewer)
+library(stringr)
+library(dplyr)
+
+```
+
+
+```{r importation, echo=FALSE}
+# Tour PC
+#setwd("D:/OneDrive - UMONS/UMONS/MA2/MEMOIRE/Statistique/R/STAT-MEMOIRE/RAW1/From DFF")
+# Laptop
+setwd("C:/Users/Jordan/OneDrive - UMONS/UMONS/MA2/MEMOIRE/Statistique/R/STAT-MEMOIRE/RAW1/From DFF")
+date <- read_excel("date_sp.xls")
+```
+
+```{r manipulation des données, echo=FALSE}
+date <- filter(date, !sp == "Apis mellifera")
+
+date$mois <- substr(date$date,5,6)
+date$jour <- substr(date$date,7,8)
+date$mois <- as.numeric(date$mois)
+
+# De juillet à septembre
+juin <- filter(date, mois==06)
+juil <- filter(date, mois==07)
+aout <- filter(date, mois==08)
+sept <- filter(date, mois==09)
+
+#juin <-	arrange(juin, desc(abun))
+juil <-	arrange(juil, desc(abun),jour)
+aout <-	arrange(aout, desc(abun),jour)
+sept <-	arrange(sept, desc(abun),jour)
+
+
+```
+
+```{r juin, echo=FALSE, paged.print=TRUE}
+# SetNames va me permettre de renommer directement (possible avec renames aussi)
+# Aggregate va additionner toutes les sp qu'importe les sites
+# Je ne sais pas à quoi sert replace
+#juin <- rename(juin, "Familly" = "GR2", "Individual" = "Donnees") -> fam
+juin_all <- setNames(aggregate(juin$abun, list(juin$sp), FUN=sum, replace = FALSE), c("sp", "abun"))
+
+ggplot(juin_all, aes(x= reorder(sp, -abun) , y=abun,fill=sp)) +
+  geom_bar(stat="identity") +
+  labs(title = "Abondance mois de juin", x = ' ', y = 'Nbr specimens') +
+  scale_color_brewer(palette = "Dark2") +
+  theme(axis.title.x = element_text(face="bold", size = 20), # Titre axe x
+        axis.title.y = element_text(face="bold", size = 20), # Titre axe y
+        axis.text.x = element_text(face="bold", color= "black", size=10, hjust=0, angle = 90), # Echelle x
+        axis.text.y = element_text(face="bold", color= "black", size=10), # Echelle y
+        panel.grid.major = element_blank(),panel.grid.minor = element_blank(),
+        panel.background = element_rect(fill='white', colour='black'),
+        legend.position = "none") +
+  scale_fill_viridis_d()
+
+juin <- knitr::kable(juin)
+juin
+```
+```{r juillet, echo=FALSE, paged.print=FALSE}
+# SetNames va me permettre de renommer directement (possible avec renames aussi)
+# Aggregate va additionner toutes les sp qu'importe les sites
+# Je ne sais pas à quoi sert replace
+#juin <- rename(juin, "Familly" = "GR2", "Individual" = "Donnees") -> fam
+juil_all <- setNames(aggregate(juil$abun, list(juil$sp), FUN=sum, replace = FALSE), c("sp", "abun"))
+
+ggplot(juil_all, aes(x= reorder(sp, -abun) , y=abun,fill=sp)) +
+  geom_bar(stat="identity") +
+  labs(title = "Abondance mois de juil", x = ' ', y = 'Nbr specimens') +
+  scale_color_brewer(palette = "Dark2") +
+  theme(axis.title.x = element_text(face="bold", size = 20), # Titre axe x
+        axis.title.y = element_text(face="bold", size = 20), # Titre axe y
+        axis.text.x = element_text(face="bold", color= "black", size=10, hjust=0, angle = 90), # Echelle x
+        axis.text.y = element_text(face="bold", color= "black", size=10), # Echelle y
+        panel.grid.major = element_blank(),panel.grid.minor = element_blank(),
+        panel.background = element_rect(fill='white', colour='black'),
+        legend.position = "none") +
+  scale_fill_viridis_d()
+
+juil <- knitr::kable(juil)
+juil
+```
+
+```{r aout, echo=FALSE}
+# SetNames va me permettre de renommer directement (possible avec renames aussi)
+# Aggregate va additionner toutes les sp qu'importe les sites
+# Je ne sais pas à quoi sert replace
+#aout <- rename(aout, "Familly" = "GR2", "Individual" = "Donnees") -> fam
+aout_all <- setNames(aggregate(aout$abun, list(aout$sp), FUN=sum, replace = FALSE), c("sp", "abun"))
+
+ggplot(aout_all, aes(x= reorder(sp, -abun) , y=abun,fill=sp)) +
+  geom_bar(stat="identity") +
+  labs(title = "Abondance mois de aout", x = ' ', y = 'Nbr specimens') +
+  scale_color_brewer(palette = "Dark2") +
+  theme(axis.title.x = element_text(face="bold", size = 20), # Titre axe x
+        axis.title.y = element_text(face="bold", size = 20), # Titre axe y
+        axis.text.x = element_text(face="bold", color= "black", size=10, hjust=0, angle = 90), # Echelle x
+        axis.text.y = element_text(face="bold", color= "black", size=10), # Echelle y
+        panel.grid.major = element_blank(),panel.grid.minor = element_blank(),
+        panel.background = element_rect(fill='white', colour='black'),
+        legend.position = "none") +
+  scale_fill_viridis_d()
+
+aout <- knitr::kable(aout)
+aout
+```
+
+```{r sept, echo=FALSE}
+# SetNames va me permettre de renommer directement (possible avec renames aussi)
+# Aggregate va additionner toutes les sp qu'importe les sites
+# Je ne sais pas à quoi sert replace
+#sept <- rename(sept, "Familly" = "GR2", "Individual" = "Donnees") -> fam
+sept_all <- setNames(aggregate(sept$abun, list(sept$sp), FUN=sum, replace = FALSE), c("sp", "abun"))
+
+ggplot(sept_all, aes(x= reorder(sp, -abun) , y=abun,fill=sp)) +
+  geom_bar(stat="identity") +
+  labs(title = "Abondance mois de sept", x = ' ', y = 'Nbr specimens') +
+  scale_color_brewer(palette = "Dark2") +
+  theme(axis.title.x = element_text(face="bold", size = 20), # Titre axe x
+        axis.title.y = element_text(face="bold", size = 20), # Titre axe y
+        axis.text.x = element_text(face="bold", color= "black", size=10, hjust=0, angle = 90), # Echelle x
+        axis.text.y = element_text(face="bold", color= "black", size=10), # Echelle y
+        panel.grid.major = element_blank(),panel.grid.minor = element_blank(),
+        panel.background = element_rect(fill='white', colour='black'),
+        legend.position = "none") +
+  scale_fill_viridis_d()
+ 
+sept <- knitr::kable(sept)
+sept
+```
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
