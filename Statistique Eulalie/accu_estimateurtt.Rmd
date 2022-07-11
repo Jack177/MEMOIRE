@@ -9,9 +9,9 @@ output: html_document
 ```{r}
 library('ggpubr')
 library("iNEXT")
-library("BiodiversityR")
-library("rgdal")
-library("ape")
+#library("BiodiversityR")
+# library("rgdal")
+# library("ape")
 library("vegan")
 library("SpatialTools")
 library("betapart")
@@ -22,7 +22,7 @@ library("dismo")
 library("mapplots")
 library("corrplot")
 library("MuMIn")
-library("caret")
+#library("caret")
 library("pbkrtest")
 library("car")
 library("ggmap")
@@ -33,8 +33,8 @@ library("ggplot2")
 library("reshape2")
 library("reshape") 
 
-setwd("C:/Users/Jordan/OneDrive - UMONS/UMONS/MA2/MEMOIRE/Statistique/R/STAT-MEMOIRE/Statistique Eulalie")
-#setwd("D:/OneDrive - UMONS/UMONS/MA2/MEMOIRE/Statistique/R/STAT-MEMOIRE/Statistique Eulalie")
+#setwd("C:/Users/Jordan/OneDrive - UMONS/UMONS/MA2/MEMOIRE/Statistique/R/STAT-MEMOIRE/Statistique Eulalie")
+setwd("D:/OneDrive - UMONS/UMONS/MA2/MEMOIRE/Statistique/R/STAT-MEMOIRE/Statistique Eulalie")
 ```
 
 
@@ -50,8 +50,9 @@ cbp2 <- c( "#56B4E9", "#009E73",
 
 ```{r}
 ## Data combinée abeille, station, plante, trait
-reese <- read.csv ( "reesett.csv",header = T, sep = ";")
-ruelle <- read.csv ( "beeplanttraitstat.csv",header = T, sep = ";")
+reese <- read.csv ( "reesett.csv", header = T, sep = ";", check.names = F)
+reese <- iconv(reese,"WINDOWS-1252","UTF-8")
+ruelle <- read.csv ( "beeplanttraitstat.csv", header = T, sep = ";", check.names = F)
 ruelle$trait_phénott_ID <-  as.character(ruelle$trait_phénott_ID)
 martin <- read.csv ( "beestatplanttrait_mart.csv",header = T, sep = ";")
 martin$Mellifère <-  as.logical(martin$Mellifère)

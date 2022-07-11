@@ -400,4 +400,12 @@ plotweb(m1,arrow="down.center", method="normal",
 
 ```
 
+```{r}
+specaccum.data_bee_sp <- data_bee_sp[,-1]
+specaccum.data_bee_sp <- type.convert(specaccum.data_bee_sp)
+specaccum.data_bee_sp <- as.matrix(specaccum.data_bee_sp)
+specaccum.data_bee_sp <- specaccum(specaccum.data_bee_sp, "random", permutations = "999")
+plot(accu_curve, ci.col= "red", xlab = "Sites", ylab = "Nombre d'espèces", main = "Courbe d'accumulations des espèces pour l'ensemble des sites")
+
+```
 

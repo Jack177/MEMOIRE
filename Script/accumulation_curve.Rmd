@@ -1,0 +1,90 @@
+---
+title: "Courbe d'accumulation"
+author: "Jordan"
+date: "`r Sys.Date()`"
+output: html_document
+---
+Video Youtube : https://www.youtube.com/watch?v=uN_uFjcE8ag
+Chargement des paquets.
+```{r}
+library("readxl") 
+library(dplyr)
+library(vegan)
+library(ggplot2)
+library(tidyr)
+library(stringr)
+```
+
+Importation des données.
+```{r Import}
+# Import
+# Tour PC
+setwd("D:/OneDrive - UMONS/UMONS/MA2/MEMOIRE/Statistique/R/STAT-MEMOIRE/RAW2")
+# Laptop
+#setwd("C:/Users/Jordan/OneDrive - UMONS/UMONS/MA2/MEMOIRE/Statistique/R/STAT-MEMOIRE/RAW2")
+
+SpecCondStat <- read_excel("SpecCondStat.xls")
+
+SCS <- SpecCondStat
+```
+
+Nettoyage du jeux de données dans l'ensemble.
+```{r Nettoyage}
+# Retirer le site de Condorcet
+SCS <- filter(SCS, TOPO != "Condorcet" )
+
+# Renommer plus simplement
+rename(SCS, "sp" = "SPEC.TAXPRIO" ) -> SCS
+
+# Retirer les observations contenant l'espèce : "XXX"
+# SCS <- filter(SCS, SPEC.TAXPRIO != "Bombus (Bombus)  sp." )
+
+# Remplacement des noms d'espèces désuets
+SCS$sp[SCS$sp == "Bombus lucorum"] <- "Bombus (Bombus)  sp."
+SCS$sp[SCS$sp == "Terrestribombus  sp."] <- "Bombus (Bombus)  sp."
+SCS$sp[SCS$sp == "Chalicodoma ericetorum"] <- "Megachile ericetorum"
+SCS$sp[SCS$sp == "Halictus tumulorum"] <- "Seladonia tumulorum"
+```
+
+```{r Courbe d'accumulation}
+# Preparation des données pour la courbe d'accumulation
+accu <- select(SCS, sp, N, TOPO)
+accu <- as.data.frame(accu)
+accu <- aggregate(N ~ sp + TOPO, data = accu, sum)
+accu <- xtabs(N ~ TOPO + sp, accu)
+accu <- type.convert(accu)
+
+# Calcul des courbes d'accumulation des espèces
+specaccum.accu <- specaccum(accu, "random", permutations = 9999)
+plot(specaccum.accu, ci.col= "red", xlab = "Sites", ylab = "Nombre d'espèces", main = "Courbe d'accumulations des espèces pour l'ensemble des sites")
+```
+Figure X: Estimation de la complétude de l'échantillonnage pour l'ensemble des sites étudiées : courbe d'accumulation des espèces par site (intervalle de confiance pour 9999 permutations aléatoires des unités d'échantillonnage).
+
+
+
+
+
+```{r}
+ggplot(specaccum.accu, aes(x = site, y = richness)) +
+  geom_point() +
+  geom_line() 
+```
+
+
+```{r}
+
+```
+
+
+
+
+
+
+
+
+
+
+
+
+
+
