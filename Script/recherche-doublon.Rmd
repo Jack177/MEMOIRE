@@ -1,0 +1,19 @@
+---
+title: "recherche-doublon"
+author: "Jordan"
+date: "`r Sys.Date()`"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+library("readxl") 
+library(dplyr)
+
+# Laptop
+setwd("C:/Users/Jordan/OneDrive - UMONS/UMONS/MA2/MEMOIRE/Statistique/R/STAT-MEMOIRE/RAW1/From DFF")
+
+
+df <- read_excel("C:/Users/Jordan/OneDrive - UMONS/UMONS/MA2/MEMOIRE/Statistique/R/STAT-MEMOIRE/RAW1/From DFF/SpecCondStat.xlsx")
+
+```
+
