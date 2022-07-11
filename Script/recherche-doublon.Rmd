@@ -8,12 +8,44 @@ output: html_document
 ```{r setup, include=FALSE}
 library("readxl") 
 library(dplyr)
-
-# Laptop
-setwd("C:/Users/Jordan/OneDrive - UMONS/UMONS/MA2/MEMOIRE/Statistique/R/STAT-MEMOIRE/RAW1/From DFF")
-
-
-df <- read_excel("C:/Users/Jordan/OneDrive - UMONS/UMONS/MA2/MEMOIRE/Statistique/R/STAT-MEMOIRE/RAW1/From DFF/SpecCondStat.xlsx")
+library(tibble)
 
 ```
+
+```{r}
+setwd("D:/OneDrive - UMONS/UMONS/MA2/MEMOIRE/Statistique/R/STAT-MEMOIRE/RAW1/From DFF")
+
+df <- read_excel("SpecCondStat.xlsx")
+```
+
+```{r}
+
+df$mois <- substr(df$DAT2,5,6)
+df$jour <- substr(df$DAT2,7,8)
+```
+
+```{r}
+df <- select(df, mois, SPEC_COND_ID, COND_TAX, SEX, SPEC_TAX, SPEC_ID, REC, DAT2)
+df<-	arrange(df, mois, SPEC_ID)
+```
+
+```{r}
+# All data (Florine + Jordan)
+#df_A <- add_column(df, BDD = "J", .after = "DAT2")
+
+# Florine only
+df_F <- filter(df, SPEC_ID < 774)
+df_F <- add_column(df_F, BDD = "Flo", .after = "SPEC_ID")
+
+# Jordan only
+df_J <- filter(df, SPEC_ID > 774)
+df_J <- add_column(df_J, BDD = "Jor", .after = "SPEC_ID") # ajout colonne avec J dans mes données
+```
+
+```{r}
+df_A <-bind_rows(df_J, df_F)
+df_A<-	arrange(df_A,  mois, SPEC_COND_ID, COND_TAX, SEX, SPEC_TAX, SPEC_ID, BDD, REC, DAT2 )
+```
+
+
 

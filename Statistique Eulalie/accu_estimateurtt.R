@@ -1,0 +1,279 @@
+
+library('ggpubr')
+library("iNEXT")
+library("BiodiversityR")
+library("rgdal")
+library("ape")
+library("vegan")
+library("SpatialTools")
+library("betapart")
+library("pvclust")
+library("mapr")
+library("rgbif")
+library("dismo")
+library("mapplots")
+library("corrplot")
+library("MuMIn")
+library("caret")
+library("pbkrtest")
+library("car")
+library("ggmap")
+library("gstat")
+library("tidyverse")
+library("ggplot2")
+library(pheatmap)
+library("reshape2")
+library("reshape") 
+
+
+cbp2 <- c( "#56B4E9", "#009E73",
+            "#0072B2", "#D55E00", "#CC79A7", "#E69F00","#999999",
+           '#8B1C62','#32CD32',"#0000EE","#FF407A","#8B6914","#F0E442")
+
+setwd("C:/Users/lalie/Desktop/mémoire/1mémoire-stat")
+
+##################################### Data combiné abeille, station, plante, trait
+reese <- read.csv ( "reesett.csv",header = T, sep = ";")
+ruelle <- read.csv ( "beeplanttraitstat.csv",header = T, sep = ";")
+ruelle$trait_phénott_ID <-  as.character(ruelle$trait_phénott_ID)
+martin <- read.csv ( "beestatplanttrait_mart.csv",header = T, sep = ";")
+martin$Mellifère <-  as.logical(martin$Mellifère)
+alexl <- read.csv ( "beestatplanttrait_alexl.csv",header = T, sep = ";")
+alexl$Indigène <-  as.logical(alexl$Indigène)
+alexl$ITD <-  as.character(alexl$ITD)
+
+station <- bind_rows(reese, ruelle, martin, alexl)
+
+type <- read.csv ( "listetype.csv",header = T, sep = ";")
+stationtt <- left_join(station,type, by = "STATCODE")
+                       
+stationtt<-stationtt %>% filter(SPECTAXPRIO != "Andrena  sp.")
+stationtt <-stationtt %>% filter(SPECTAXPRIO != "Lasioglossum  sp.")
+
+stationtt$SPECTAXPRIO[stationtt$SPECTAXPRIO%in% c("Bombus pascuorum floralis")]<-"Bombus pascuorum"
+stationtt$SPECTAXPRIO[stationtt$SPECTAXPRIO%in% c("Bombus terrestris terrestris")]<-"Bombus (Bombus)  sp."
+stationtt$SPECTAXPRIO[stationtt$SPECTAXPRIO%in% c("Bombus terrestris")]<-"Bombus (Bombus)  sp."
+stationtt$SPECTAXPRIO[stationtt$SPECTAXPRIO%in% c("Bombus lucorum")]<-"Bombus (Bombus)  sp."
+stationtt$SPECTAXPRIO[stationtt$SPECTAXPRIO  %in% c("Bombus pascuorum floralis")]<-"Bombus pascuorum"
+stationtt$SPECTAXPRIO[stationtt$SPECTAXPRIO  %in% c("Bombus terrestris terrestris")]<-"Bombus (Bombus)  sp."
+
+stationtt$SPECTAXPRIO[stationtt$SPECTAXPRIO  %in% c("Terrestribombus")]<-"Bombus (Bombus)  sp."
+
+stationtt$SPECTAXPRIO[stationtt$SPECTAXPRIO  %in% c("Bombus campestris campestris")]<-"Bombus campestris"
+stationtt$SPECTAXPRIO[stationtt$SPECTAXPRIO  %in% c("Halictus confusus")]<-"Seladonia confusa"
+stationtt$SPECTAXPRIO[stationtt$SPECTAXPRIO  %in% c("Hoplosmia spinulosa")]<-"Osmia spinulosa"
+stationtt$SPECTAXPRIO[stationtt$SPECTAXPRIO  %in% c("osmia spinulosa")]<-"Osmia spinulosa"
+stationtt$SPECTAXPRIO[stationtt$SPECTAXPRIO  %in% c("Halictus tumulorum")]<-"Seladonia tumulorum"
+stationtt$SPECTAXPRIO[stationtt$SPECTAXPRIO  %in% c("halictus tumulorum")]<-"Seladonia tumulorum"
+stationtt$SPECTAXPRIO[stationtt$SPECTAXPRIO  %in% c("Chalicodoma ericetorum")]<-"Megachile ericetorum "
+stationtt$SPECTAXPRIO[stationtt$SPECTAXPRIO  %in% c("Bombus hortorum hortorum")]<-"Bombus hortorum"
+
+listeespece <- select(stationtt,STATCODE, type)
+listeespece <- distinct(listeespece)
+
+###matrice
+
+beestattab <- select (stationtt,SPECTAXPRIO,N,TOPO)
+beestattab<- filter ( milieu, type == "Prairie")
+
+beestattab <- aggregate(N~SPECTAXPRIO+TOPO, data = beestattab, sum)
+beestattab <- xtabs(N~TOPO+SPECTAXPRIO,beestattab)
+beestattab <-type.convert(beestattab)
+
+
+
+###############################################courbe d'accumulations pour toute station 
+
+sp2 <- specaccum(beestattab, "random", permutations = 999)
+plot(sp2,ci.col="red",xlab ="Sites de récolte", ylab ="Nombre d'espèces", main = "Courbe d'accumulations des espèces pour l'ensemble des sites")
+
+################################################### estimateurs de la richesse spÃ©cifique totale
+
+object <- specpool(beestattab, smallsample = TRUE)
+estimateR <-estimateR(beestattab)
+#specpool2vect(object, index = c("jack1","jack2", "chao", "boot","Species"))
+poolaccum <-poolaccum(beestattab, permutations = 999, minsize = 3)
+estaccumR <-estaccumR(beestattab, permutations = 999, parallel = getOption("mc.cores"))
+"summary"(object, display, alpha = 0.05)
+
+
+## Accumulation model
+pool <- poolaccum(beestattab)
+summary(pool, display = "chao")
+plot(pool)
+## Quantitative model
+estimateR(beestattab[1:72,])
+
+#####################################################matrice abeille par milieu
+milieu <- select (stationtt,SPECTAXPRIO,N,type,TOPO)
+milieu <-as.data.frame(milieu)
+
+milieutab <- aggregate(N~type+SPECTAXPRIO, data = milieu, sum)
+milieutab <- xtabs(N~type+SPECTAXPRIO,milieutab)
+milieutab <-type.convert(milieutab)
+
+################################################### estimateurs de la richesse spÃ©cifique par milieu
+
+object <- specpool(milieutab, smallsample = TRUE)
+estimateR <-estimateR(milieutab)
+"summary"(object, display, alpha = 0.05)
+
+object <- specpool(milieutab, smallsample = TRUE)
+estimateR <-estimateR(milieutab)
+#specpool2vect(object, index = c("jack1","jack2", "chao", "boot","Species"))
+poolaccum <-poolaccum(milieutab, permutations = 999, minsize = 3)
+estaccumR <-estaccumR(milieutab, permutations = 999, parallel = getOption("mc.cores"))
+"summary"(object, display, alpha = 0.05)
+################################################### raréfaction
+### classic
+S <- specnumber(milieutab) # observed number of species
+(raremax <- min(rowSums(milieutab)))
+Srare <- rarefy(milieutab, raremax)
+plot(S, Srare, xlab = "Observed No. of Species", ylab = "Rarefied No. of Species")
+abline(0, 1)
+rarecurve(BCI2, step = 5, sample = raremax, col = cbp2, cex = 0.6) 
+
+
+raremax <- min(rowSums(milieutab))
+col <- c("green", "blue", "orange", "black", "red", "pink", "purple")
+lty <- c("solid", "dashed", "longdash", "dotdash")
+pars <- expand.grid(col = col, stringsAsFactors = FALSE)
+head(pars)
+rarecurve(milieutab, step = 1, xlab = "Nombre d'individus collectés", ylab = "Nombre d'espèces observées", label = TRUE,col = col, border = NA, main = "Courbes de raréfaction des diférents types de milieux")
+
+##############################################H###rarefaction , hill
+rownamesmilieu<-row.names(milieutab)
+
+abond <- iNEXT(t(milieutab), q = c(0,1,2), datatype ="abundance") 
+
+DataInfotabee <-type.convert(abond$DataInfo)
+
+iNextEsttab <-type.convert(abond$iNextEst)
+AsyEsttab <-type.convert(abond$AsyEst)
+
+hill <- estimateD(t(milieutab), base="coverage")
+hillmatrix0= hill[hill[,"order"]==0,]
+hillmatrix1= hill[hill[,"order"]==1,]
+hillmatrix2= hill[hill[,"order"]==2,]
+hillmatrix = hillmatrix0[,c(1,2,4)]
+hillmatrix$SC0 = abond$DataInfo$SC
+hillmatrix[,c("H0r","H0rU","H0rL")]=hillmatrix0[,c("qD","qD.UCL","qD.LCL")]
+hillmatrix[,c("H1r","H1rU","H1rL")]=hillmatrix1[,c("qD","qD.UCL","qD.LCL")]
+hillmatrix[,c("H2r","H2rU","H2rL")]=hillmatrix2[,c("qD","qD.UCL","qD.LCL")]
+rownames(hillmatrix)= rownames(milieutab) 
+
+bee.abond <-DataInfotabee%>% select( "SC","site")
+rownames(bee.abond)=rownamesmilieu 
+names(bee.abond) <- c("Couverture", "site")
+
+######################################rarefaction
+
+raremax <- min(rowSums(milieutab))
+col <- type$couleur
+lty <- c("solid", "dashed", "longdash", "dotdash")
+pars <- expand.grid(col = col, stringsAsFactors = FALSE)
+head(pars)
+rarecurve(beestattab, step = 1, xlab = "Nombre d'individus collectés", ylab = "Nombre d'espèces observées", label = FALSE,col = type$couleur, border = NA, main = "Courbes de raréfaction des diférents types de milieux")
+
+
+##############################################H###rarefaction , hill
+
+abond <- iNEXT(t(beestattab), q = c(0,1,2), datatype ="abundance") 
+
+DataInfotab <-type.convert(abond$DataInfo)
+iNextEsttab <-type.convert(abond$iNextEst)
+AsyEsttab <-type.convert(abond$AsyEst)
+
+hill <- estimateD(t(beestattab), base="coverage")
+hillmatrix0= hill[hill[,"order"]==0,]
+hillmatrix1= hill[hill[,"order"]==1,]
+hillmatrix2= hill[hill[,"order"]==2,]
+hillmatrix = hillmatrix0[,c(1,2,4)]
+hillmatrix$SC0 = abond$DataInfo$SC
+hillmatrix[,c("H0r","H0rU","H0rL")]=hillmatrix0[,c("qD","qD.UCL","qD.LCL")]
+hillmatrix[,c("H1r","H1rU","H1rL")]=hillmatrix1[,c("qD","qD.UCL","qD.LCL")]
+hillmatrix[,c("H2r","H2rU","H2rL")]=hillmatrix2[,c("qD","qD.UCL","qD.LCL")]
+rownames(hillmatrix)=rownames(beestattab) 
+
+bee.abond <-DataInfotab%>% select( "SC","site")
+rownames(bee.abond)=rownames(beestattab)
+bee.abond <- bee.abond  %>% rename(c("SC" = "Couverture"))
+#################################graph hill rarefier
+graphhill <- select(hillmatrix,H0r,H1r,H2r)
+rownames(graphhill)= rownames(milieutab)
+graphhill$type <- row.names(milieutab)
+
+graphhill<-melt(graphhill)
+graphhill<-graphhill %>%group_by(type)
+
+ggplot(graphhill,aes(x = variable, y= value, group = type, color = type))   +
+  geom_line()+ 
+  geom_point()+
+  xlab("Nombre de Hill") +
+  ylab("Nombre d'espèces observées")  +
+  scale_y_continuous(breaks = round(seq(min(0), max(200), by = 4),1))+
+  scale_fill_manual("Type de milieu",values = c("green", "blue", "orange", "black", "red", "pink", "purple"))+
+  labs(
+    title = "Nombre de Hill raréfiés pour les différents types de milieux",
+    subtitle = "",
+    caption = "") +
+  theme(
+    plot.title = element_text(hjust = 0.5, size=18),
+    plot.subtitle = element_text(face = ),
+    plot.caption = element_text(face = "italic", size = 9),
+    axis.title.x =element_text(size = 15 ), 
+    axis.title.y =element_text(size = 15),
+    axis.text.x=element_text(size = 12),
+    axis.text.y=element_text(size = 13),
+    legend.text =element_text(size = 12),
+    legend.title =element_text(size = 14))
+
+########################################???boxplot couverture
+
+beecouv <- left_join (bee.abond, type , by=c("site"="nom"))
+beecouv$Dummy <- factor("")
+
+ggplot(beecouv,aes(x = Dummy,y=Couverture))   +
+  geom_boxplot(fill = "#56B4E9" )+ 
+  geom_dotplot(binaxis='y', stackdir='center', dotsize=0.5)+
+  xlab("") +
+  ylab("Couverture")+
+
+  geom_text(aes(label = site ,y = Couverture),nudge_x = 0.08, size =5)+
+  labs(
+    title = "Couverture des échantillons pour les différents types de milieux",
+    subtitle = "",
+    caption = "") +
+  theme(
+    plot.title = element_text(hjust = 0.5, size=18),
+    plot.subtitle = element_text(face = ),
+    plot.caption = element_text(face = "italic", size = 9),
+    axis.title.x =element_text(size = 15 ), 
+    axis.title.y =element_text(size = 15),
+    axis.text.x=element_text(size = 12),
+    axis.text.y=element_text(size = 13),
+    legend.text =element_text(size = 12),
+    legend.title =element_text(size = 14))
+ 
+####################### carte de chaleur de sp par group
+
+invertbee <-t(milieutab)
+
+pheatmap(invertbee,main = "Abondances des abeilles sur toutes les stations",cluster_cols = F,cluster_rows = F,angle_col = "90",
+         color = colorRampPalette(c('white','#FFD700','#FF0000','purple','black'))(100),
+         fontsize_row = 9, fontsize_col = 10)
+
+####heatmap sans pacuorum car trop d'ind masque le reste
+stationttpasc <- filter(stationtt,SPECTAXPRIO != "Bombus pascuorum")
+beestattabpasc <- select (stationttpasc,SPECTAXPRIO,N,type,TOPO)
+beestattabpasc<- filter ( beestattabpasc, type == "Prairie")
+
+beestattabpasc <- aggregate(N~SPECTAXPRIO+TOPO, data = beestattabpasc, sum)
+beestattabpasc <- xtabs(N~TOPO+SPECTAXPRIO,beestattabpasc)
+beestattabpasc <-type.convert(beestattabpasc)
+
+invertpasc <-t(beestattabpasc)
+
+pheatmap(invertpasc,main = "Abondance des abeilles par milieu", caption = "les bombus pascuorum ont été exclu de ce graphique",cluster_cols = F,cluster_rows = F,angle_col = "45",
+         color = colorRampPalette(c('white','#FFD700','#FF0000','purple','black'))(100),
+         fontsize_row = 7.5, fontsize_col = 8.5, cellheight = 7.5,cellwidth = 25,border_color= 'lightgrey')

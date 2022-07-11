@@ -1,0 +1,359 @@
+---
+title: "ttstation"
+author: "Jordan Benrezkallah"
+date: "7/11/2022"
+output: html_document
+---
+
+```{r}
+library("bipartite")
+library("iNEXT")
+library("BiodiversityR")
+library("rgdal")
+library("ape")
+library("vegan")
+library("SpatialTools")
+library("betapart")
+library("pvclust")
+library("mapr")
+library("rgbif")
+library("dismo")
+library("mapplots")
+library("corrplot")
+library("MuMIn")
+library("caret")
+library("pbkrtest")
+library("car")
+library("ggmap")
+library("gstat")
+library("tidyverse")
+library("ggplot2")
+library("reshape2")
+library("reshape") 
+#library(pheatmap)
+```
+
+
+
+
+```{r}
+# Couleur
+cbp2 <- c( "#56B4E9", "#009E73",
+           "#F0E442", "#0072B2", "#D55E00", "#CC79A7", "#E69F00","#8B6914","#999999",
+           '#8B1C62','#32CD32',"#0000EE","#FF407A")
+```
+
+
+
+
+```{r}
+###############################combiner ruelle reese
+setwd("C:/Users/Jordan/OneDrive - UMONS/UMONS/MA2/MEMOIRE/Statistique/R/STAT-MEMOIRE/Statistique Eulalie")
+#setwd("D:/OneDrive - UMONS/UMONS/MA2/MEMOIRE/Statistique/R/STAT-MEMOIRE/Statistique Eulalie")
+
+reese <- read.csv ( "reesett.csv",header = T, sep = ";")
+ruelle <- read.csv ( "beeplanttraitstat.csv",header = T, sep = ";")
+ruelle$trait_phénott_ID <-  as.character(ruelle$trait_phénott_ID)
+martin <- read.csv ( "beestatplanttrait_mart.csv",header = T, sep = ";")
+martin$Mellifère <-  as.logical(martin$Mellifère)
+alexl <- read.csv ( "beestatplanttrait_alexl.csv",header = T, sep = ";")
+alexl$Indigène <-  as.logical(alexl$Indigène)
+alexl$ITD <-  as.character(alexl$ITD)
+
+stationtt <- bind_rows(reese,ruelle, martin, alexl)
+
+stationtt <- bind_rows(reese, ruelle)
+stationtt$SPECTAXPRIO[stationtt$SPECTAXPRIO%in% c("Bombus pascuorum floralis")]<-"Bombus pascuorum"
+stationtt$SPECTAXPRIO[stationtt$SPECTAXPRIO%in% c("Bombus terrestris terrestris")]<-"Bombus (Bombus)  sp."
+stationtt$SPECTAXPRIO[stationtt$SPECTAXPRIO%in% c("Bombus terrestris")]<-"Bombus (Bombus)  sp."
+stationtt$SPECTAXPRIO[stationtt$SPECTAXPRIO%in% c("Bombus lucorum")]<-"Bombus (Bombus)  sp."
+
+```
+
+```{r}
+
+###matrice
+beestattab <- select (stationtt,SPECTAXPRIO,N,TOPO)
+
+beestattab <- aggregate(N~SPECTAXPRIO+TOPO, data = beestattab, sum)
+beestattab <- xtabs(N~TOPO+SPECTAXPRIO,beestattab)
+beestattab <-type.convert(beestattab)
+
+```
+
+
+
+```{r}
+########courbe de pareto 
+
+pareto <- select (stationtt,N,SPECTAXPRIO )
+pareto <- aggregate(N ~ SPECTAXPRIO , data =pareto, sum)
+pareto  <- pareto [order(pareto $N, decreasing=TRUE), ]
+pareto$SPECTAXPRIO <- factor(pareto$SPECTAXPRIO, levels=pareto$SPECTAXPRIO)
+pareto$cumulative <- cumsum(pareto$N)
+
+ggplot(pareto, aes(x= SPECTAXPRIO)) +
+  geom_bar(aes(y=N), fill='blue', stat="identity") +
+  geom_point(aes(y=cumulative), color = rgb(0, 1, 0), pch=16, size=1) +
+  geom_path(aes(y=cumulative, group=1), colour="slateblue1", lty=3, size=0.9) +
+  theme(axis.text.x = element_text(angle=90, vjust=0.6)) +
+  labs(title = "Especes par rang d'abondance", subtitle = "Combine une courbe de Pareto", x = 'Espece', y =
+         'Nombre')
+```
+
+
+```{r}
+######## histo nombre ind par genre 
+beegen <- select (stationtt,N,SPECGEN )
+beegen <- aggregate(N ~ SPECGEN , data =beegen, sum)
+
+ggplot(beegen,aes(reorder(SPECGEN,N),N, fill= ))  +
+  geom_col( fill = "#009E73")+ 
+  xlab("Genre") +
+  ylab("Nombre d'individus ")  +
+  geom_text(aes(label = N,y = N + 50), size =4)+
+  coord_flip()+
+  scale_y_continuous(breaks = round(seq(min(0), max(3000), by = 150),0))+
+  labs(
+    title = "Nombre d'individus observes par genre",
+    subtitle = "Par rang d'abondance",
+    caption = "") +
+  theme(
+    plot.title = element_text(hjust = 0.5, size = 18),
+    plot.subtitle = element_text(face = ),
+    plot.caption = element_text(face = "italic", size= 14),
+    axis.text.y = element_text(size = 13),
+    axis.text.x = element_text(size = 12))
+
+```
+
+
+# stat avce toute stations  
+
+```{r}
+#courbe d'abondance
+
+RankAbun.1 <- rankabundance(beestattab)
+RankAbun.1
+rankabunplot(RankAbun.1, scale='abundance', addit=FALSE, specnames=c(1,2,3))
+rankabunplot(RankAbun.1, scale='abundance', addit=FALSE, specnames=c(1,2,3))
+
+RankAbun.1 <-type.convert(RankAbun.1)
+```
+
+
+```{r}
+#####Diversité shannon, fisher
+Shannon <- diversity(beestattab, index = "shannon", MARGIN = 1, base = exp(1))
+
+Shannon <-type.convert(Shannon)
+
+fisher <- fisher.alpha(beestattab, MARGIN = 1)
+
+specnumber <-specnumber(beestattab, MARGIN = 1)
+
+```
+
+
+```{r}
+###rarefaction , hill
+#rownamesmilieu<-row.names(milieutab)
+                      
+#abond <- iNEXT(t(milieutab), q = c(0,1,2), datatype ="abundance") 
+
+DataInfotabee <-type.convert(abond$DataInfo)
+
+iNextEsttab <-type.convert(abond$iNextEst)
+AsyEsttab <-type.convert(abond$AsyEst)
+
+hill <- estimateD(t(milieutab), base="coverage")
+hillmatrix0= hill[hill[,"order"]==0,]
+hillmatrix1= hill[hill[,"order"]==1,]
+hillmatrix2= hill[hill[,"order"]==2,]
+hillmatrix = hillmatrix0[,c(1,2,4)]
+hillmatrix$SC0 = abond$DataInfo$SC
+hillmatrix[,c("H0r","H0rU","H0rL")]=hillmatrix0[,c("qD","qD.UCL","qD.LCL")]
+hillmatrix[,c("H1r","H1rU","H1rL")]=hillmatrix1[,c("qD","qD.UCL","qD.LCL")]
+hillmatrix[,c("H2r","H2rU","H2rL")]=hillmatrix2[,c("qD","qD.UCL","qD.LCL")]
+rownames(hillmatrix)= rownames(milieutab) 
+
+bee.abond <-DataInfotabee%>% select("S.obs", "SC")
+rownames(bee.abond)=rownamesmilieu 
+names(bee.abond) <- c("spbeeobs","beecoverage")
+```
+
+
+
+
+#####creation matrice environnemnt
+#####plante abondance, richesse
+#### raréfaction
+```{r}
+##CR2ATION TABLEAU
+plantt <- read.csv ( "plantetoutstation.csv",header = T, sep = ";")
+planstattab <- select(plantt,nom_latin,nom)
+planstattab <- distinct(planstattab)
+planstattab <- planstattab %>% group_by(nom)%>% count(nom_latin )
+
+planstattab <- aggregate(n~nom+nom_latin, data = planstattab, sum)
+planstattab <- xtabs(n~nom+nom_latin,planstattab)
+planstattab <-type.convert(planstattab)
+
+#abondance plante
+RankAbun.1 <- rankabundance(planstattab)
+RankAbun.1
+rankabunplot(RankAbun.1, scale='abundance', addit=FALSE, specnames=c(1,2,3))
+RankAbun.1 <-type.convert(RankAbun.1)
+```
+
+
+```{r}
+#rarefaction , hill plante
+
+abond <- iNEXT(t(planstattab), q = c(0,1,2), datatype ="abundance") 
+
+
+DataInfotab <-type.convert(abond$DataInfo)
+iNextEsttab <-type.convert(abond$iNextEst)
+AsyEsttab <-type.convert(abond$AsyEst)
+
+hill <- estimateD(t(planstattab), base="coverage")
+hillmatrix0= hill[hill[,"order"]==0,]
+hillmatrix1= hill[hill[,"order"]==1,]
+hillmatrix2= hill[hill[,"order"]==2,]
+hillmatrix = hillmatrix0[,c(1,2,4)]
+hillmatrix$SC0 = abond$DataInfo$SC
+hillmatrix[,c("H0r","H0rU","H0rL")]=hillmatrix0[,c("qD","qD.UCL","qD.LCL")]
+hillmatrix[,c("H1r","H1rU","H1rL")]=hillmatrix1[,c("qD","qD.UCL","qD.LCL")]
+hillmatrix[,c("H2r","H2rU","H2rL")]=hillmatrix2[,c("qD","qD.UCL","qD.LCL")]
+rownames(hillmatrix)=rownames(planstattab)
+
+flower.abond <-DataInfotab%>% select(S.obs, SC)
+rownames(flower.abond)=rownames(planstattab)
+names(flower.abond) <- c("spplantobs","plantcoverage")
+```
+
+```{r}
+##prop mellif
+plantt <- read.csv ( "plantetoutstation.csv",header = T, sep = ";")
+planttmel <- select (plantt,nom,Mellifère,nom_latin )
+planttmel <- distinct(planttmel)
+planttmel <- planttmel %>% group_by(nom) %>% group_by(nom_latin) %>% count(nom, Mellifère)
+planttmel<- planttmel%>% group_by(nom) %>% count(nom, Mellifère)
+
+plantttmel <- planttmel %>% group_by(nom) %>% mutate(prop = n/ sum(n) *100) 
+plantttmel <-plantttmel %>% mutate_if(is.numeric, ~round(., 1))
+
+planttoutFA <- plantttmel %>% group_by(nom) %>% filter(Mellifère == "FALSE")
+planttoutFA <- rename(planttoutFA, c(nbr_pas_mell= n, prop_pas_mell = prop) )
+planttoutTR <- plantttmel %>% group_by(nom) %>% filter(Mellifère == "TRUE")
+planttoutTR <- rename(planttoutTR, c(nbr_mell= n, prop_mell = prop) )
+
+planttoutmel <- full_join(planttoutFA ,planttoutTR, by = "nom")
+planttoutmel <- subset (planttoutmel, select = -c(Mellifère.x,Mellifère.y))
+names(planttoutmel) <- c("nom","nbr_plant_non_mel","prop_plant_non_mel","nbr_plant_mel","prop_plant_mel")
+
+```
+
+```{r}
+##prop indi
+
+plantt <-read.csv("plantetoutstation.csv",header = T, sep = ";")
+planttti <- select (plantt,nom,Indigène,nom_latin )
+planttti <- planttti %>% group_by(nom) %>% group_by(nom_latin)
+plantttinbr <- planttti %>% group_by(nom) %>% group_by(nom_latin) %>% count(nom, Indigène)
+plantttinbr<- plantttinbr%>% group_by(nom) %>% count(nom, Indigène)
+
+plantttinbr <- plantttinbr %>% group_by(nom) %>% mutate(prop = n/ sum(n) *100) 
+plantttinbr <-plantttinbr %>% mutate_if(is.numeric, ~round(., 1))
+
+plantttFA <- plantttinbr %>% group_by(nom) %>% filter(Indigène == "FALSE")
+plantttFA <- rename(plantttFA, c(nbr_pas_ind= n, prop_pas_ind = prop) )
+plantttTR <- plantttinbr %>% group_by(nom) %>% filter(Indigène == "TRUE")
+plantttTR <- rename(plantttTR, c(nbr_ind= n, prop_ind = prop) )
+
+
+planttoutind <- full_join(plantttFA ,plantttTR, by = "nom")
+planttoutind[is.na(planttoutind)] <- 0
+planttoutind <- subset (planttoutind, select = -c(Indigène.x,Indigène.y))
+names(planttoutind) <- c("nom","nbr_plant_non_indi","prop_plant_non_indi","nbr_plant_indi","prop_plant_indi")
+```
+
+```{r}
+#######occupation sol
+occupations <- read.csv("ttbuffer.csv",header = T, sep = ",")
+
+occupatio<- select (occupations,-LCCS,-path )
+occupatio <- distinct(occupatio)
+
+occupatio250 <- occupatio %>% filter(grepl('250',layer))
+occupatio250$layer[occupatio250$layer %in% c("station_ancienne_gare250")]<-"Ancienne Gare"
+occupatio250$layer[occupatio250$layer  %in% c("station_bois_havré250")]<-"Bois d'Havree"
+occupatio250$layer[occupatio250$layer  %in% c("station_camp-a-cayaux250")]<-"Camp-e-cayaux"
+occupatio250$layer[occupatio250$layer  %in% c("station_cascade250")]<-"Cascade d'Hyon"
+occupatio250$layer[occupatio250$layer  %in% c("station_chateau_havré250")]<-"Chateau d'Havre"
+occupatio250$layer[occupatio250$layer  %in% c("station_cimetierre_spienne250")]<-"Spiennes cimetiere"
+occupatio250$layer[occupatio250$layer  %in% c("station_epargne250")]<-"Epargne - Umons"
+occupatio250$layer[occupatio250$layer  %in% c("station_gare250")]<-"Gare"
+occupatio250$layer[occupatio250$layer  %in% c("station_gd_large250")]<-"Grand Large"
+occupatio250$layer[occupatio250$layer  %in% c("station_géothermia250")]<-"Geothermia - IDEA"
+occupatio250$layer[occupatio250$layer  %in% c("station_haine250")]<-"La Haine"
+occupatio250$layer[occupatio250$layer  %in% c("station_jardin_suspendu250")]<-"Jardin suspendu"
+occupatio250$layer[occupatio250$layer  %in% c("station_mont_panisel250")]<-"Mont-Panisel"
+occupatio250$layer[occupatio250$layer  %in% c("station_moulin250")]<-"Ancien moulin"
+occupatio250$layer[occupatio250$layer  %in% c("station_notre_dame_petit_nimy250")]<-"Notre dame du petit Nimy"
+occupatio250$layer[occupatio250$layer  %in% c("station_omya250")]<-"carrière omya"
+occupatio250$layer[occupatio250$layer  %in% c("station_parc_obourg250")]<-"Parc d'Obourg"
+occupatio250$layer[occupatio250$layer  %in% c("station_pemh_obourg250")]<-"PEMH Obourg - IDEA"
+occupatio250$layer[occupatio250$layer  %in% c("station_pont_prince250")]<-"Pont du prince"
+occupatio250$layer[occupatio250$layer  %in% c("station_prés_du_village250")]<-"Pres du village"
+occupatio250$layer[occupatio250$layer  %in% c("station_ronveaux250")]<-"Ronveaux"
+occupatio250$layer[occupatio250$layer  %in% c("station_silex250")]<-"Silex"
+occupatio250$layer[occupatio250$layer  %in% c("station_social250")]<-"Siege social"
+occupatio250$layer[occupatio250$layer  %in% c("station_st_waudru250")]<-"Sainte-Waudru"
+occupatio250$layer[occupatio250$layer  %in% c("station_tilou250")]<-"Tilou"
+occupatio250$layer[occupatio250$layer  %in% c("station_trouille250")]<-"La Trouille"
+occupatio250$layer[occupatio250$layer  %in% c("station_village_abeille250")]<-"Village des abeilles"
+
+rownames(occupatio250) <- occupatio250[,7]
+#occupatio250 <- occupatio250[,-7]
+names(occupatio250) <- c("Sol_artificialisé250","Sol_nu_250","Bois_250","Sol_agricol_250","Ouvert_250","Eau_250","nom")
+
+occupatio500 <- occupatio %>% filter(grepl('500',layer)) 
+rownames(occupatio500)=rownames(occupatio250)
+occupatio500 <- occupatio500[,-7]
+names(occupatio500) <- c("Sol_artificialisé500","Sol_nu_500","Bois_500","Sol_agricol_500","Ouvert_500","Eau_500")
+
+occupatio1000 <- occupatio %>% filter(grepl('1000',layer)) 
+rownames(occupatio1000)=rownames(occupatio250)
+occupatio1000 <- occupatio1000[,-7]
+names(occupatio1000) <- c("Sol_artificialisé1000","Sol_nu_1000","Bois_1000","Sol_agricol_1000","Ouvert_1000","Eau_1000")
+
+occupation <-bind_cols(occupatio250,occupatio500,occupatio1000)
+x <- c(rownames(planstattab))
+
+occupation <-occupation%>% arrange(factor(nom, levels = c(x)))
+```
+
+
+
+
+
+###########matrice
+envir <- bind_cols(bee.abond,flower.abond,planttoutmel,planttoutind,occupation)
+envir <- envir %>% select(-nom...5, -nom...10, -nom...21)
+
+library(ellipse)
+library(RColorBrewer)
+library(corrgram)
+library(GGally)
+
+my_colors <- brewer.pal(5, "Spectral")
+my_colors <- colorRampPalette(my_colors)(100)
+data <- cor(envir)
+ord <- order(data[1, ])
+data_ord <- data[ord, ord]
+plotcorr(data_ord , col=my_colors[data_ord*50+50] , mar=c(1,1,1,1), numbers = TRUE  )
+corrgram(envir, order=NULL, lower.panel=panel.shade, upper.panel=NULL, text.panel=panel.txt, main="Car Milage Data (unsorted)")
+ggcorr(envir, method = c("everything", "pearson"))
+

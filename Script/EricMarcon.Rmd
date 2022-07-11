@@ -1,0 +1,54 @@
+---
+title: "EricMarcon"
+author: "Jordan"
+date: "`r Sys.Date()`"
+output: html_document
+---
+
+---
+Note MAJ des paquets suivant
+All                                
+ 2: CRAN packages only                 
+ 3: None                               
+ 4: rlang    (1.0.2   -> 1.0.3 ) [CRAN]
+ 5: generics (0.1.2   -> 0.1.3 ) [CRAN]
+ 6: farver   (2.1.0   -> 2.1.1 ) [CRAN]
+ 7: Rcpp     (1.0.8.3 -> 1.0.9 ) [CRAN]
+ 8: sp       (1.4-7   -> 1.5-0 ) [CRAN]
+ 9: ps       (1.7.0   -> 1.7.1 ) [CRAN]
+10: processx (3.5.3   -> 3.7.0 ) [CRAN]
+11: pkgload  (1.2.4   -> 1.3.0 ) [CRAN]
+12: xfun     (0.30    -> 0.31  ) [CRAN]
+13: nloptr   (2.0.0   -> 2.0.3 ) [CRAN]
+14: lme4     (1.1-29  -> 1.1-30) [CRAN]
+15: quantreg (5.88    -> 5.93  ) [CRAN]
+16: car      (3.0-12  -> 3.1-0 ) [CRAN]
+17: broom    (0.8.0   -> 1.0.0 ) [CRAN]
+18: dplyr    (1.0.8   -> 1.0.9 ) [CRAN]
+19: ggplot2  (3.3.5   -> 3.3.6 ) [CRAN]
+Note MAJ des paquets précédents
+---
+
+```{r library, include=FALSE}
+library("readxl")
+library(dplyr)
+library(tidyverse)
+library(knitr)
+library(ggplot2)
+library(SpatDiv)
+library("vegan")
+```
+
+
+```{r}
+data(BCI)
+Cumul <- apply(BCI, 2, cumsum)
+Richesse <- apply(Cumul, 1, function(x) sum(x > 0))
+SARplot <- ggplot(data.frame(A = 0:50, 
+                             S = c(0, Richesse))) +
+  aes(A, S) +
+  geom_line() +
+  labs(x = "Surface (ha)")
+SARplot
+```
+

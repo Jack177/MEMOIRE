@@ -1,0 +1,73 @@
+nom;sp florale Totale;type;STATCODE;couleur
+Bois de Bon-Secours;22;Bois;ARM012;green
+Bois d'Havré;41;Bois;ERM24;green
+Mont Ostènes;11;Bois;ARM018;green
+Terril de l'Héribus;30;Bois;ALM25;green
+Terril d'Hensies;7;Bois;ALM31;green
+Terril n°5 de Trazegnie site 1;45;Bois;ALM29;green
+Chemin de Roucourt;26;Bord_route;ARM007;blue
+La Haine;35;Bord_route;ERM19;blue
+La Trouille;56;Bord_route;ERM11;blue
+PEMH Obourg - IDEA;21;Bord_route;ERM25;blue
+Pont du prince;50;Bord_route;ERM10;blue
+Ravel98;33;Bord_route;ARM017;blue
+Rue du Bois;19;Bord_route;ARM004;blue
+Rue du Castillon;26;Bord_route;ARM016;blue
+Rue là-dessous;18;Bord_route;ARM15;blue
+Aérodrome de Maubray;4;Carrière;ARM006;orange
+Camp-à-cayaux;53;Carrière;ERM16;orange
+carrière omya/ le Caufour;27;Carrière;ERM12;orange
+Friche des Vignobles;18;Carrière;ARM002;orange
+Mer de Sable;13;Carrière;ARM011;orange
+Planoi Site 2;6;Carrière;MLM10;orange
+Nocarcentre Site 2;12;Carrière;MLM14;orange
+Nocarcentre Site 5;13;Carrière;MLM17;orange
+Bruyère Site 2;12;Carrière;MLM2;orange
+Vertbois Site 2;12;Carrière;MLM7;orange
+Ancienne Gare;13;Friche;ERM18;black
+Chemin du Trainage;23;Friche;ARM013;black
+Gare;15;Friche;ERM26;black
+Géothermia - IDEA;59;Friche;ERM06;black
+Marais de Douvrain Ouest;29;Friche;ARM020;black
+Pré à Parchon;21;Friche;ARM010;black
+Rue du Carme;30;Friche;ARM009;black
+Rue Jean Winance;22;Friche;ARM001;black
+Vieille Haine;11;Friche;ARM21;black
+Cascade d'Hyon;44;Parc;ERM17;red
+Chateau d'Havré;72;Parc;ERM22;red
+Jardin suspendu;35;Parc;ERM04;red
+Parc de Jemappes;13;Parc;ARM019;red
+Parc des 5 rocs;24;Parc;ARM003;red
+Parc d'Obourg;61;Parc;ERM23;red
+Sainte-Waudru;46;Parc;ERM03;red
+Siège social - UMons;27;Parc;ERM02;red
+Spiennes cimetière;35;Parc;ERM08;red
+Village des abeilles - UMons;34;Parc;ERM01;red
+Ancien moulin;48;Prairie;ERM20;pink
+Bois de Wadelincourt;22;Prairie;ARM008;pink
+Epargne - UMons;31;Prairie;ERM05;pink
+Grand Large;17;Prairie;ERM15;pink
+Marcasse;26;Prairie;ARM014;pink
+Mont-Panisel;58;Prairie;ERM07;pink
+Notre dame du petit Nimy;21;Prairie;ERM27;pink
+Prés du village;29;Prairie;ERM13;pink
+Ronveaux;38;Prairie;ERM09;pink
+Silex;45;Prairie;ERM21;pink
+Tilou;35;Prairie;ERM14;pink
+Terril Bayemont-Saint-Charles;35;Terril;ALM09;purple
+Terril Belle vue du huit;33;Terril;ALM22;purple
+Terril de Ciply site 1;31;Terril;ALM23;purple
+terril de la cokerie stat 2;30;Terril;alm07;purple
+Terril de la cokerie stat 1;43;Terril;ALM06;purple
+Terril du dix-huit;25;Terril;ALM04;purple
+Terril du Ferrand;25;Terril;ALM21;purple
+Terril du Grand Buisson;31;Terril;ALM05;purple
+Terril du Quesnoy site 1;31;Terril;ALM27;purple
+Terril du sept huit stat 1;41;Terril;ALM01;purple
+Terril du sept-huit stat 3;43;Terril;ALM03;purple
+Terril n°8 Pays-bas;14;Terril;ALM12;purple
+Terril Naye-à-bois;31;Terril;ALM08;purple
+Terril Rieu-du-Coeur;33;Terril;ALM26;purple
+Terril Sacré-Français site 1;35;Terril;ALM10;purple
+Terril Saint-Antoine site 2;30;Terril;ALM19;purple
+Terril Saint-Antoine site 3;13;Terril;ALM20;purple

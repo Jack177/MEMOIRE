@@ -1,0 +1,80 @@
+fid,Stations,Nom,LONG,LAT,Station,y,x,layer,path
+21,Aerodrome de Maubray,,,,,,,Aérodrome_de_Maubray fid_21,C:/Users/lalie/Desktop/layer site mémoire/centroides station alex/Aérodrome_de_Maubray.gpkg|layername=fid_21
+13,Bois de Bon-Secours,,,,,,,Bois_de_Bon-Secours fid_13,C:/Users/lalie/Desktop/layer site mémoire/centroides station alex/Bois_de_Bon-Secours.gpkg|layername=fid_13
+12,Bois de Wadelincourt,,,,,,,Bois_de_Wadelincourt fid_12,C:/Users/lalie/Desktop/layer site mémoire/centroides station alex/Bois_de_Wadelincourt.gpkg|layername=fid_12
+20,Chemin de Jérusalem,,,,,,,Chemin_de_Jérusalem fid_20,C:/Users/lalie/Desktop/layer site mémoire/centroides station alex/Chemin_de_Jérusalem.gpkg|layername=fid_20
+19,Rue de Roucourt,,,,,,,Chemin_de_Roucourt fid_19,C:/Users/lalie/Desktop/layer site mémoire/centroides station alex/Chemin_de_Roucourt.gpkg|layername=fid_19
+11,Chemin du Trainage,,,,,,,Chemin_de_Trainage fid_11,C:/Users/lalie/Desktop/layer site mémoire/centroides station alex/Chemin_de_Trainage.gpkg|layername=fid_11
+10,Friche des Vignobles,,,,,,,Friche_des_Vignobles fid_10,C:/Users/lalie/Desktop/layer site mémoire/centroides station alex/Friche_des_Vignobles.gpkg|layername=fid_10
+9,Marais de Douvrain,,,,,,,Marais_de_Douvrais fid_9,C:/Users/lalie/Desktop/layer site mémoire/centroides station alex/Marais_de_Douvrais.gpkg|layername=fid_9
+18,Marcasse,,,,,,,Marcasse fid_18,C:/Users/lalie/Desktop/layer site mémoire/centroides station alex/Marcasse.gpkg|layername=fid_18
+8,Mer de Sable,,,,,,,Mer_de_Sable fid_8,C:/Users/lalie/Desktop/layer site mémoire/centroides station alex/Mer_de_Sable.gpkg|layername=fid_8
+7,Mont Ostènes,,,,,,,Mont_Ostènes fid_7,C:/Users/lalie/Desktop/layer site mémoire/centroides station alex/Mont_Ostènes.gpkg|layername=fid_7
+,,MLM10,"4.18946838916694","50.62889920722012",,,,Nom_MLM10,C:/Users/lalie/Desktop/layer site mémoire/cenroide_martin/Centroide Mercator splitted/Nom_MLM10.shp
+,,MLM14,"4.140634467229172","50.5542214145309",,,,Nom_MLM14,C:/Users/lalie/Desktop/layer site mémoire/cenroide_martin/Centroide Mercator splitted/Nom_MLM14.shp
+,,MLM17,"4.140306697729082","50.560359188316326",,,,Nom_MLM17,C:/Users/lalie/Desktop/layer site mémoire/cenroide_martin/Centroide Mercator splitted/Nom_MLM17.shp
+,,MLM2,"3.6718754274050687","50.493043397496535",,,,Nom_MLM2,C:/Users/lalie/Desktop/layer site mémoire/cenroide_martin/Centroide Mercator splitted/Nom_MLM2.shp
+,,MLM7,"4.17463464141281","50.602530781984846",,,,Nom_MLM7,C:/Users/lalie/Desktop/layer site mémoire/cenroide_martin/Centroide Mercator splitted/Nom_MLM7.shp
+6,Parc de Jemappes,,,,,,,Parc_de_Jemappes fid_6,C:/Users/lalie/Desktop/layer site mémoire/centroides station alex/Parc_de_Jemappes.gpkg|layername=fid_6
+17,Parc des 5 Rocs,,,,,,,Parc_des_5_Rocs fid_17,C:/Users/lalie/Desktop/layer site mémoire/centroides station alex/Parc_des_5_Rocs.gpkg|layername=fid_17
+5,Pré à Parchon,,,,,,,Pré_à_Parchon fid_5,C:/Users/lalie/Desktop/layer site mémoire/centroides station alex/Pré_à_Parchon.gpkg|layername=fid_5
+4,Ravel98,,,,,,,Ravel98 fid_4,C:/Users/lalie/Desktop/layer site mémoire/centroides station alex/Ravel98.gpkg|layername=fid_4
+1,Warchin,,,,,,,Rue_Jean_Winance fid_1,C:/Users/lalie/Desktop/layer site mémoire/centroides station alex/Rue_Jean_Winance.gpkg|layername=fid_1
+14,Rue là-dessous,,,,,,,Rue_La-dessous fid_14,C:/Users/lalie/Desktop/layer site mémoire/centroides station alex/Rue_La-dessous.gpkg|layername=fid_14
+3,Rue du Carme,,,,,,,Rue_de_Carne fid_3,C:/Users/lalie/Desktop/layer site mémoire/centroides station alex/Rue_de_Carne.gpkg|layername=fid_3
+15,Rue du Castillon,,,,,,,Rue_de_Castillon fid_15,C:/Users/lalie/Desktop/layer site mémoire/centroides station alex/Rue_de_Castillon.gpkg|layername=fid_15
+16,Rue du bois,,,,,,,Rue_du_Bois fid_16,C:/Users/lalie/Desktop/layer site mémoire/centroides station alex/Rue_du_Bois.gpkg|layername=fid_16
+1,,,,,Terril Bayemont-Saint Charles,,,Station_Terril Bayemont-Saint Charles,C:/Users/lalie/Desktop/layer site mémoire/centroidealexl/Station_Terril Bayemont-Saint Charles.gpkg|layername=Station_Terril Bayemont-Saint Charles
+1,,,,,Terril Belle vue du huite,,,Station_Terril Belle vue du huite,C:/Users/lalie/Desktop/layer site mémoire/centroidealexl/Station_Terril Belle vue du huite.gpkg|layername=Station_Terril Belle vue du huite
+1,,,,,Terril Ciply st1,,,Station_Terril Ciply st1,C:/Users/lalie/Desktop/layer site mémoire/centroidealexl/Station_Terril Ciply st1.gpkg|layername=Station_Terril Ciply st1
+1,,,,,Terril Ciply st2,,,Station_Terril Ciply st2,C:/Users/lalie/Desktop/layer site mémoire/centroidealexl/Station_Terril Ciply st2.gpkg|layername=Station_Terril Ciply st2
+1,,,,,Terril Cokerie st1,,,Station_Terril Cokerie st1,C:/Users/lalie/Desktop/layer site mémoire/centroidealexl/Station_Terril Cokerie st1.gpkg|layername=Station_Terril Cokerie st1
+1,,,,,Terril Cokerie st2,,,Station_Terril Cokerie st2,C:/Users/lalie/Desktop/layer site mémoire/centroidealexl/Station_Terril Cokerie st2.gpkg|layername=Station_Terril Cokerie st2
+1,,,,,Terril Dix-Huit,,,Station_Terril Dix-Huit,C:/Users/lalie/Desktop/layer site mémoire/centroidealexl/Station_Terril Dix-Huit.gpkg|layername=Station_Terril Dix-Huit
+1,,,,,Terril Ferrand,,,Station_Terril Ferrand,C:/Users/lalie/Desktop/layer site mémoire/centroidealexl/Station_Terril Ferrand.gpkg|layername=Station_Terril Ferrand
+1,,,,,Terril Grand Buisson,,,Station_Terril Grand Buisson,C:/Users/lalie/Desktop/layer site mémoire/centroidealexl/Station_Terril Grand Buisson.gpkg|layername=Station_Terril Grand Buisson
+1,,,,,Terril Hensie,,,Station_Terril Hensie,C:/Users/lalie/Desktop/layer site mémoire/centroidealexl/Station_Terril Hensie.gpkg|layername=Station_Terril Hensie
+1,,,,,Terril HÃ©ribus st1,,,Station_Terril HÃ©ribus st1,C:/Users/lalie/Desktop/layer site mémoire/centroidealexl/Station_Terril HÃ©ribus st1.gpkg|layername=Station_Terril HÃ©ribus st1
+1,,,,,Terril Naye-Ã -Bois,,,Station_Terril Naye-Ã -Bois,C:/Users/lalie/Desktop/layer site mémoire/centroidealexl/Station_Terril Naye-Ã -Bois.gpkg|layername=Station_Terril Naye-Ã -Bois
+1,,,,,Terril Pays-Bas,,,Station_Terril Pays-Bas,C:/Users/lalie/Desktop/layer site mémoire/centroidealexl/Station_Terril Pays-Bas.gpkg|layername=Station_Terril Pays-Bas
+1,,,,,Terril Quesnoy st1,,,Station_Terril Quesnoy st1,C:/Users/lalie/Desktop/layer site mémoire/centroidealexl/Station_Terril Quesnoy st1.gpkg|layername=Station_Terril Quesnoy st1
+1,,,,,Terril Quesnoy st2,,,Station_Terril Quesnoy st2,C:/Users/lalie/Desktop/layer site mémoire/centroidealexl/Station_Terril Quesnoy st2.gpkg|layername=Station_Terril Quesnoy st2
+1,,,,,Terril Rieux du Coeur,,,Station_Terril Rieux du Coeur,C:/Users/lalie/Desktop/layer site mémoire/centroidealexl/Station_Terril Rieux du Coeur.gpkg|layername=Station_Terril Rieux du Coeur
+1,,,,,Terril SacrÃ©-FranÃ§ais st1,,,Station_Terril SacrÃ©-FranÃ§ais st1,C:/Users/lalie/Desktop/layer site mémoire/centroidealexl/Station_Terril SacrÃ©-FranÃ§ais st1.gpkg|layername=Station_Terril SacrÃ©-FranÃ§ais st1
+1,,,,,Terril Saint Antoine st1,,,Station_Terril Saint Antoine st1,C:/Users/lalie/Desktop/layer site mémoire/centroidealexl/Station_Terril Saint Antoine st1.gpkg|layername=Station_Terril Saint Antoine st1
+1,,,,,Terril Saint Antoine st2,,,Station_Terril Saint Antoine st2,C:/Users/lalie/Desktop/layer site mémoire/centroidealexl/Station_Terril Saint Antoine st2.gpkg|layername=Station_Terril Saint Antoine st2
+1,,,,,Terril Saint Antoine st3,,,Station_Terril Saint Antoine st3,C:/Users/lalie/Desktop/layer site mémoire/centroidealexl/Station_Terril Saint Antoine st3.gpkg|layername=Station_Terril Saint Antoine st3
+1,,,,,Terril Sept st1,,,Station_Terril Sept st1,C:/Users/lalie/Desktop/layer site mémoire/centroidealexl/Station_Terril Sept st1.gpkg|layername=Station_Terril Sept st1
+1,,,,,Terril Sept st2,,,Station_Terril Sept st2,C:/Users/lalie/Desktop/layer site mémoire/centroidealexl/Station_Terril Sept st2.gpkg|layername=Station_Terril Sept st2
+1,,,,,Terril Sept st3,,,Station_Terril Sept st3,C:/Users/lalie/Desktop/layer site mémoire/centroidealexl/Station_Terril Sept st3.gpkg|layername=Station_Terril Sept st3
+1,,,,,Terril Trazegnies st1,,,Station_Terril Trazegnies st1,C:/Users/lalie/Desktop/layer site mémoire/centroidealexl/Station_Terril Trazegnies st1.gpkg|layername=Station_Terril Trazegnies st1
+1,,,,,Terril Trazegnies st2,,,Station_Terril Trazegnies st2,C:/Users/lalie/Desktop/layer site mémoire/centroidealexl/Station_Terril Trazegnies st2.gpkg|layername=Station_Terril Trazegnies st2
+1,,,,,Terril sacrÃ©-FranÃ§ais st2,,,Station_Terril sacrÃ©-FranÃ§ais st2,C:/Users/lalie/Desktop/layer site mémoire/centroidealexl/Station_Terril sacrÃ©-FranÃ§ais st2.gpkg|layername=Station_Terril sacrÃ©-FranÃ§ais st2
+2,Vieille Haine,,,,,,,Vieill_Haine fid_2,C:/Users/lalie/Desktop/layer site mémoire/centroides station alex/Vieill_Haine.gpkg|layername=fid_2
+1,,,,,camp-a-cayaux,122888.908253567133215,123702.439859520367463,centroide final,C:/Users/lalie/Desktop/layer site mémoire/centroide final.gpkg
+2,,,,,omya,122567.558220223072567,124200.441978717615712,centroide final,C:/Users/lalie/Desktop/layer site mémoire/centroide final.gpkg
+3,,,,,social,127605.486964212439489,120349.716484881879296,centroide final,C:/Users/lalie/Desktop/layer site mémoire/centroide final.gpkg
+4,,,,,jardin_suspendu,126302.768728401410044,120264.479546003800351,centroide final,C:/Users/lalie/Desktop/layer site mémoire/centroide final.gpkg
+5,,,,,prés_du_village,126313.228738689489546,121599.953773708315566,centroide final,C:/Users/lalie/Desktop/layer site mémoire/centroide final.gpkg
+6,,,,,cascade,125301.102171597376582,121467.583963297322043,centroide final,C:/Users/lalie/Desktop/layer site mémoire/centroide final.gpkg
+7,,,,,mont_panisel,124763.204147477270453,122427.964963182021165,centroide final,C:/Users/lalie/Desktop/layer site mémoire/centroide final.gpkg
+8,,,,,cimetierre_spienne,123722.833000107886619,122494.107576460723067,centroide final,C:/Users/lalie/Desktop/layer site mémoire/centroide final.gpkg
+9,,,,,moulin,123464.448194115160732,122794.088820201810449,centroide final,C:/Users/lalie/Desktop/layer site mémoire/centroide final.gpkg
+10,,,,,silex,123189.297766630596016,122485.020830289649894,centroide final,C:/Users/lalie/Desktop/layer site mémoire/centroide final.gpkg
+11,,,,,pont_prince,122727.301587313049822,121744.503912767380825,centroide final,C:/Users/lalie/Desktop/layer site mémoire/centroide final.gpkg
+12,,,,,trouille,121705.733784144336823,124622.471145237577730,centroide final,C:/Users/lalie/Desktop/layer site mémoire/centroide final.gpkg
+13,,,,,ronveaux,123383.305271046730923,120082.047654665875598,centroide final,C:/Users/lalie/Desktop/layer site mémoire/centroide final.gpkg
+14,,,,,gare,124173.850328916552826,119928.969171144854045,centroide final,C:/Users/lalie/Desktop/layer site mémoire/centroide final.gpkg
+15,,,,,ancienne_gare,122390.256586317613255,125124.473727454460459,centroide final,C:/Users/lalie/Desktop/layer site mémoire/centroide final.gpkg
+16,,,,,bois_havré,127470.203333636527532,124672.684392724186182,centroide final,C:/Users/lalie/Desktop/layer site mémoire/centroide final.gpkg
+17,,,,,chateau_havré,128223.746601056103827,126610.753982642680057,centroide final,C:/Users/lalie/Desktop/layer site mémoire/centroide final.gpkg
+18,,,,,village_abeille,128066.858478607537108,120629.729490964702563,centroide final,C:/Users/lalie/Desktop/layer site mémoire/centroide final.gpkg
+19,,,,,notre_dame_petit_nimy,128865.791069319442613,121055.225436520195217,centroide final,C:/Users/lalie/Desktop/layer site mémoire/centroide final.gpkg
+20,,,,,pemh_obourg,129502.379173341687419,122350.290278597254655,centroide final,C:/Users/lalie/Desktop/layer site mémoire/centroide final.gpkg
+21,,,,,parc_obourg,129092.736948109755758,124370.149058511873591,centroide final,C:/Users/lalie/Desktop/layer site mémoire/centroide final.gpkg
+22,,,,,haine,127739.239874337130459,119947.198020422350965,centroide final,C:/Users/lalie/Desktop/layer site mémoire/centroide final.gpkg
+23,,,,,géothermia,127965.772528100322234,117748.245309729056316,centroide final,C:/Users/lalie/Desktop/layer site mémoire/centroide final.gpkg
+24,,,,,gd_large,129381.369134482360096,119247.224667031667195,centroide final,C:/Users/lalie/Desktop/layer site mémoire/centroide final.gpkg
+25,,,,,tilou,131882.344528299203375,121393.199434414869756,centroide final,C:/Users/lalie/Desktop/layer site mémoire/centroide final.gpkg
+26,,,,,epargne,126229.748140467461781,120736.457020698857377,centroide final,C:/Users/lalie/Desktop/layer site mémoire/centroide final.gpkg
+27,,,,,st_waudru,127056.324767191705178,120036.533379791551852,centroide final,C:/Users/lalie/Desktop/layer site mémoire/centroide final.gpkg
