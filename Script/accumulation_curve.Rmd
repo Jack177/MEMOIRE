@@ -57,23 +57,84 @@ accu <- type.convert(accu)
 # Calcul des courbes d'accumulation des espèces
 specaccum.accu <- specaccum(accu, "random", permutations = 9999)
 plot(specaccum.accu, ci.col= "red", xlab = "Sites", ylab = "Nombre d'espèces", main = "Courbe d'accumulations des espèces pour l'ensemble des sites")
+
+# Note: le graphique est moche, il y a moyen de faire mieux
 ```
 Figure X: Estimation de la complétude de l'échantillonnage pour l'ensemble des sites étudiées : courbe d'accumulation des espèces par site (intervalle de confiance pour 9999 permutations aléatoires des unités d'échantillonnage).
 
 
+```{r Dataframe pour ggplot}
+# Création d'un dataframe, specaccum ne peut être utilisé par ggplot en tant que tel
+richness <- specaccum.accu$richness
+sites <- specaccum.accu$sites
+sd <- specaccum.accu$sd
+df <- data.frame(sites,richness,sd)
+#data <- as.data.frame(data)
+```
 
 
-
-```{r}
-ggplot(specaccum.accu, aes(x = site, y = richness)) +
+```{r ggplot version}
+# ggplot version
+ggplot(df, aes(x = sites, y = richness)) +
   geom_point() +
-  geom_line() 
+  geom_line() + 
+  labs(title = "Courbe d'accumulations des espèces pour l'ensemble des sites", x = 'Nombre de sites échantillonnés', y = "Nombre d'espèces") +
+  expand_limits(x = 0, y = 0) + # que les axes commencent à partir de 0
+  scale_x_continuous(expand = c(0, 0), limits = c(0, 16),breaks=c(0,5,10,15)) + scale_y_continuous(expand = c(0, 0), limits = c(0, 100)) + # 0 de x et y est confondu
+  geom_errorbar(aes(ymin = richness - sd, ymax = richness + sd), width = 0.2, color="red") + # barre d'erreur ici SD
+  theme(axis.title.x = element_text(face="bold", size = 10), # Titre axe x
+        axis.title.y = element_text(face="bold", size = 10), # Titre axe y
+        axis.text.x = element_text(face="bold", color= "black", size=10, hjust=0), # Echelle x
+        axis.text.y = element_text(face="bold", color= "black", size=10), # Echelle y
+        panel.grid.major = element_blank(),panel.grid.minor = element_blank(),
+        panel.background = element_rect(fill='white', colour='black'),
+        legend.position = "none") 
+
+```
+
+```{r Exportation ggplot}
+# Exportation au format .pdf et .png
+ggsave(filename = "courbe_accumulation.pdf", device = cairo_pdf)
+ggsave(filename = "courbe_accumulation.png")
+
 ```
 
 
-```{r}
+```{r ggplotly}
+# 
+accu_plot <- ggplotly(
+  ggplot(df, aes(x = sites, y = richness)) +
+  geom_point() +
+  geom_line() + 
+  labs(title = "Courbe d'accumulations des espèces pour l'ensemble des sites", x = 'Nombre de sites échantillonnés', y = "Nombre d'espèces") +
+  expand_limits(x = 0, y = 0) + # que les axes commencent à partir de 0
+  scale_x_continuous(expand = c(0, 0), limits = c(0, 16),breaks=c(0,5,10,15)) + scale_y_continuous(expand = c(0, 0), limits = c(0, 100)) + # 0 de x et y est confondu
+  geom_errorbar(aes(ymin = richness - sd, ymax = richness + sd), width = 0.2, color="red") + # barre d'erreur ici SD
+  theme(axis.title.x = element_text(face="bold", size = 10), # Titre axe x
+        axis.title.y = element_text(face="bold", size = 10), # Titre axe y
+        axis.text.x = element_text(face="bold", color= "black", size=10, hjust=0), # Echelle x
+        axis.text.y = element_text(face="bold", color= "black", size=10), # Echelle y
+        panel.grid.major = element_blank(),panel.grid.minor = element_blank(),
+        panel.background = element_rect(fill='white', colour='black'),
+        legend.position = "none") 
+)
+# Rajoute les axes que plotly retire
+accu_plot <- ggplotly(accu_plot) %>%
+  layout(showlegend = FALSE, 
+                    yaxis = list(showline= T, linewidth=2, linecolor='black', mirror = T), 
+                    xaxis = list(showline= T, linewidth=2, linecolor='black', mirror = T))
+accu_plot
 
 ```
+
+```{r Exportation ggplotly}
+# Exportation au format .pdf et .png
+ggsave(filename = "courbe_accumulation.pdf", device = cairo_pdf)
+ggsave(filename = "courbe_accumulation.png")
+```
+
+
+
 
 
 
