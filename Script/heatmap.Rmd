@@ -1,0 +1,98 @@
+---
+title: "Garder pour rapport"
+author: "Jordan"
+date: "`r Sys.Date()`"
+output: pdf_document
+---
+
+## Chargement des paquets
+
+```{r Library, message=FALSE, warning=FALSE, include=FALSE, results='hide', paged.print=FALSE}
+library("readxl") 
+library(dplyr)
+library(plotly)
+library(ggplot2)
+library(viridis) # couleur daltonien
+library(tidyr) # fonction gather
+library(gplots)
+library(RColorBrewer)
+```
+
+## Importation des données
+```{r Import, message=FALSE, warning=FALSE, include=FALSE, results='hide', paged.print=FALSE}
+# Tour PC
+setwd("D:/OneDrive - UMONS/UMONS/MA2/MEMOIRE/Statistique/R/STAT-MEMOIRE/RAW2/")
+# Laptop
+#setwd("C:/Users/Jordan/OneDrive - UMONS/UMONS/MA2/MEMOIRE/Statistique/R/STAT-MEMOIRE/RAW1/From DFF")
+
+# Import
+data_bee_sp <- read_excel("Site-vs-bee.xls") # pas clean !
+#data_bee_genus <- read_excel("Site-vs-bee_genus.xls") # pas clean !
+
+# Nettoyage
+data_bee_sp <- filter(data_bee_sp, TOPO != "Condorcet" )
+#data_bee_genus <- filter(data_bee_genus, TOPO != "Condorcet" )
+
+# Rename
+rename(data_bee_sp, "Site" = "TOPO") -> data_bee_sp
+#rename(data_bee_genus, "Site" = "TOPO") -> data_bee_genus
+
+# Remplacement des noms d'espèces désuets (colonne)
+data_bee_sp <- rename(data_bee_sp, "Bombus (Bombus)  sp." = "Bombus lucorum" ) 
+# data_bee_sp <- rename(data_bee_sp, "Bombus (Bombus)  sp." = "Terrestribombus  sp." ) 
+# data_bee_sp <- rename(data_bee_sp, "Megachile ericetorum" = "Chalicodoma ericetorum" ) 
+
+
+# Remplacement du noms de sites
+data_bee_sp$Site[data_bee_sp$Site == "Les Gourmandes de la Procession"] <- "Gourmandes de la Procession"
+
+# Conservation des NA pour la heatmap
+hm.data_bee_sp <- data_bee_sp
+
+# Remplacer les NA par "0"
+data_bee_sp[is.na(data_bee_sp)] <- 0
+#data_bee_genus[is.na(data_bee_genus)] <- 0
+
+```
+
+### Heatmap sp vs site
+
+```{r Heatmap ggplot}
+# Remodeler le jeux de données pour le heatmap
+
+
+hm.bee_sp <- gather(hm.data_bee_sp, key="sp", value="nbr", 2:ncol(hm.data_bee_sp)) # On prend pas la première colonne (site) et on va jusqu'à la dernière colonne (2 à 93) (xylo)
+
+hm.bee_sp$sp <- factor(hm.bee_sp$sp)
+
+hm.bee_sp <- hm.bee_sp %>%
+  # convert state to factor and reverse order of levels
+  mutate(sp=factor(sp, levels=rev(sort(unique(sp)))))
+
+hm.bee_sp <- select(hm.bee_sp, sp, Site, nbr)
+ggplot(hm.bee_sp, aes(x = Site, y = sp, fill = nbr)) +
+  labs(title = "Abondance des abeilles sauvages", x = '', y = '') + # Titre et titre axe
+  geom_tile(color = "black") +
+  coord_fixed() +
+  guides(fill = guide_colourbar(label = FALSE,
+                                ticks = FALSE)) +
+  theme(axis.text.x = element_text(angle = 90, vjust = 0, size = 3, hjust = 0),
+        axis.text.y = element_text(size = 3, hjust = 0,  vjust = 0.4),
+        legend.position="left", # position légende
+        legend.title = element_text(size = 6), # Taille titre légende texte 
+        legend.text = element_text(size = 6), # Taille légende échelle texte 
+        plot.title = element_text(size = 8, hjust = 0.5), # Taille titre texte 
+        legend.key.size = unit(1.5, "cm"),
+        legend.key.width = unit(0.15,"cm")) + 
+  scale_y_discrete(position = "right") + # y label à droite
+  guides(fill = guide_colourbar(title = "Abondance")) + # Titre légende
+  #scale_fill_distiller(palette = "Reds", direction = +1)  # couleur
+  #scale_fill_distiller(palette = "YlOrBr", direction = 1, na.value = "grey50")
+  scale_fill_viridis(option = "B", direction = -1, na.value = "white")  # couleur
+
+#sum(hm.bee_sp$nbr) # total abeille 
+
+ggsave(filename = "heatmap.pdf", device = cairo_pdf)
+ggsave(filename = "heatmap.png")
+```
+
