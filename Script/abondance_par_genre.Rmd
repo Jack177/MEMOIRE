@@ -1,0 +1,84 @@
+---
+title: "Garder rapport SpecCondStat: genre"
+author: "Jordan"
+date: "`r Sys.Date()`"
+output: html_document
+---
+
+## Chargement des paquets
+
+```{r Library, message=FALSE, warning=FALSE, include=FALSE, results='hide', paged.print=FALSE}
+library("readxl") 
+library(dplyr)
+library(plotly)
+library(ggplot2)
+library(viridis) # couleur daltonien
+library(tidyr) # fonction gather
+library(RColorBrewer)
+#library(grid) # Annotation sur le graphique
+
+```
+
+## Importation des données
+```{r Import, message=FALSE, warning=FALSE, include=FALSE, results='hide', paged.print=FALSE}
+# Tour PC
+setwd("D:/OneDrive - UMONS/UMONS/MA2/MEMOIRE/Statistique/R/STAT-MEMOIRE/RAW2")
+# Laptop
+#setwd("C:/Users/Jordan/OneDrive - UMONS/UMONS/MA2/MEMOIRE/Statistique/R/STAT-MEMOIRE/RAW2")
+
+# Import
+SpecCondStat <- read_excel("SpecCondStat.xls")
+```
+
+
+```{r Nettoyage}
+# Retirer le site de Condorcet
+SCS <- filter(SpecCondStat, TOPO != "Condorcet" )
+
+# Renommer plus simplement
+rename(SCS, "genus" = "SPEC.GEN" ) -> SCS
+rename(SCS, "sites" = "TOPO" ) -> SCS
+
+# Remplacement du noms de sites
+SCS$sites[SCS$sites == "Les Gourmandes de la Procession"] <- "Gourmandes de la Procession"
+```
+
+```{r}
+# Sélection des colonnes
+bee_gen <- select(SCS, N, genus)
+# Addition des genus pour l'ensemble des sites
+bee_gen <- aggregate(N ~ genus, data = bee_gen, sum)
+# Ordonne les genus par ordre décroissant d'abondance
+bee_gen <- bee_gen[order(bee_gen $N, decreasing = TRUE),]
+# Encode la colonne genus en facteur
+bee_gen$genus <- factor(bee_gen$genus, levels = bee_gen$genus)
+
+# Nombre de genre recensé
+nombre_de_genre <- nrow(bee_gen)  # 22 genres différents
+```
+
+```{r Abundance genus}
+# Début enregistrement .pdf
+pdf(file = "D:/OneDrive - UMONS/UMONS/MA2/MEMOIRE/Rapport de mémoire/figure/abundance_genus.pdf",   # The directory you want to save the file in
+    width = 7, # The width of the plot in inches
+    height = 5)
+
+
+ggplot(bee_gen, aes(x=reorder(genus, +N), y=N,fill=genus)) +
+  geom_bar(stat="identity") + coord_flip() + 
+  geom_text(aes(label=N), vjust=0.4, hjust = 0, color="black", fontface = "bold", size=3.5) +
+  labs(title = "Abondance par genre", x = 'Genre', y = 'Nombre de spécimens') +
+  scale_color_brewer(palette = "Dark2") +
+  theme(axis.title.x = element_text(face="bold", size = 10), # Titre axe x
+        axis.title.y = element_text(face="bold", size = 10), # Titre axe y
+        axis.text.x = element_text(face="bold", color= "black", size=10, hjust=0), # Echelle x
+        axis.text.y = element_text(face="bold", color= "black", size=10), # Echelle y
+        panel.grid.major = element_blank(),panel.grid.minor = element_blank(),
+        panel.background = element_rect(fill='white', colour='black'),
+        legend.position = "none") +
+  scale_fill_viridis_d("") # couleur viridis, et titre légende
+
+# Fin enregistrement .pdf
+dev.off()
+```
+

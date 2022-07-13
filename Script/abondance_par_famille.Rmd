@@ -1,0 +1,104 @@
+---
+title: "Garder rapport SpecCondStat: famille"
+author: "Jordan"
+date: "`r Sys.Date()`"
+output: html_document
+---
+
+## Chargement des paquets
+
+```{r Library, message=FALSE, warning=FALSE, include=FALSE, results='hide', paged.print=FALSE}
+library("readxl") 
+library(dplyr)
+library(plotly)
+library(ggplot2)
+library(viridis) # couleur daltonien
+library(tidyr) # fonction gather
+library(RColorBrewer)
+#library(grid) # Annotation sur le graphique
+
+```
+
+## Importation des données
+```{r Import, message=FALSE, warning=FALSE, include=FALSE, results='hide', paged.print=FALSE}
+# Tour PC
+setwd("D:/OneDrive - UMONS/UMONS/MA2/MEMOIRE/Statistique/R/STAT-MEMOIRE/RAW2")
+# Laptop
+#setwd("C:/Users/Jordan/OneDrive - UMONS/UMONS/MA2/MEMOIRE/Statistique/R/STAT-MEMOIRE/RAW2")
+
+# Import
+SpecCondStat <- read_excel("SpecCondStat.xls")
+```
+
+
+```{r Nettoyage}
+# Retirer le site de Condorcet
+SCS <- filter(SpecCondStat, TOPO != "Condorcet" )
+
+# Renommer plus simplement
+rename(SCS, "familly" = "SPEC.GR2" ) -> SCS
+rename(SCS, "sites" = "TOPO" ) -> SCS
+
+# Remplacement du noms de sites
+SCS$sites[SCS$sites == "Les Gourmandes de la Procession"] <- "Gourmandes de la Procession"
+```
+
+```{r}
+# Sélection des colonnes
+bee_fam <- select(SCS, N, familly)
+# Addition des familly pour l'ensemble des sites
+bee_fam <- aggregate(N ~ familly, data = bee_fam, sum)
+# Ordonne les familly par ordre décroissant d'abondance
+bee_fam <- bee_fam[order(bee_fam $N, decreasing = TRUE),]
+# Encode la colonne familly en facteur
+bee_fam$familly <- factor(bee_fam$familly, levels = bee_fam$familly)
+
+# Nombre de genre recensé
+nombre_de_famille <- nrow(bee_fam)  # 6 familles différentes
+```
+
+```{r Exploration familly}
+# familly
+ggplot(bee_fam, aes(x=reorder(familly, +N), y=N,fill=familly)) +
+  geom_bar(stat="identity") + coord_flip() + 
+  geom_text(aes(label=N), vjust=0.4, hjust = 0, color="black", fontface = "bold", size=3.5) +
+  labs(title = "Abondance par genre", x = 'Genre', y = 'Individus') +
+  scale_color_brewer(palette = "Dark2") +
+  theme(axis.title.x = element_text(face="bold", size = 10), # Titre axe x
+        axis.title.y = element_text(face="bold", size = 10), # Titre axe y
+        axis.text.x = element_text(face="bold", color= "black", size=10, hjust=0), # Echelle x
+        axis.text.y = element_text(face="bold", color= "black", size=10), # Echelle y
+        panel.grid.major = element_blank(),panel.grid.minor = element_blank(),
+        panel.background = element_rect(fill='white', colour='black'),
+        legend.position = "none") +
+  scale_fill_viridis_d("") # couleur viridis, et titre légende
+```
+
+```{r}
+# Début enregistrement .pdf
+pdf(file = "D:/OneDrive - UMONS/UMONS/MA2/MEMOIRE/Rapport de mémoire/figure/abundance_familly.pdf",   # The directory you want to save the file in
+    width = 7, # The width of the plot in inches
+    height = 5)
+
+ggplot(bee_fam, aes(x=reorder(familly, +N), y=N,fill=familly)) +
+  geom_bar(stat="identity") + coord_flip() + 
+  geom_text(aes(label=N), vjust=0.5, hjust = -0.1, color="black", size=3.5, fontface = "bold") +
+  labs(title = "", x = '', y = '') +
+  scale_color_brewer(palette = "Dark2") +
+  theme_void() +
+  theme(axis.title.x = element_text(face="bold", size = 20), # Titre axe x
+        axis.title.y = element_text(face="bold", size = 20), # Titre axe y
+        axis.text.x = element_text(face="bold", color= "white", size=10, hjust=0), # Echelle x
+        axis.text.y = element_text(face="bold", color= "black", size=10), # Echelle y
+        legend.position = "none") +
+  scale_fill_viridis_d("")
+
+# Fin enregistrement .pdf
+dev.off()
+
+
+# Enregistrement avec ggsave()
+# ggsave(filename = "abundance_fam.pdf", device = cairo_pdf)
+# ggsave(filename = "abundance_fam.png")
+```
+

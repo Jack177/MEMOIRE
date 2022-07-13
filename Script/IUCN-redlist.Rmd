@@ -1,0 +1,83 @@
+---
+title: "IUCN"
+author: "Jordan"
+date: "`r Sys.Date()`"
+output: html_document
+---
+
+## Chargement des paquets
+
+```{r Library, message=FALSE, warning=FALSE, include=FALSE, results='hide', paged.print=FALSE}
+library("readxl") 
+library(dplyr)
+library(plotly)
+library(ggplot2)
+library(viridis) # couleur daltonien
+library(tidyr) # fonction gather
+library("writexl")
+
+```
+
+## Importation des données
+```{r Import, message=FALSE, warning=FALSE, include=FALSE, results='hide', paged.print=FALSE}
+# Tour PC
+setwd("D:/OneDrive - UMONS/UMONS/MA2/MEMOIRE/Statistique/R/STAT-MEMOIRE/RAW2")
+# Laptop
+#setwd("C:/Users/Jordan/OneDrive - UMONS/UMONS/MA2/MEMOIRE/Statistique/R/STAT-MEMOIRE/RAW2")
+
+# Import
+IUCN_redlist <- read_excel("IUCN_bee_sp-each-site(genus-and-familly).xlsx")
+
+# Réécriture des noms de familles
+IUCN_redlist$familly[IUCN_redlist$familly == "ANDRENIDAE"] <- "Andrenidae"
+IUCN_redlist$familly[IUCN_redlist$familly == "APIDAE"] <- "Apidae"
+IUCN_redlist$familly[IUCN_redlist$familly == "COLLETIDAE"] <- "Colletidae"
+IUCN_redlist$familly[IUCN_redlist$familly == "HALICTIDAE"] <- "Halictidae"
+IUCN_redlist$familly[IUCN_redlist$familly == "MEGACHILIDAE"] <- "Megachilidae"
+IUCN_redlist$familly[IUCN_redlist$familly == "MELITTIDAE"] <- "Melittidae"
+```
+
+```{r}
+# Addition des espèces avec la catégorie IUCN
+IUCN_sp <- aggregate(N ~ sp + category, data = IUCN_redlist, sum)
+
+# Addition des genres avec la catégorie IUCN
+IUCN_gen <- aggregate(N ~ genus + category, data = IUCN_redlist, sum)
+
+# Addition des familles avec la catégorie IUCN
+IUCN_fam <- aggregate(N ~ familly + category, data = IUCN_redlist, sum)
+```
+
+
+```{r}
+# Categorie IUCN par espèces
+spread(IUCN_sp, key = category , value = N )
+
+# Categorie IUCN par genre
+spread(IUCN_gen, key = category , value = N )
+
+
+
+# Categorie IUCN par famille
+category_IUCN <- spread(IUCN_fam, key = category , value = N )
+
+# Remplacer les NA par "0"
+category_IUCN[is.na(category_IUCN)] <- 0
+
+# Rajouter les catégories manquante
+category_IUCN$CR <- c(0,0,0,0,0,0)
+category_IUCN$EN <- c(0,0,0,0,0,0)
+
+# Réorganisation des colonnes
+category_IUCN <- select(category_IUCN, familly, CR, EN, VU, NT, LC, DD)
+
+# Ajoute une colonne total
+category_IUCN$Total <- rowSums(category_IUCN[, c("CR", "EN", "VU", "NT", "LC", "DD")])
+
+# Ajoute une ligne total
+category_IUCN <- janitor::adorn_totals(category_IUCN)
+
+# Exportation tableur Excel
+write_xlsx(category_IUCN,"D:/OneDrive - UMONS/UMONS/MA2/MEMOIRE/Statistique/R/STAT-MEMOIRE/RAW2/IUCN_familly.xlsx")
+```
+
