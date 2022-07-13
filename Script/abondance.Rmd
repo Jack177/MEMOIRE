@@ -15,13 +15,8 @@ library(ggplot2)
 library(viridis) # couleur daltonien
 library(tidyr) # fonction gather
 library(qcc)
-library(gplots)
 library(RColorBrewer)
 library(vegan) # Un premier lot de fonctions pour ordination
-library(FactoMineR) # Deux autres packages faisant la m?me chose mais en plus esth?tique
-library(factoextra)
-library(ape) #PCoA
-library(ade4)
 library(grid) # Annotation sur le graphique
 
 ```
@@ -39,7 +34,7 @@ SCS <- read_excel("SpecCondStat.xls")
 
 
 ```{r Nettoyage}
-# Retirer le site de Condorcet
+# Retirer le site de Condorcet (1838 sp => 1754 sp)
 SCS <- filter(SCS, TOPO != "Condorcet" )
 
 # Renommer plus simplement

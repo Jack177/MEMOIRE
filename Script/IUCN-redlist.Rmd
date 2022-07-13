@@ -51,33 +51,46 @@ IUCN_fam <- aggregate(N ~ familly + category, data = IUCN_redlist, sum)
 
 ```{r}
 # Categorie IUCN par espèces
-spread(IUCN_sp, key = category , value = N )
-
-# Categorie IUCN par genre
-spread(IUCN_gen, key = category , value = N )
-
-
-
-# Categorie IUCN par famille
-category_IUCN <- spread(IUCN_fam, key = category , value = N )
-
-# Remplacer les NA par "0"
-category_IUCN[is.na(category_IUCN)] <- 0
-
-# Rajouter les catégories manquante
-category_IUCN$CR <- c(0,0,0,0,0,0)
-category_IUCN$EN <- c(0,0,0,0,0,0)
-
-# Réorganisation des colonnes
-category_IUCN <- select(category_IUCN, familly, CR, EN, VU, NT, LC, DD)
-
-# Ajoute une colonne total
-category_IUCN$Total <- rowSums(category_IUCN[, c("CR", "EN", "VU", "NT", "LC", "DD")])
+category_IUCN_sp <-  spread(IUCN_sp, key = category , value = N)
 
 # Ajoute une ligne total
-category_IUCN <- janitor::adorn_totals(category_IUCN)
+category_IUCN_sp <- janitor::adorn_totals(category_IUCN_sp)
 
-# Exportation tableur Excel
-write_xlsx(category_IUCN,"D:/OneDrive - UMONS/UMONS/MA2/MEMOIRE/Statistique/R/STAT-MEMOIRE/RAW2/IUCN_familly.xlsx")
+# Rajouter les catégories manquante
+category_IUCN_sp$CR <- rep(0, nrow(category_IUCN_sp))  
+category_IUCN_sp$EN <- rep(0, nrow(category_IUCN_sp)) 
+
+# Ajoute une colonne total
+category_IUCN_sp$Total <- rowSums(category_IUCN_sp[, c("CR", "EN", "VU", "NT", "LC", "DD")])
+
 ```
 
+
+```{r}
+# Categorie IUCN par genre
+category_IUCN_gen <- spread(IUCN_gen, key = category , value = N)
+```
+
+```{r}
+# Categorie IUCN par famille
+category_IUCN_fam <- spread(IUCN_fam, key = category , value = N )
+
+# Remplacer les NA par "0"
+category_IUCN_fam[is.na(category_IUCN_fam)] <- 0
+
+# Rajouter les catégories manquante
+category_IUCN_fam$CR <- c(0,0,0,0,0,0)
+category_IUCN_fam$EN <- c(0,0,0,0,0,0)
+
+# Réorganisation des colonnes
+category_IUCN_fam <- select(category_IUCN_fam, familly, CR, EN, VU, NT, LC, DD)
+
+# Ajoute une colonne total
+category_IUCN_fam$Total <- rowSums(category_IUCN_fam[, c("CR", "EN", "VU", "NT", "LC", "DD")])
+
+# Ajoute une ligne total
+category_IUCN_fam <- janitor::adorn_totals(category_IUCN_fam)
+
+# Exportation tableur Excel
+write_xlsx(category_IUCN_fam,"D:/OneDrive - UMONS/UMONS/MA2/MEMOIRE/Statistique/R/STAT-MEMOIRE/RAW2/IUCN_familly.xlsx")
+```
