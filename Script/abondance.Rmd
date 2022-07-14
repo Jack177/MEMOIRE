@@ -35,7 +35,7 @@ SCS <- read_excel("SpecCondStat.xls")
 
 ```{r Nettoyage}
 # Retirer le site de Condorcet (1838 sp => 1754 sp)
-SCS <- filter(SCS, TOPO != "Condorcet" )
+#SCS <- filter(SCS, TOPO != "Condorcet" )
 
 # Renommer plus simplement
 rename(SCS, "sp" = "SPEC.TAXPRIO" ) -> SCS

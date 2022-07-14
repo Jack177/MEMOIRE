@@ -6,6 +6,7 @@ output: html_document
 ---
 Video Youtube : https://www.youtube.com/watch?v=uN_uFjcE8ag
 Chargement des paquets.
+
 ```{r}
 library("readxl") 
 library(dplyr)

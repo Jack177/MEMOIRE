@@ -41,13 +41,20 @@ rename(SCS, "sites" = "TOPO" ) -> SCS
 
 # Remplacement du noms de sites
 SCS$sites[SCS$sites == "Les Gourmandes de la Procession"] <- "Gourmandes de la Procession"
+
 ```
 
 ```{r}
+
+
 # Sélection des colonnes
 bee_gen <- select(SCS, N, genus)
 # Addition des genus pour l'ensemble des sites
 bee_gen <- aggregate(N ~ genus, data = bee_gen, sum)
+
+# Variable qui ordonne par ordre alphabétique
+bee_gen_sort <- arrange(bee_gen,genus)
+
 # Ordonne les genus par ordre décroissant d'abondance
 bee_gen <- bee_gen[order(bee_gen $N, decreasing = TRUE),]
 # Encode la colonne genus en facteur

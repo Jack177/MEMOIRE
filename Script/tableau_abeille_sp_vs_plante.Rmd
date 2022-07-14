@@ -1,0 +1,75 @@
+---
+title: "Tableau abeilles sp vs plantes"
+author: "Jordan"
+date: "`r Sys.Date()`"
+output: html_document
+---
+
+```{r}
+library("readxl") 
+library("writexl")
+library(dplyr)
+library(vegan)
+library(ggplot2)
+library(tidyr)
+library(stringr)
+library(bipartite)
+```
+
+Importation des données.
+```{r Import}
+# Import
+# Tour PC
+setwd("D:/OneDrive - UMONS/UMONS/MA2/MEMOIRE/Statistique/R/STAT-MEMOIRE/RAW2")
+# Laptop
+#setwd("C:/Users/Jordan/OneDrive - UMONS/UMONS/MA2/MEMOIRE/Statistique/R/STAT-MEMOIRE/RAW2")
+
+SpecCondStat <- read_excel("SpecCondStat.xls")
+
+```
+
+Nettoyage du jeux de données dans l'ensemble.
+```{r Nettoyage}
+# Nom plus compact et isolation des chunks
+SCS <- SpecCondStat
+
+# Retirer le site de Condorcet
+SCS <- filter(SCS, TOPO != "Condorcet" )
+
+# Renommer plus simplement
+rename(SCS, "sp" = "SPEC.TAXPRIO" ) -> SCS
+rename(SCS, "plante" = "COND.TAXPRIO" ) -> SCS
+rename(SCS, "sites" = "TOPO" ) -> SCS
+
+# Retirer les observations contenant l'espèce : "XXX"
+# SCS <- filter(SCS, SPEC.TAXPRIO != "Bombus (Bombus)  sp." )
+
+# Remplacement des noms d'espèces désuets
+SCS$sp[SCS$sp == "Bombus lucorum"] <- "Bombus (Bombus)  sp."
+SCS$sp[SCS$sp == "Terrestribombus  sp."] <- "Bombus (Bombus)  sp."
+SCS$sp[SCS$sp == "Chalicodoma ericetorum"] <- "Megachile ericetorum"
+SCS$sp[SCS$sp == "Halictus tumulorum"] <- "Seladonia tumulorum"
+
+# Remplacement du noms de sites
+SCS$sites[SCS$sites == "Les Gourmandes de la Procession"] <- "Gourmandes de la Procession"
+```
+
+```{r Courbe d'accumulation}
+# Preparation des données 
+data_bee_sp_vs_plante <- select(SCS, sp, N, plante)
+data_bee_sp_vs_plante <- as.data.frame(data_bee_sp_vs_plante)
+data_bee_sp_vs_plante <- aggregate(N ~ sp + plante, data = data_bee_sp_vs_plante, sum)
+data_bee_sp_vs_plante <- xtabs(N ~ plante + sp, data_bee_sp_vs_plante)
+data_bee_sp_vs_plante <- type.convert(data_bee_sp_vs_plante)
+data_bee_sp_vs_plante <- as.data.frame(data_bee_sp_vs_plante)
+
+# Transforme rownams en vrai colonne
+data_bee_sp_vs_plante <- tibble::rownames_to_column(data_bee_sp_vs_plante, "Fleurs")
+```
+
+```{r}
+# Exportation tableur Excel
+write_xlsx(data_bee_sp_vs_plante,"D:/OneDrive - UMONS/UMONS/MA2/MEMOIRE/Statistique/R/STAT-MEMOIRE/RAW2/tableau_abeille_sp_vs_plante.xlsx")
+```
+
+

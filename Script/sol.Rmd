@@ -24,6 +24,9 @@ library(FactoMineR) # Deux autres packages faisant la même chose mais en plus e
 library(factoextra)
 library(ape) #PCoA
 library(ade4)
+
+# ternary diagrams pour créer des diagramme sol (argile, limon sable)
+# ggtern
 ```
 
 ## Importation des données

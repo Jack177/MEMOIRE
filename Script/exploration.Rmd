@@ -379,7 +379,10 @@ m1 <- bee_plante[,-1:-2]
 m1 <- as.matrix(m1)
 row.names(m1) <- bp
 
-bipartite::plotweb2(m2,m1)  # lablenght = nbr caractère limité
+m2 <- data_pla_sp[,-1:-2]
+m2 <- as.matrix(m2)
+
+bipartite::plotweb(m1)  # lablenght = nbr caractère limité
                   
 ```
 

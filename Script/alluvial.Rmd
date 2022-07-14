@@ -1,0 +1,281 @@
+---
+title: "alluvial"
+author: "Jordan"
+date: "`r Sys.Date()`"
+output: html_document
+---
+
+ 
+```{r}
+library("readxl") 
+library("writexl")
+library(dplyr)
+library(vegan)
+library(ggplot2)
+library(tidyr)
+library(ggalluvial)
+library(ggrepel)
+library(ggfittext)
+```
+
+```{r}
+# https://cran.r-project.org/web/packages/ggalluvial/vignettes/ggalluvial.html
+# https://cran.r-project.org/web/packages/ggalluvial/vignettes/labels.html
+# https://kandi.openweaver.com/r/corybrunson/ggalluvial#Community-Discussions
+```
+
+
+```{r}
+# Import
+# Tour PC
+setwd("D:/OneDrive - UMONS/UMONS/MA2/MEMOIRE/Statistique/R/STAT-MEMOIRE/RAW2")
+# Laptop
+#setwd("C:/Users/Jordan/OneDrive - UMONS/UMONS/MA2/MEMOIRE/Statistique/R/STAT-MEMOIRE/RAW2")
+
+SpecCondStat <- read_excel("data_reseau-gen-site-fam-N.xls")
+```
+
+Nettoyage du jeux de données dans l'ensemble.
+```{r Nettoyage}
+# Nom plus compact et isolation des chunks
+SCS <- SpecCondStat
+
+
+# Retirer le site de Condorcet
+SCS <- filter(SCS, TOPO != "Condorcet" )
+
+# Renommer plus simplement
+rename(SCS, "genus" = "GEN" ) -> SCS
+rename(SCS, "pl_fam" = "GR2" ) -> SCS
+rename(SCS, "sites" = "TOPO" ) -> SCS
+
+# Remplacement du noms de sites
+SCS$sites[SCS$sites == "Les Gourmandes de la Procession"] <- "Gourmandes de la Procession"
+
+# Remplacement des noms de genres désuets
+SCS$genus[SCS$genus == "Chalicodoma"] <- "Megachile"
+
+# Supprimer les pl_fam <- NA (= au vol)
+SCS <- SCS[complete.cases(SCS),]
+
+SCS$sites <- as.factor(SCS$sites)
+
+```
+
+
+
+```{r  Sites vs genres}
+# Sites vs genres
+# Définissez le nombre de couleurs que vous voulez
+nb.cols <- 22
+mycolors <- colorRampPalette(brewer.pal(8, "Set1"))(nb.cols)
+
+ggplot(as.data.frame(SCS),
+       aes(y = N, axis1 = sites, axis2 = genus)) +
+  geom_alluvium(aes(fill = genus), width = 1/50) + # fils
+  geom_stratum(width = 1/50, fill = "grey10", color = "grey") + # borne 
+  #geom_label(stat = "stratum", aes(label = after_stat(stratum))) +
+  # geom_text(stat = "stratum",
+            # aes(label = paste0(stratum,
+            #                    ifelse(nchar(as.character(stratum)) == 1L,
+            #                           ": ", "\n"),
+            #                    after_stat(n))),
+            # color = "white", size = 2) +
+  geom_text(x = 2.05, stat = "stratum", 
+            aes(label = genus),
+            color = 'black', hjust = 0, size = 2) +
+  geom_text(x = 0.95, stat = "stratum", 
+            aes(label = sites),
+              color = 'black', hjust = 1, size = 3) +
+  scale_fill_manual(values = mycolors) +
+  theme_void() + 
+  theme(legend.position = "bottom") +
+  labs(fill = "Genre") +
+  scale_x_discrete(limits = c("Before", "After"), expand = c(.2, .2)) +
+  ggtitle("")
+```
+
+
+```{r Plantes vs sites}
+# Plantes vs sites
+# Définissez le nombre de couleurs que vous voulez
+nb.cols <- 22
+mycolors <- colorRampPalette(brewer.pal(8, "Set1"))(nb.cols)
+
+ggplot(as.data.frame(SCS),
+       aes(y = N, axis1 = pl_fam, axis2 = sites)) +
+  geom_alluvium(aes(fill = genus), width = 1/50) + # fils
+  geom_stratum(width = 1/50, fill = "grey10", color = "grey") + # borne 
+  #geom_label(stat = "stratum", aes(label = after_stat(stratum))) +
+  # geom_text(stat = "stratum",
+  #           aes(label = paste0(stratum,
+  #                              ifelse(nchar(as.character(stratum)) == 1L,
+  #                                     ": ", "\n"),
+  #                              after_stat(n))),
+  #           color = "white", size = 2) +
+  geom_text(x = 2.05, stat = "stratum", 
+            aes(label = sites),
+              color = 'black', hjust = 0, size = 1) +
+  geom_text(x = 0.95, stat = "stratum", 
+            aes(label = pl_fam),
+              color = 'black', hjust = 1, size = 1) +
+  scale_fill_manual(values = mycolors) +
+  theme_void() + 
+  theme(legend.position = "bottom") +
+  labs(fill = "Genre") +
+  scale_x_discrete(limits = c("Before", "After"), expand = c(.2, .2)) +
+  ggtitle("")
+```
+
+```{r Plantes vs genres}
+# Plantes vs genres
+# Définissez le nombre de couleurs que vous voulez
+nb.cols <- 22
+mycolors <- colorRampPalette(brewer.pal(8, "Set1"))(nb.cols)
+
+ggplot(as.data.frame(SCS),
+       aes(y = N, axis1 = pl_fam, axis2 = genus)) +
+  geom_alluvium(aes(fill = genus), width = 1/50) + # fils
+  geom_stratum(width = 1/50, fill = "grey10", color = "grey") + # borne 
+  #geom_label(stat = "stratum", aes(label = after_stat(stratum))) +
+  # geom_text(stat = "stratum",
+  #           aes(label = paste0(stratum,
+  #                              ifelse(nchar(as.character(stratum)) == 1L,
+  #                                     ": ", "\n"),
+  #                              after_stat(n))),
+  #           color = "white", size = 2) +
+  geom_text(x = 2.05, stat = "stratum", 
+            aes(label = genus),
+              color = 'black', hjust = 0, size = 2) +
+  geom_text(x = 0.95, stat = "stratum", 
+            aes(label = pl_fam),
+              color = 'black', hjust = 1, size = 2) +
+  scale_fill_manual(values = mycolors) +
+  theme_void() + 
+  theme(legend.position = "bottom") +
+  labs(fill = "Genre") +
+  scale_x_discrete(limits = c("Before", "After"), expand = c(.2, .2)) +
+  ggtitle("")
+```
+
+```{r}
+
+
+ggplot(as.data.frame(SCS),
+       aes(y = N, axis1 = pl_fam, axis2 = sites)) +
+  geom_alluvium(aes(fill = genus), width = 1/12) +
+  geom_stratum(width = 1/12, fill = "black", color = "grey") +
+  geom_label(stat = "stratum", aes(label = after_stat(stratum))) +
+  scale_x_discrete(limits = c("Gender", "Dept"), expand = c(.05, .05)) +
+  scale_fill_brewer(type = "qual", palette = "Set1") +
+  ggtitle("UC Berkeley admissions and rejections, by sex and department")
+```
+
+```{r}
+ggplot(data = modechoice,
+
+       aes(y = Freq, axis1 = s2_vervoermiddel_werkstudie_voor, axis2 = s2_vervoermiddel_werkstudie_na)) +
+
+  geom_alluvium(aes(fill = "black"), width = 1/12) +
+
+  geom_stratum(width = 1/12, fill = "black", color = "grey") +
+
+  geom_label(stat = "stratum", aes(label = after_stat(stratum))) +
+
+  scale_x_discrete(limits = c("Before", "After"), expand = c(.05, .05)) +
+
+  scale_fill_brewer(type = "qual", palette = "Set1") +
+
+  ggtitle("Mode choice before corona and expected after")
+
+
+ggplot(data = modechoice,
+
+       aes(y = Freq, axis1 = s2_vervoermiddel_werkstudie_voor, 
+
+           axis2 = s2_vervoermiddel_werkstudie_na)) +
+
+  geom_alluvium(aes(fill = s2_vervoermiddel_werkstudie_voor),
+
+                width = 1/12) +
+
+  geom_stratum(width = 1/12, fill = "black", color = "grey") +
+
+  geom_text(x = 0.95, stat = "stratum", 
+
+            aes(label = s2_vervoermiddel_werkstudie_voor),
+
+              color = 'black', hjust = 1) +
+
+  geom_text(x = 2.05, stat = "stratum", 
+
+            aes(label = s2_vervoermiddel_werkstudie_na),
+
+            color = 'black', hjust = 0) +
+
+  scale_x_discrete(limits = c("Before", "After"), expand = c(.2, .2)) +
+
+  ggtitle("Mode choice before corona and expected after") +
+
+  theme_void() +
+
+  theme(legend.position = 'none')
+```
+
+
+```{r}
+df <- data("Titanic")
+```
+
+```{r}
+
+
+ggplot(as.data.frame(Titanic),
+       aes(y = Freq,
+           axis1 = Survived, axis2 = Sex, axis3 = Class)) +
+  geom_alluvium(aes(fill = Class),
+                width = 0, knot.pos = 0, reverse = FALSE) +
+  guides(fill = FALSE) +
+  geom_stratum(width = 1/8, reverse = FALSE) +
+  geom_text(stat = "stratum", aes(label = after_stat(stratum)),
+            reverse = FALSE) +
+  scale_x_continuous(breaks = 1:3, labels = c("Survived", "Sex", "Class")) +
+  coord_flip() +
+  ggtitle("Titanic survival by class and sex")
+```
+
+```{r}
+ggplot(as.data.frame(SCS),
+       aes(y = N,
+           axis1 = pl_fam, axis2 = sites)) +
+  geom_alluvium(aes(fill = pl_fam),
+                width = 0, knot.pos = 0, reverse = FALSE) +
+  scale_linetype_manual(values = c("blank", "solid")) +
+  ggrepel::geom_text_repel(
+    aes(label = ifelse(as.numeric(sites) == 1, as.character(pl_fam), NA)),
+    stat = "stratum", size = 4, direction = "y", nudge_x = -.5
+  ) +
+  ggrepel::geom_text_repel(
+    aes(label = ifelse(as.numeric(sites) == 3, as.character(pl_fam), NA)),
+    stat = "stratum", size = 4, direction = "y", nudge_x = .5
+  ) +
+  guides(fill = FALSE) +
+  geom_stratum(width = 1/8, reverse = FALSE) +
+  geom_text(stat = "stratum", aes(label = after_stat(stratum)),
+            reverse = FALSE) +
+  scale_x_continuous(breaks = 1:3, labels = c("Survived", "Sex", "Class")) +
+  ggtitle("Titanic survival by class and sex")
+```
+
+```{r}
+ggplot(as.data.frame(SCS),
+       aes(y = N, axis1 = sites, axis2 = genus)) +
+  geom_alluvium(aes(fill = genus), width = 1/12) +
+  geom_stratum(width = 1/12, fill = "black", color = "grey") +
+  geom_label(stat = "stratum", aes(label = after_stat(stratum))) +
+  scale_x_discrete(limits = c("site", "Gender"), expand = c(.05, .05)) +
+  scale_fill_brewer(type = "qual", palette = "Set1") +
+  ggtitle("titre")
+```
+
+
