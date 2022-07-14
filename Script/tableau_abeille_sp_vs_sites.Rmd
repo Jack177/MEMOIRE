@@ -24,8 +24,6 @@ setwd("D:/OneDrive - UMONS/UMONS/MA2/MEMOIRE/Statistique/R/STAT-MEMOIRE/RAW2")
 #setwd("C:/Users/Jordan/OneDrive - UMONS/UMONS/MA2/MEMOIRE/Statistique/R/STAT-MEMOIRE/RAW2")
 
 SpecCondStat <- read_excel("SpecCondStat.xls")
-
-
 ```
 
 Nettoyage du jeux de données dans l'ensemble.
@@ -53,8 +51,8 @@ SCS$sp[SCS$sp == "Halictus tumulorum"] <- "Seladonia tumulorum"
 SCS$sites[SCS$sites == "Les Gourmandes de la Procession"] <- "Gourmandes de la Procession"
 ```
 
-```{r Courbe d'accumulation}
-# Preparation des données pour la courbe d'accumulation
+```{r }
+# Preparation des données 
 data_bee_sp <- select(SCS, sp, N, sites)
 data_bee_sp <- as.data.frame(data_bee_sp)
 data_bee_sp <- aggregate(N ~ sp + sites, data = data_bee_sp, sum)

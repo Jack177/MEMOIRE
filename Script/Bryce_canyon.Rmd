@@ -17,6 +17,8 @@ library(labdsv)
 library(ggthemes)
 ```
 
+Vidéo de Nancy McIntyre
+
 /!\\ plot peut signifier terrain/site !!!
 /!\\ occurence signifie la presence sur différents lieux => distribution !!!
 # Site X Species 
@@ -236,6 +238,174 @@ Ces graphiques montrent des patterns régulièrement observés dans les jeux de 
 # abundance and occurence
 abuocc(veg)
 ```
+
+
+# Indice de biodiversité
+https://www.youtube.com/watch?v=7eXgEwbERVs
+
+Rappel : 
+_occurence_ (répartition) caractérise la distribution d'une espèce.
+_abundance_ (abondance) caractérise le nombre d'organisme d'une espèce par unité d'espace.
+
+La richesse est souvent noté S.
+Les méthodes pour caractériser la biodiversité dépend du jeux de données.
+Si on a beaucoup de 0 ou pas.
+
+On distingue deux types de méthodes:
+Abundance based measure : dans le cas où l'on a compté les individus de plusieurs espèces et l'on peut avoir confiance en ces chiffres.
+Incidence-based measure : dans le cas où l'on a des données de types présence-absence ou si le comptage n'a pas pu être précis.
+(Exemple : brin d'herbe d'une graminé ou nuée d'oiseaux).
+
+
+Abundance based measure 
+Chao1
+ACE
+other
+
+Incidence-based measure
+Chao2
+Ice
+Jacknife 1st order
+Jacknife 2nd order
+Bootstrap
+other
+
+
+Chao1 et Chao2 sont utile si on a beaucoup de singletons ou doubletons.
+singleton = espèce représenté par un seul individus.
+doubleton = espèce représenté par deux individus.
+Chao1 et Chao2 on tendance a sous-estimé la richesse réelle présente dans une communauté.
+
+Jacknife 1 et2 peut surestimer ou sous-estimé la richesse. Ces indices donnent souvent une valeur plus grande que le nombre d'espèce observées.
+L'hypothèse est que le nombre d'espèce observé est plus petite que le nombre d'espèce rééllement présent.
+Mais Jacknife peut donner des valeurs inférieures que la richesse observée, évidemment ces nombres sont faux.
+C'est problèmatique notamment si on a beaucoup de zéros dans le jeux de données.
+
+La méthode du bootstrap a une limitation similaire, si on a beaucoup de zéro, si on a une matrice peu dense, bien que cet indice soit moins enclin a surestimer la richesse.
+Dans le livre de 2003 "Measuring Biological Diversity", l'auteur résume les performances de ces indices.
+Il n'y a pas de consensus pour savoir lequel est le meilleur. Conseil utiliser plusieurs indices et utiliser le résultat consensuel
+
+Sur la vidéo elle montre des graphiques avec chacun des estimateurs.
+S est calculé avec specpool, ce sont les données enregistrées, ensuite chao2, jacknife 1 et 2 et bootstrap. Avec 95% de CI. Basé sur la taille de l'échantillon (=le nombre de sites), car ce sont des Incidence-based measure.
+Avec ces graphiques on voit quelle indice ont un comportement étrange (chao2). Chao2 surestime bizarrement la richesse.
+
+
+Si on a des indices d'Abundance based measure, encore une fois il est important de mettre en graphique les indices et de les comparer. On a la mesure et le 95 CI.
+Les deux indices présentés on des CI plus larges à faible taille d'échantillonnage et à l'opposé à grande taille d'échantillonnage.
+Ceci suggère qu'évaluer la richesse avec un faible échantillonnage est imprécis
+
+## Diversité
+Diversity index (or diversty metric)
+Pour deux communautés différentes ayant le même nombre d'espèce différentes (S = richesse) et le même nombre d'individus (N). On peut clairement voir une différence de diversité dans l'exemple.
+
+Les indices de biodiversité peuvent permettre de caractériser cette distinction. Le problème des indices de diversité, c'est qu'ils utilisent la richesse et _evenness_ (=distribution ?) qui peuvent avoir différentes pressions écologique et formes de sélection évolutives. Ces indices les combinent en un seul nombre.
+La simplicité de l'indice de diversité est sa force tout comme sa principale faiblesse.
+
+L'indice le plus populaire est celui de Shannon-Wiener H'.
+Il est très sensible à la taille de l'échantillon et très influencé par la rareté. De plus, il peut être difficile à interpréter.
+
+Indice de Simpson's Lambda, son inverse et D = 1 - lambda
+Fischer alpha : pas sensible à la taille de l'échantillon si la taille est supérieur a 1000.
+Et suppose que les données suivent un distribution normal log, ce qui n'est pas toujours le cas.
+Il a plein de problèmes.
+
+Chaque indices a ses utilités et ses problèmes/défauts.
+
+Le problèmes de ces indices est qu'il n'y a pas d'unité, ce qui les rends difficile à interprétêr et de les comparer, et donc d'avoir un consensus.
+On sait juste dire quelle communauté est plus diversifié qu'une autre.
+
+
+## Evenness
+
+Indice
+Pielou J : appellé aussi the Shannon evenness index, est très utilisé, mais a les mêmes limitations que Shannon car il est basé dessus.
+
+## Problèmes avec indices de richesse, diversité et evenness
+On a toujours des nombres, les indices ne prennent pas en compte l'identité des espèces !
+Comme les espèces invasives, exotiques ou menacées.
+Si on ne fait attention seulement à la mesure de la diversité quantitative, on peut ne pas différencier deux communautées qui diffère profondémment dans ces services écosystèmiques qu'ils fournissent. Car les espèces exotiques/invasives qui remplace une espèce native.
+Les chiffres ne distinguent pas les espèces établies, migratoires ou en transit, les accidents. Ces indices ne prennent pas cela en compte.
+
+Si on a des réplicats c'est bénéfique si on a de multiples réplicats. On peut faire la moyenne. On peut avoir une sorte de moyenne consensus.
+
+Certains indices accentue les espèces rares ou abondantes, ou ont des conditions à respecté.
+
+Conseil
+1) Examiner nos objectives.
+Est-ce qu'on est intéressé par la richesse ou juste l'abondance ou evenness ou tout ?
+
+2) Examiner le jeux de données
+Abundance based measure ou Incidence based measure  data, est-ce qu'il y a beaucoup de zéros ?
+
+3) Utiliser de multiples indices appropriés et regarder pour un consensus.
+Si un indice donne un avis contraire au consensus, on devrait investiguer cet indice un peu plus.
+Probalement que les données violent les conditions pour cette indices. 
+Si il n'y a pas de tendances consitantes qui se dessine cela justifie plus d'investigations.
+
+
+## Scales of diversity (échelle de diversité)
+Le résultat de la diversité local est dû à la réponse des organismes aux conditions locales.
+La diversité biogéographique est dû à la spéciation.
+Il est important de savoir à quelle échelle de diversité on s'intéresse et de quoi on parle.
+
+Diversité alpha, béta, gamma, epsilon
+alpha = diversité locale d'un habitat (indice utilisé précédemment)
+
+beta (= turnover diversity) = diversité entre habitats ou patch(= parcelle) elle représente la mesure dans laquelle la composition des espèces varie par localisation/habitat. Il est influencé par l'échelle (distance), il décroit à mesure que la superficie ou le temps d'échantillonage augmente.
+Les valeurs relatives de beta indique une diversité faible, cela revient à dire qu'il y a peu de similarité de communauté, avoir un beta de 0 indique qu'il y a un
+chevauchement total entre les habitats, pas de turnover
+Beta indique les espèces partagé entre ces patch, si certains sont unique pour chacun d'entre eux
+gamma = diversité du paysage (diversité d'une région avec une multitude de types d'habitat)
+epsilon = diversité province biogéographique ou biome
+
+### Exercice
+
+Richness
+pck vegan
+specpoll poolaccum => incidence data
+estimateR() estaccum => abundance data
+
+Diversity
+pck vegan
+diversity()
+pck plyr
+pck BiodiversityR
+diversitycom() => Error => StringsAsFactors()
+diversityresult()
+
+Eveness
+pck BiodiversityR
+diversitycom() => Error => StringsAsFactors()
+diversityresult()
+
+Scales of diversity
+GBbiol.csv, GBsite.csv
+pck vegan
+specpoo()
+betadiver() => 24 similarity (dissimilarity) indice
+4 dissimillarités recommandés : w whitaker, j jacquard, sor sorensen, sim similiraty
+analyse de similarité : anosim() ; ressemble à une analyse de la variance mais avec la similarité à la place
+anosim suppose une égalité de la variance des groupes, cependant c'est seulement permis pour les modèles simples à une variable sans effets d'intéractions et
+ne peut être utilisé seulement pour variable catégorique pas pour des variables continues.
+Anosim a beaucoup de limitations
+Alternative : permanova
+
+Exemple anosim:
+gb.b <- betadiver(gb.biol, method = "w)
+gb.ano <- anosim(gb.b, gb.site$Habitat)
+
+Le graph montre que la dissimilarité entre les groupes est plus importantes que les dissimilarités intra groupe
+
+Question à répondre
+1) Cmb d'sp ont été trouvé
+2) Cmb d'espèces ont été trouvé pour chaque site ? Quel habitat a le plus d'espèce ?
+3) Quelle indicateur de richess donne la "meilleure" approximation de la richesse observées ?
+4) Quel type d'habitat est le plus diversifié ? Quel en a le moins ? 
+5) Quel type d'habitat été le plus 'envenly distributed' (distribué homogènement?) parmi les espèces?
+6) Quel est l'echelle du paysage de la richesse des sp abeilles ?
+7) Quel habitat a la plus grande diversité alpha ?
+8) Quels sites ont la composition d'espèces la plus similaire ?
+Bonus : Y avait-il des sites aberrants en ce qui concerne les espèces d'abeilles ?
 
 
 
