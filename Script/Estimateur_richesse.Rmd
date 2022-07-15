@@ -86,11 +86,36 @@ Comment l'expliquer ?
 
 ```{r}
 ## Specpool package vegan
-specpool(data_bee_sp)
+mes_estimateurs <- specpool(data_bee_sp)
+mes_estimateurs
 
 pool <- poolaccum(data_bee_sp)
 plot(pool)
 ```
+
+```{r}
+# Renommer les colonnes
+rename(mes_estimateurs, "Espèces observées" = "Species" ) -> estimateurs
+rename(estimateurs, "Chao" = "chao" ) -> estimateurs
+rename(estimateurs, "Chao ± SE" = "chao.se" ) -> estimateurs
+rename(estimateurs, "Jack1" = "jack1" ) -> estimateurs
+rename(estimateurs, "Jack1 ± SE" = "jack1.se" ) -> estimateurs
+rename(estimateurs, "Jack2" = "jack2" ) -> estimateurs
+rename(estimateurs, "Boot" = "boot" ) -> estimateurs
+rename(estimateurs, "Boot ± SE" = "boot.se" ) -> estimateurs
+
+# Arrondir à l'unité
+estimateurs <- round(estimateurs)
+
+# Retirer la colonne n (nombre de sites)
+estimateurs$n <- NULL
+```
+
+```{r}
+# Exportation tableur Excel
+write_xlsx(estimateurs,"D:/OneDrive - UMONS/UMONS/MA2/MEMOIRE/Statistique/R/STAT-MEMOIRE/Output/estimateurs.xlsx")
+```
+
 
 ```{r}
 ## Fossil package
@@ -116,9 +141,9 @@ bootstrap(data_bee_sp, taxa.row = FALSE, abund = TRUE, samples = NA)
 bootstrap(data_bee_sp, taxa.row = FALSE, abund = FALSE, samples = NA)
 ```
 
-
 ```{r}
-
+# Exportation tableur Excel
+#write_xlsx(data_bee_sp,"D:/OneDrive - UMONS/UMONS/MA2/MEMOIRE/Statistique/R/STAT-MEMOIRE/RAW2/tableau_abeille_sp_vs_sites.xlsx")
 ```
 
 ```{r}
