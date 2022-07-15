@@ -16,6 +16,7 @@ library(tidyr)
 library(ggalluvial)
 library(ggrepel)
 library(ggfittext)
+library(RColorBrewer)
 ```
 
 ```{r}
@@ -92,7 +93,65 @@ ggplot(as.data.frame(SCS),
   theme(legend.position = "bottom") +
   labs(fill = "Genre") +
   scale_x_discrete(limits = c("Before", "After"), expand = c(.2, .2)) +
+  ggtitle("") 
+```
+
+
+```{r PLantes vs Sites vs Abeilles}
+# Plantes vs sites
+# Définissez le nombre de couleurs que vous voulez
+nb.cols <- 22
+mycolors <- colorRampPalette(brewer.pal(8, "Set1"))(nb.cols)
+
+ggplot(as.data.frame(SCS),
+       aes(y = N, axis1 = genus, axis2 = sites, axis3 = pl_fam)) +
+  geom_alluvium(aes(fill = genus), width = 6/16, knot.pos = 0.3, alpha = 0.5) + # fils # size influence la taille de la légende (je crois)
+  geom_stratum(width = 6/16, , alpha = 0.5, color = "black") + # borne 
+  geom_label(stat = "stratum", aes(label = after_stat(stratum)), size = 3) +
+  scale_fill_manual(values = mycolors) + scale_color_manual(values = mycolors) +
+  theme_void() + 
+  theme(axis.text.x = element_text(hjust = 1, face="bold", size=12, color="black"), 
+        axis.title.x = element_text(face="bold", size=16, color="black"),
+        axis.text.y = element_text(face="bold", size=12, color="black"),
+        axis.title.y = element_blank(),
+        strip.text = element_text(size=10, face="bold"),
+        plot.title = element_text(size=20, face="bold"),
+        legend.position = "bottom") +
+  labs(fill = "Genre") + 
+  scale_x_discrete(limits = c("Famille de plantes", "Sites", "Genre d'abeilles"), expand = c(.2, .2)) + scale_y_continuous(breaks = NULL)+
   ggtitle("")
+```
+
+
+```{r  Sites vs genres}
+# Sites vs genres
+# Définissez le nombre de couleurs que vous voulez
+nb.cols <- 22
+mycolors <- colorRampPalette(brewer.pal(8, "Set1"))(nb.cols)
+
+ggplot(as.data.frame(SCS),
+       aes(y = N, axis1 = sites, axis2 = genus)) +
+  geom_alluvium(aes(fill = genus), width = 1/50) + # fils
+  geom_stratum(width = 1/50, fill = "grey10", color = "grey") + # borne 
+  #geom_label(stat = "stratum", aes(label = after_stat(stratum))) +
+  # geom_text(stat = "stratum",
+            # aes(label = paste0(stratum,
+            #                    ifelse(nchar(as.character(stratum)) == 1L,
+            #                           ": ", "\n"),
+            #                    after_stat(n))),
+            # color = "white", size = 2) +
+  geom_text(x = 2.05, stat = "stratum", 
+            aes(label = genus),
+            color = 'black', hjust = 0, size = 2) +
+  geom_text(x = 0.95, stat = "stratum", 
+            aes(label = sites),
+              color = 'black', hjust = 1, size = 3) +
+  scale_fill_manual(values = mycolors) +
+  theme_void() + 
+  theme(legend.position = "bottom") +
+  labs(fill = "Genre") +
+  scale_x_discrete(limits = c("Before", "After"), expand = c(.2, .2)) +
+  ggtitle("") 
 ```
 
 
@@ -155,7 +214,7 @@ ggplot(as.data.frame(SCS),
   theme(legend.position = "bottom") +
   labs(fill = "Genre") +
   scale_x_discrete(limits = c("Before", "After"), expand = c(.2, .2)) +
-  ggtitle("")
+  ggtitle("") 
 ```
 
 ```{r}

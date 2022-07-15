@@ -5,8 +5,6 @@ date: "`r Sys.Date()`"
 output: html_document
 ---
 
-
-
 ```{r library, include=FALSE}
 library("readxl")
 library(dplyr)
@@ -202,7 +200,7 @@ t.test(elev~depth,var.equal=FALSE) # on suppose pas que la variance est la même
 https://www.youtube.com/watch?v=oZsaNU-YXCw
 
 Deux propriétés des espèces stimule les patterns de biodiversités
-Occurence (distribution) et Abondance
+Occurence (distribution/répartition) et Abondance
 Ces deux facteurs définissent la biodiversité.
 Ensemble ils génèrent des patterns :
 - La plupart des espèces sont rare; peu sont communes
@@ -246,6 +244,7 @@ https://www.youtube.com/watch?v=7eXgEwbERVs
 Rappel : 
 _occurence_ (répartition) caractérise la distribution d'une espèce.
 _abundance_ (abondance) caractérise le nombre d'organisme d'une espèce par unité d'espace.
+_incidence or occurrence_ est parfois utilisé pour présence/abscence
 
 La richesse est souvent noté S.
 Les méthodes pour caractériser la biodiversité dépend du jeux de données.

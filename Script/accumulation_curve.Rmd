@@ -107,7 +107,7 @@ accu_plot <- ggplotly(
   ggplot(df, aes(x = sites, y = richness)) +
   geom_point() +
   geom_line() + 
-  labs(title = "Courbe d'accumulations des espèces pour l'ensemble des sites", x = 'Nombre de sites échantillonnés', y = "Nombre d'espèces") +
+  labs(title = "Courbe d'accumulations des espèces pour l'ensemble des sites", x = 'Nombre de sites échantillonnés', y = "Nombre d'espèces observé (richesse)") +
   expand_limits(x = 0, y = 0) + # que les axes commencent à partir de 0
   scale_x_continuous(expand = c(0, 0), limits = c(0, 16),breaks=c(0,5,10,15)) + scale_y_continuous(expand = c(0, 0), limits = c(0, 100)) + # 0 de x et y est confondu
   geom_errorbar(aes(ymin = richness - sd, ymax = richness + sd), width = 0.2, color="red") + # barre d'erreur ici SD

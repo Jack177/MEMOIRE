@@ -1,0 +1,180 @@
+---
+title: "Estimateur_richesse"
+author: "Jordan"
+date: "`r Sys.Date()`"
+output: html_document
+---
+
+```{r}
+library("readxl") 
+library(dplyr)
+library(vegan) # specpool () estimateR() poolaccum() estaccumR()
+library(ggplot2)
+library(tidyr)
+library(stringr)
+library(fossil)
+```
+
+Importation des données.
+```{r Import}
+# Import
+# Tour PC
+setwd("D:/OneDrive - UMONS/UMONS/MA2/MEMOIRE/Statistique/R/STAT-MEMOIRE/RAW2")
+# Laptop
+#setwd("C:/Users/Jordan/OneDrive - UMONS/UMONS/MA2/MEMOIRE/Statistique/R/STAT-MEMOIRE/RAW2")
+
+SpecCondStat <- read_excel("SpecCondStat.xls")
+
+```
+
+```{r Nettoyage}
+# Nom plus compact
+SCS <- SpecCondStat
+
+# Retirer le site de Condorcet
+SCS <- filter(SCS, TOPO != "Condorcet" )
+
+# Renommer plus simplement
+rename(SCS, "sp" = "SPEC.TAXPRIO" ) -> SCS
+rename(SCS, "sites" = "TOPO" ) -> SCS
+
+# Retirer les observations contenant l'espèce : "XXX"
+# SCS <- filter(SCS, SPEC.TAXPRIO != "Bombus (Bombus)  sp." )
+
+# Remplacement des noms d'espèces désuets
+SCS$sp[SCS$sp == "Bombus lucorum"] <- "Bombus (Bombus)  sp."
+SCS$sp[SCS$sp == "Terrestribombus  sp."] <- "Bombus (Bombus)  sp."
+SCS$sp[SCS$sp == "Chalicodoma ericetorum"] <- "Megachile ericetorum"
+SCS$sp[SCS$sp == "Halictus tumulorum"] <- "Seladonia tumulorum"
+
+# Remplacement du noms de sites
+SCS$sites[SCS$sites == "Les Gourmandes de la Procession"] <- "Gourmandes de la Procession"
+```
+
+
+
+```{r }
+# Preparation des données 
+data_bee_sp <- select(SCS, sp, N, sites)
+data_bee_sp <- as.data.frame(data_bee_sp)
+data_bee_sp <- aggregate(N ~ sp + sites, data = data_bee_sp, sum)
+data_bee_sp <- xtabs(N ~ sites + sp, data_bee_sp)
+data_bee_sp <- type.convert(data_bee_sp)
+```
+Si l'on avait continuer a échantillonné, on aurait selon Chao collecté 111.6 espèces avec une SE de 12.898. Par défaut 100 permutation.
+En regardant l'ensemble des estimateurs de richesses, on aurait obtenu entre 98 et 121 espèces.
+
+Des explications sont disponibles sur : 
+https://www.youtube.com/watch?v=I-_PjHT5nB4
+
+
+La fonction specpoool() du package vegan calcul tous les estimateurs. Il ne donne pas Chao1 et Chao2 mais juste Chao pour formule :
+Chao 	S_P = S_0 + a1^2/(2*a2) * (N-1)/N
+Chao bias-corrected 	S_P = S_0 + a1*(a1-1)/(2*(a2+1)) * (N-1)/N
+
+Information sur la fonction specpool() :
+https://rdrr.io/cran/vegan/man/specpool.html
+
+Information sur le package fossil : 
+https://cran.r-project.org/web/packages/fossil/fossil.pdf
+
+Le package fossil permet également de calculer la richesse avec les différents estimateurs.
+Les résultats ne sont pas les même qu'avec specpool(), peut-être que les formules utilisées sont légèrement différentes ?
+Chao1 est censé être l'estimateur le plus adapté, mais on voit qu'il donne un SD énorme (21).
+Cela se voit également lorsque l'on regarde le graphique de Chao, il a un CI très large et de forme particulière.
+Comment l'expliquer ?
+
+```{r}
+## Specpool package vegan
+specpool(data_bee_sp)
+
+pool <- poolaccum(data_bee_sp)
+plot(pool)
+```
+
+```{r}
+## Fossil package
+# taxa.row = FALSE, indique que les taxons (espèces) sont représentés par les colonnes
+# Chao1 Utilise l'abondance
+chao1(data_bee_sp, taxa.row = FALSE)
+chao.sd(data_bee_sp)
+
+# Chao2 Utilise seulement la presence-absence (matrice composé de 0 ou 1)
+# Chao2 peut convertir une matrice d'abondance pour cette analyse
+chao2(data_bee_sp, taxa.row = FALSE)
+
+# abund, signifie que ce sont des données d'abondance
+jack1(data_bee_sp, taxa.row = FALSE, abund = TRUE)
+jack2(data_bee_sp, taxa.row = FALSE, abund = TRUE)
+jack1(data_bee_sp, taxa.row = FALSE, abund = FALSE)
+jack2(data_bee_sp, taxa.row = FALSE, abund = FALSE)
+
+ACE(data_bee_sp, taxa.row = FALSE)
+ICE(data_bee_sp, taxa.row = FALSE)
+
+bootstrap(data_bee_sp, taxa.row = FALSE, abund = TRUE, samples = NA)
+bootstrap(data_bee_sp, taxa.row = FALSE, abund = FALSE, samples = NA)
+```
+
+
+```{r}
+
+```
+
+```{r}
+reverse_data <- as.data.frame(t(data_bee_sp))
+```
+
+
+```{r}
+estimate_fossil <- spp.est(reverse_data, rand = 100, abund = TRUE, counter = TRUE, max.est = 'all')
+plot(estimate_fossil)
+```
+
+```{r}
+df <- as.data.frame(estimate_fossil)
+rename(df, "S.obs_min" = "S.obs(-95%)" ) -> df
+rename(df, "S.obs_max" = "S.obs(+95%)" ) -> df
+rename(df, "chao_min" = "Chao1(lower)" ) -> df
+rename(df, "chao_max" = "Chao1(upper)" ) -> df
+rename(df, "Jack1_min" = "Jack1(lower)" ) -> df
+rename(df, "Jack1_max" = "Jack1(upper)" ) -> df
+rename(df, "ACE_min" = "ACE(lower)" ) -> df
+rename(df, "ACE_max" = "ACE(upper)" ) -> df
+
+accu_plot <- ggplotly(
+  ggplot(df, aes(x = N.obs, y = S.obs)) +
+  geom_point() +
+  geom_line(aes(y = S.obs)) + 
+  geom_errorbar(aes(ymin = S.obs_min, ymax = S.obs_max), width = 0.2, color="red") + # barre d'erreur ici SD
+  geom_line(aes(y = Chao1), colour = "green") +
+  geom_errorbar(aes(ymin = chao_min, ymax = chao_max), width = 0.2, color="green") + # barre d'erreur ici SD
+  geom_line(aes(y = Jack1), colour = "blue") +
+  geom_errorbar(aes(ymin = Jack1_min, ymax = Jack1_max), width = 0.2, color="blue") + # barre d'erreur ici SD
+  geom_line(aes(y = ACE), colour = "yellow") +
+  geom_errorbar(aes(ymin = ACE_min, ymax = ACE_max), width = 0.2, color="yellow") + # barre d'erreur ici SD
+  labs(title = "Courbe d'accumulations des espèces pour l'ensemble des sites", x = 'Nombre de sites échantillonnés', y = "Nombre d'espèces") +
+  expand_limits(x = 0, y = 0) + # que les axes commencent à partir de 0
+  scale_x_continuous(expand = c(0, 0), limits = c(0, 16),breaks=c(0,5,10,15)) + scale_y_continuous(expand = c(0, 0), limits = c(0, 120)) + # 0 de x et y est confondu
+  
+  theme(axis.title.x = element_text(face="bold", size = 10), # Titre axe x
+        axis.title.y = element_text(face="bold", size = 10), # Titre axe y
+        axis.text.x = element_text(face="bold", color= "black", size=10, hjust=0), # Echelle x
+        axis.text.y = element_text(face="bold", color= "black", size=10), # Echelle y
+        panel.grid.major = element_blank(),panel.grid.minor = element_blank(),
+        panel.background = element_rect(fill='white', colour='black'),
+        legend.position = "none") 
+)
+# Rajoute les axes que plotly retire
+accu_plot <- ggplotly(accu_plot) %>%
+  layout(showlegend = FALSE, 
+                    yaxis = list(showline= T, linewidth=2, linecolor='black', mirror = T), 
+                    xaxis = list(showline= T, linewidth=2, linecolor='black', mirror = T))
+accu_plot
+```
+
+
+
+
+
+
