@@ -134,6 +134,15 @@ ggsave(filename = "courbe_accumulation.pdf", device = cairo_pdf)
 ggsave(filename = "courbe_accumulation.png")
 ```
 
+```{r}
+# Courbe d'abondance
+preston <- prestonfit(colSums(accu))
+plot(preston)
+
+# On estime que 8.7 espèces ont été "manqué" dans l'échantillonnage car trop rare
+veiledspec(preston)
+
+```
 
 
 
