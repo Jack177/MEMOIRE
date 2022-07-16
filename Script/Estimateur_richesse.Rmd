@@ -7,6 +7,7 @@ output: html_document
 
 ```{r}
 library("readxl") 
+library("writexl")
 library(dplyr)
 library(vegan) # specpool () estimateR() poolaccum() estaccumR()
 library(ggplot2)
@@ -42,8 +43,8 @@ rename(SCS, "sites" = "TOPO" ) -> SCS
 # SCS <- filter(SCS, SPEC.TAXPRIO != "Bombus (Bombus)  sp." )
 
 # Remplacement des noms d'espèces désuets
-SCS$sp[SCS$sp == "Bombus lucorum"] <- "Bombus (Bombus)  sp."
-SCS$sp[SCS$sp == "Terrestribombus  sp."] <- "Bombus (Bombus)  sp."
+SCS$sp[SCS$sp == "Bombus lucorum"] <- "Terrestribombus  sp."
+SCS$sp[SCS$sp == "Bombus terrestris"] <- "Terrestribombus  sp."
 SCS$sp[SCS$sp == "Chalicodoma ericetorum"] <- "Megachile ericetorum"
 SCS$sp[SCS$sp == "Halictus tumulorum"] <- "Seladonia tumulorum"
 
@@ -68,9 +69,12 @@ Des explications sont disponibles sur :
 https://www.youtube.com/watch?v=I-_PjHT5nB4
 
 
+D'après McIntyre (vidéo YT), specpool() sert à calculer les estimateurs pour les incidence data.
+EstimateR() lui sert à calculer les abundance data.
 La fonction specpoool() du package vegan calcul tous les estimateurs. Il ne donne pas Chao1 et Chao2 mais juste Chao pour formule :
 Chao 	S_P = S_0 + a1^2/(2*a2) * (N-1)/N
 Chao bias-corrected 	S_P = S_0 + a1*(a1-1)/(2*(a2+1)) * (N-1)/N
+
 
 Information sur la fonction specpool() :
 https://rdrr.io/cran/vegan/man/specpool.html
@@ -86,39 +90,179 @@ Comment l'expliquer ?
 
 ```{r}
 ## Specpool package vegan
-mes_estimateurs <- specpool(data_bee_sp)
-mes_estimateurs
+# Calcul chao, jack1 et 2, bootstrap sur l'ensemble des sites
+estim_inci <- specpool(data_bee_sp)
+estim_inci
 
+# poolaccum() et estaccumR sont similaire à specaccum() => utilisé pour la courbe d'accumulation
+## Accumulation model
 pool <- poolaccum(data_bee_sp)
 plot(pool)
+
+```
+
+
+```{r}
+# Isolation des chunks
+df <- estim_inci
+
+# Renommer les colonnes
+df <- as.data.frame(df)
+rename(df, "S.obs_min" = "S.obs(-95%)" ) -> df
+rename(df, "S.obs_max" = "S.obs(+95%)" ) -> df
+rename(df, "chao_min" = "Chao1(lower)" ) -> df
+rename(df, "chao_max" = "Chao1(upper)" ) -> df
+rename(df, "Jack1_min" = "Jack1(lower)" ) -> df
+rename(df, "Jack1_max" = "Jack1(upper)" ) -> df
+rename(df, "ACE_min" = "ACE(lower)" ) -> df
+rename(df, "ACE_max" = "ACE(upper)" ) -> df
+
+# Arrondir à l'unité
+df <- round(estimateurs_specpool)
+
+# Retirer la colonne n (nombre de sites)
+estimateurs_specpool$n <- NULL
+```
+
+
+```{r}
+# Exportation tableur Excel
+write_xlsx(estimateurs,"D:/OneDrive - UMONS/UMONS/MA2/MEMOIRE/Statistique/R/STAT-MEMOIRE/Output/estimateurs_specpool.xlsx")
+```
+
+
+
+
+Information sur estimateR :
+2021
+https://cran.r-project.org/web/packages/vegan/vignettes/diversity-vegan.pdf
+2022 (plus complet)
+https://cran.r-project.org/web/packages/vegan/vegan.pdf
+EstimateR() semble calculer la richesse pour chacun des sites et en même temps il a besoin de données d'abondance.
+Par contre, specpool() semble être utilisé pour l'ensemble des sites et nécessiterai seulement des données d'incidence (présence-absence ou donnée imprécise). ?
+
+Dans ?estimateR(), il différencie poolacc() et estimateR() en modèle d'accumulation et modèle quantitative
+estimateR() semble être similaire à specpool() tout comme l'est poolaccum() et estaccumR sont similaire à specaccum() => utilisé pour la courbe d'accumulation.
+
+Je ne sais rien faire de estimateR() vu qu'il donne des richesses inférieurs aux nombres d'espèces observées par sites.
+```{r}
+# Isolation des box
+estim_data <- data_bee_sp
+
+## Quantitative model
+## Specpool package vegan
+estim_abun1 <- estimateR(estim_data)
+estim_abun1
+
+# rowSums(estim_abun$S.obs)
+estim_abun2 <- data.frame(t(estim_abun1))
+
+# La somme des observation vaut 455 et pas 1754
+sum(estim_abun2$S.obs)
+
+
+## Comparer le nombre d'espèces observé dans data_bee_sp et estim_abun
+total <- tibble::rownames_to_column(as.data.frame(data_bee_sp), "Sites")
+# Ajoute une ligne total
+total <-  janitor::adorn_totals(total)
+# Ajoute une colonne total
+total$Total <- rowSums(total[, 2:ncol(total)])
+# Valeur total des specimens capturés :
+total[nrow(total),ncol(total)]
+# Sp observé total par site
+resume_total <- total[,c(1,ncol(total))]
+
+# Pourquoi avec estimateR() j'ai des valeurs bien plus basse ? La matrice a été donnée dans le mauvais sens ?
+estim_abun3 <- estimateR(data.frame(t(data_bee_sp)))
+# Il semblerait que non...
+
+
+# pool <- poolaccum(data_bee_sp)
+#plot(estim_abun2)
+
+
+resume_total
+estim_abun2
+```
+
+
+
+
+
+C'est étrange, on dirait que estaccmR() utilise des abundance-based, car il utilise Chao qui semble différent de celui utilisait avec poolaccu() (=Chao1?).
+La documentation dit qu'il donne chaque fois le Chao biaisé
+Pourtant la documentation semble indiquer que tout comme specpool() il utilise des incidence-based.
+estacumR() calcul sur l'ensemble des sites des estimateurs abundance-based
+```{r}
+# Isolation des box
+df <- data_bee_sp
+
+# Estimation sur l'ensemble des sites avec Chao et ACE
+esta_acc <- estaccumR(df, permutations = 999, parallel = getOption("mc.cores"))
+
+# Affiche les données sous formes de tableau
+esta_acc$means
+
+#plot(esta_acc)
 ```
 
 ```{r}
+# Isolation des chunks
+df <- as.data.frame(esta_acc$means)
+
 # Renommer les colonnes
-rename(mes_estimateurs, "Espèces observées" = "Species" ) -> estimateurs
-rename(estimateurs, "Chao" = "chao" ) -> estimateurs
-rename(estimateurs, "Chao ± SE" = "chao.se" ) -> estimateurs
-rename(estimateurs, "Jack1" = "jack1" ) -> estimateurs
-rename(estimateurs, "Jack1 ± SE" = "jack1.se" ) -> estimateurs
-rename(estimateurs, "Jack2" = "jack2" ) -> estimateurs
-rename(estimateurs, "Boot" = "boot" ) -> estimateurs
-rename(estimateurs, "Boot ± SE" = "boot.se" ) -> estimateurs
+rename(df, "Espèces observées" = "S" ) -> df
+
+# Selection des lignes et colonnes
+df <- df[nrow(df),2:4]
 
 # Arrondir à l'unité
-estimateurs <- round(estimateurs)
+estimateurs_estaccumR <- round(df)
 
-# Retirer la colonne n (nombre de sites)
-estimateurs$n <- NULL
 ```
 
 ```{r}
 # Exportation tableur Excel
-write_xlsx(estimateurs,"D:/OneDrive - UMONS/UMONS/MA2/MEMOIRE/Statistique/R/STAT-MEMOIRE/Output/estimateurs.xlsx")
+write_xlsx(estimateurs_estaccumR,"D:/OneDrive - UMONS/UMONS/MA2/MEMOIRE/Statistique/R/STAT-MEMOIRE/Output/estimateurs_estaccumR.xlsx")
 ```
 
 
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+veiledspec() estime à 97.7 sp sur 89 obs, soit 8.7 espèces rares non découvertes sur l'ensemble des sites.
+```{r}
+# Courbe d'abondance
+preston <- prestonfit(colSums(data_bee_sp))
+plot(preston)
+
+# On estime que 8.7 espèces ont été "manqué" dans l'échantillonnage car trop rare
+veiledspec(preston)
+
+```
+
+
+
+
+Package fossil :
+https://cran.r-project.org/web/packages/fossil/fossil.pdf
 ```{r}
 ## Fossil package
+# !!!!  spp.est() peut calculer tous les estimateurs en une seule fois !!!
+
 # taxa.row = FALSE, indique que les taxons (espèces) sont représentés par les colonnes
 # Chao1 Utilise l'abondance
 chao1(data_bee_sp, taxa.row = FALSE)
@@ -131,8 +275,8 @@ chao2(data_bee_sp, taxa.row = FALSE)
 # abund, signifie que ce sont des données d'abondance
 jack1(data_bee_sp, taxa.row = FALSE, abund = TRUE)
 jack2(data_bee_sp, taxa.row = FALSE, abund = TRUE)
-jack1(data_bee_sp, taxa.row = FALSE, abund = FALSE)
-jack2(data_bee_sp, taxa.row = FALSE, abund = FALSE)
+# jack1(data_bee_sp, taxa.row = FALSE, abund = FALSE)
+# jack2(data_bee_sp, taxa.row = FALSE, abund = FALSE)
 
 ACE(data_bee_sp, taxa.row = FALSE)
 ICE(data_bee_sp, taxa.row = FALSE)
@@ -141,20 +285,81 @@ bootstrap(data_bee_sp, taxa.row = FALSE, abund = TRUE, samples = NA)
 bootstrap(data_bee_sp, taxa.row = FALSE, abund = FALSE, samples = NA)
 ```
 
+
+
+```{r}
+# spp.est() a besoin d'échanger les colonnes et lignes, le paramètre taxa.row ne fonctionne pas
+reverse_data <- as.data.frame(t(data_bee_sp))
+
+# Calcul de tous les estimateurs d'abondances (Chao1, ACE, et aussi Jack1)
+estimate_fossil <- spp.est(reverse_data, rand = 999, abund = TRUE, counter = TRUE)
+# Calcul de tous les estimateurs d'incidence (Chao2, ICE, Jack1, Jack2)
+#estimate_fossil <- spp.est(reverse_data, rand = 100, abund = FALSE, counter = TRUE)
+
+```
+
+
+```{r}
+# Isolation des chunks
+
+df <- as.data.frame(estimate_fossil)
+rename(df, "Espèces observées" = "S.obs" ) -> df
+df <- df[nrow(df),]
+
+
+df$Jacknife2 <- jack2(data_bee_sp, taxa.row = FALSE, abund = TRUE)
+df$ICE <- ICE(data_bee_sp, taxa.row = FALSE)
+df$Bootstrap <- bootstrap(data_bee_sp, taxa.row = FALSE, abund = TRUE, samples = NA)
+df$Chao1SD <- chao.sd(data_bee_sp)
+df$Chao2 <-chao2(data_bee_sp, taxa.row = FALSE)
+
+# Arrondir à l'unité
+df <- round(df)
+
+# Retirer les colonnes non désiré (select() ne fonctionne pas)
+
+#my_column <- c("Chao1", "Chao1SD", "ACE", "Chao2", "ICE", "Jack1","Jacknife2", "Boostrap")
+estimateurs_fossil <- df[c(2,5,17,8,18,11,14,15,16)]
+
+# Retirer la colonne n (nombre de sites)
+#estimateurs$n <- NULL
+```
+
 ```{r}
 # Exportation tableur Excel
-#write_xlsx(data_bee_sp,"D:/OneDrive - UMONS/UMONS/MA2/MEMOIRE/Statistique/R/STAT-MEMOIRE/RAW2/tableau_abeille_sp_vs_sites.xlsx")
+write_xlsx(estimateurs_fossil,"D:/OneDrive - UMONS/UMONS/MA2/MEMOIRE/Statistique/R/STAT-MEMOIRE/Output/estimateurs_fossil.xlsx")
 ```
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 ```{r}
-reverse_data <- as.data.frame(t(data_bee_sp))
-```
+Chao1 <- chao1(data_bee_sp, taxa.row = FALSE)
+Chao1SD <-  chao.sd(data_bee_sp)
+ACE <- ACE(data_bee_sp, taxa.row = FALSE)
+Chao2 <- chao2(data_bee_sp, taxa.row = FALSE)
+Jacknife1 <- jack1(data_bee_sp, taxa.row = FALSE, abund = TRUE)
+Jacknife2 <- jack2(data_bee_sp, taxa.row = FALSE, abund = TRUE)
+ICE <- ICE(data_bee_sp, taxa.row = FALSE)
+Bootrap <- bootstrap(data_bee_sp, taxa.row = FALSE, abund = TRUE, samples = NA)
+esti_foss <- data.frame(Chao1,Chao1SD, ACE, Chao2, Jacknife1,Jacknife2,ICE, Bootrap)
 
 
-```{r}
-estimate_fossil <- spp.est(reverse_data, rand = 100, abund = TRUE, counter = TRUE, max.est = 'all')
-plot(estimate_fossil)
 ```
+
 
 ```{r}
 df <- as.data.frame(estimate_fossil)

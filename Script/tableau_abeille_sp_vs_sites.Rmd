@@ -60,7 +60,7 @@ data_bee_sp <- xtabs(N ~ sites + sp, data_bee_sp)
 data_bee_sp <- type.convert(data_bee_sp)
 data_bee_sp <- as.data.frame(data_bee_sp)
 
-# Transforme rownams en vrai colonne
+# Transforme rownames en vrai colonne
 data_bee_sp <- tibble::rownames_to_column(data_bee_sp, "Sites")
 ```
 
