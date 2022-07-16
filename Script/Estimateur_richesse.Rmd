@@ -192,7 +192,7 @@ estim_abun2
 C'est étrange, on dirait que estaccmR() utilise des abundance-based, car il utilise Chao qui semble différent de celui utilisait avec poolaccu() (=Chao1?).
 La documentation dit qu'il donne chaque fois le Chao biaisé
 Pourtant la documentation semble indiquer que tout comme specpool() il utilise des incidence-based.
-estacumR() calcul sur l'ensemble des sites des estimateurs abundance-based
+estacumR() calcul sur l'ensemble des sites des estimateurs abundance-based, Chao est semblable à Chao1 de spp.est() et McIntyre dit la même chose. 
 ```{r}
 # Isolation des box
 df <- data_bee_sp
