@@ -362,7 +362,7 @@ epsilon = diversité province biogéographique ou biome
 Richness
 pck vegan
 specpoll poolaccum => incidence data
-estimateR() estaccum => abundance data
+estimateR() estaccumR() => abundance data
 
 Diversity
 pck vegan
