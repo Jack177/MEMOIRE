@@ -187,6 +187,7 @@ ggplot(as.data.frame(SCS),
 ```
 
 ```{r Plantes vs genres}
+# exporter .pdf en 25x16
 # Plantes vs genres
 # Définissez le nombre de couleurs que vous voulez
 nb.cols <- 22
@@ -194,7 +195,7 @@ mycolors <- colorRampPalette(brewer.pal(8, "Set1"))(nb.cols)
 
 ggplot(as.data.frame(SCS),
        aes(y = N, axis1 = pl_fam, axis2 = genus)) +
-  geom_alluvium(aes(fill = genus), width = 1/50) + # fils
+  geom_alluvium(aes(fill = genus), width = 1/50, size = 15) + # fils
   geom_stratum(width = 1/50, fill = "grey10", color = "grey") + # borne 
   #geom_label(stat = "stratum", aes(label = after_stat(stratum))) +
   # geom_text(stat = "stratum",
@@ -205,13 +206,13 @@ ggplot(as.data.frame(SCS),
   #           color = "white", size = 2) +
   geom_text(x = 2.05, stat = "stratum", 
             aes(label = genus),
-              color = 'black', hjust = 0, size = 2) +
+              color = 'black', hjust = 0, size = 10) +
   geom_text(x = 0.95, stat = "stratum", 
             aes(label = pl_fam),
-              color = 'black', hjust = 1, size = 2) +
+              color = 'black', hjust = 1, size = 10) +
   scale_fill_manual(values = mycolors) +
   theme_void() + 
-  theme(legend.position = "bottom") +
+  theme(legend.position = "right", legend.text = element_text(size=20),legend.title=element_text(size=20)) +
   labs(fill = "Genre") +
   scale_x_discrete(limits = c("Before", "After"), expand = c(.2, .2)) +
   ggtitle("") 
