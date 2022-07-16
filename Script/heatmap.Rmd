@@ -37,10 +37,25 @@ data_bee_sp <- filter(data_bee_sp, TOPO != "Condorcet" )
 rename(data_bee_sp, "Site" = "TOPO") -> data_bee_sp
 #rename(data_bee_genus, "Site" = "TOPO") -> data_bee_genus
 
+
+
 # Remplacement des noms d'espèces désuets (colonne)
-data_bee_sp <- rename(data_bee_sp, "Bombus (Bombus)  sp." = "Bombus lucorum" ) 
-# data_bee_sp <- rename(data_bee_sp, "Bombus (Bombus)  sp." = "Terrestribombus  sp." ) 
-# data_bee_sp <- rename(data_bee_sp, "Megachile ericetorum" = "Chalicodoma ericetorum" ) 
+# Renommer B. sp_
+data_bee_sp <- rename(data_bee_sp, "Bombus (Bombus) sp." = "Bombus (Bombus)  sp_" ) 
+
+# Renommer B. lucorum et B. terrestris sous l'appellation Terrestribombus  sp.
+data_bee_sp <- rename(data_bee_sp, "Bombus1" = "Bombus terrestris" )
+data_bee_sp <- rename(data_bee_sp, "Bombus2" = "Bombus lucorum" ) 
+# Addition des espèces
+data_bee_sp$bombus_sp <- data_bee_sp$Bombus2 + data_bee_sp$Bombus1
+# Supprimer colonne
+data_bee_sp$Bombus1 <- NULL
+data_bee_sp$Bombus2 <- NULL
+# Renommer (vu qu'on travaille ici avec des collonnes il faut les additionner, c'est plus simple si ça aurait été des lignes)
+data_bee_sp <- rename(data_bee_sp, "Terrestribombus  sp." = "bombus_sp")
+
+# Renommer C. ericetorum
+data_bee_sp <- rename(data_bee_sp, "Megachile ericetorum" = "Chalicodoma ericetorum" ) 
 
 
 # Remplacement du noms de sites
@@ -49,9 +64,7 @@ data_bee_sp$Site[data_bee_sp$Site == "Les Gourmandes de la Procession"] <- "Gour
 # Conservation des NA pour la heatmap
 hm.data_bee_sp <- data_bee_sp
 
-# Remplacer les NA par "0"
-data_bee_sp[is.na(data_bee_sp)] <- 0
-#data_bee_genus[is.na(data_bee_genus)] <- 0
+
 
 ```
 
@@ -78,12 +91,12 @@ ggplot(hm.bee_sp, aes(x = Site, y = sp, fill = nbr)) +
                                 ticks = FALSE)) +
   theme(axis.text.x = element_text(angle = 90, vjust = 0, size = 3, hjust = 0),
         axis.text.y = element_text(size = 3, hjust = 0,  vjust = 0.4),
-        legend.position="left", # position légende
+        legend.position = "left", # position légende
         legend.title = element_text(size = 6), # Taille titre légende texte 
         legend.text = element_text(size = 6), # Taille légende échelle texte 
         plot.title = element_text(size = 8, hjust = 0.5), # Taille titre texte 
         legend.key.size = unit(1.5, "cm"),
-        legend.key.width = unit(0.15,"cm")) + 
+        legend.key.width = unit(.65,"cm")) + 
   scale_y_discrete(position = "right") + # y label à droite
   guides(fill = guide_colourbar(title = "Abondance")) + # Titre légende
   #scale_fill_distiller(palette = "Reds", direction = +1)  # couleur
@@ -92,7 +105,7 @@ ggplot(hm.bee_sp, aes(x = Site, y = sp, fill = nbr)) +
 
 #sum(hm.bee_sp$nbr) # total abeille 
 
-ggsave(filename = "heatmap.pdf", device = cairo_pdf)
-ggsave(filename = "heatmap.png")
+ggsave(filename = "../Output/heatmap.pdf", device = cairo_pdf)
+ggsave(filename = "../Output/heatmap.png")
 ```
 
