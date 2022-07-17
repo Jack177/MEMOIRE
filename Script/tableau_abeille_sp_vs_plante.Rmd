@@ -71,7 +71,7 @@ data_bee_sp_vs_plante <- tibble::rownames_to_column(data_bee_sp_vs_plante, "Fleu
 
 ```{r}
 # Exportation tableur Excel
-write_xlsx(data_bee_sp_vs_plante,"D:/OneDrive - UMONS/UMONS/MA2/MEMOIRE/Statistique/R/STAT-MEMOIRE/RAW2/tableau_abeille_sp_vs_plante.xlsx")
+write_xlsx(data_bee_sp_vs_plante,"D:/OneDrive - UMONS/UMONS/MA2/MEMOIRE/Statistique/R/STAT-MEMOIRE/Output/tableau_abeille_sp_vs_plante.xlsx")
 ```
 
 

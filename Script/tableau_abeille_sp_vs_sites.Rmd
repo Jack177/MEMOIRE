@@ -42,8 +42,8 @@ rename(SCS, "sites" = "TOPO" ) -> SCS
 # SCS <- filter(SCS, SPEC.TAXPRIO != "Bombus (Bombus)  sp." )
 
 # Remplacement des noms d'espèces désuets
-SCS$sp[SCS$sp == "Bombus lucorum"] <- "Bombus (Bombus)  sp."
-SCS$sp[SCS$sp == "Terrestribombus  sp."] <- "Bombus (Bombus)  sp."
+SCS$sp[SCS$sp == "Bombus lucorum"] <- "Terrestribombus  sp."
+SCS$sp[SCS$sp == "Bombus terrestris"] <- "Terrestribombus  sp."
 SCS$sp[SCS$sp == "Chalicodoma ericetorum"] <- "Megachile ericetorum"
 SCS$sp[SCS$sp == "Halictus tumulorum"] <- "Seladonia tumulorum"
 
@@ -66,6 +66,6 @@ data_bee_sp <- tibble::rownames_to_column(data_bee_sp, "Sites")
 
 ```{r}
 # Exportation tableur Excel
-write_xlsx(data_bee_sp,"D:/OneDrive - UMONS/UMONS/MA2/MEMOIRE/Statistique/R/STAT-MEMOIRE/RAW2/tableau_abeille_sp_vs_sites.xlsx")
+write_xlsx(data_bee_sp,"D:/OneDrive - UMONS/UMONS/MA2/MEMOIRE/Statistique/R/STAT-MEMOIRE/Output/tableau_abeille_sp_vs_sites.xlsx")
 ```
 

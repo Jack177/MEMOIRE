@@ -1,0 +1,117 @@
+---
+title: "tableau_abondance_par_site"
+author: "Jordan"
+date: "`r Sys.Date()`"
+output: html_document
+---
+
+```{r}
+library("readxl") 
+library("writexl")
+library(dplyr)
+library(vegan) # specpool () estimateR() poolaccum() estaccumR()
+library(ggplot2)
+library(tidyr)
+library(stringr)
+library(fossil)
+```
+
+Importation des données.
+```{r Import}
+# Import
+# Tour PC
+setwd("D:/OneDrive - UMONS/UMONS/MA2/MEMOIRE/Statistique/R/STAT-MEMOIRE/RAW2")
+# Laptop
+#setwd("C:/Users/Jordan/OneDrive - UMONS/UMONS/MA2/MEMOIRE/Statistique/R/STAT-MEMOIRE/RAW2")
+
+SpecCondStat <- read_excel("SpecCondStat.xls")
+
+```
+
+```{r Nettoyage}
+# Nom plus compact
+SCS <- SpecCondStat
+
+# Retirer le site de Condorcet
+SCS <- filter(SCS, TOPO != "Condorcet" )
+
+# Renommer plus simplement
+rename(SCS, "sp" = "SPEC.TAXPRIO" ) -> SCS
+rename(SCS, "sites" = "TOPO" ) -> SCS
+
+# Retirer les observations contenant l'espèce : "XXX"
+# SCS <- filter(SCS, SPEC.TAXPRIO != "Bombus (Bombus)  sp." )
+
+# Remplacement des noms d'espèces désuets
+SCS$sp[SCS$sp == "Bombus lucorum"] <- "Terrestribombus  sp."
+SCS$sp[SCS$sp == "Bombus terrestris"] <- "Terrestribombus  sp."
+SCS$sp[SCS$sp == "Chalicodoma ericetorum"] <- "Megachile ericetorum"
+SCS$sp[SCS$sp == "Halictus tumulorum"] <- "Seladonia tumulorum"
+
+# Remplacement du noms de sites
+SCS$sites[SCS$sites == "Les Gourmandes de la Procession"] <- "Gourmandes de la Procession"
+```
+
+
+```{r }
+# Preparation des données 
+data_bee_sp <- select(SCS, sp, N, sites)
+data_bee_sp <- as.data.frame(data_bee_sp)
+data_bee_sp <- aggregate(N ~ sp + sites, data = data_bee_sp, sum)
+data_bee_sp <- xtabs(N ~ sites + sp, data_bee_sp)
+data_bee_sp <- type.convert(data_bee_sp)
+```
+
+```{r}
+
+## Comparer le nombre d'espèces observé dans data_bee_sp
+# Rownames to column
+total <- tibble::rownames_to_column(as.data.frame(data_bee_sp), "Sites")
+# Ajoute une ligne total
+total <-  janitor::adorn_totals(total)
+# Ajoute une colonne total
+total$Total <- rowSums(total[, 2:ncol(total)])
+# Valeur total des specimens capturés (coordonnée de la dernière cellule [ligne,colonne])
+total[nrow(total),ncol(total)]
+# Sp observé total par site
+# Garde toutes les lignes et prend la colonne 1 et la dernière (Total) :
+total <- total[,c(1,ncol(total))]
+# Ordonner par abondance
+total <- total[order(total$Total),]
+# Renommer les colonnes pour l'Excel
+colnames(total) <- c("Sites", "Nombre d'abeilles observées")
+
+# Attribuer le type de site
+# Liste des Potagers
+Potagers <- c("Abbaye St-Denis", "Rue de l'Egalite", "Chasse Cambier", "Mel Legumes", "Gourmandes de la Procession", "Jean d'Avesnes", "Parc du bois de Mons", "Jardin Suspendu", "Ecole de l'Esperance", "Fond du petit marais")
+# Liste des Parcs
+Parcs <- c("Village des abeilles", "Siege social", "Parc du Beffroi", "Stievenart", "Parc Bonaert")
+
+# Changement de nom
+resume_total <- total
+# Créer une colonne Type en fonction des sites
+resume_total$Type <- fct_collapse(
+    resume_total$Sites,
+    "Potager" = Potagers,
+    "Parc" = Parcs,
+    NULL = "Total" # réécris total si non
+)
+
+resume_total
+```
+
+
+```{r}
+# Exportation tableur Excel
+write_xlsx(resume_total,"D:/OneDrive - UMONS/UMONS/MA2/MEMOIRE/Statistique/R/STAT-MEMOIRE/Output/tableau_abondance_par_site.xlsx")
+```
+
+
+
+
+
+
+
+
+
+
