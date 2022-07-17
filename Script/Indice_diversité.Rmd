@@ -1,0 +1,122 @@
+---
+title: "Indice_diversité"
+author: "Jordan"
+date: "`r Sys.Date()`"
+output: html_document
+---
+
+```{r}
+# Load the required packages
+library(ade4)
+library(adegraphics)
+library(adespatial)
+library(vegan)
+#library(vegetarian)
+library(ggplot2)
+library(FD)
+library(taxize)
+
+# Chargé la fonction panelutils
+source ('https://raw.githubusercontent.com/zdealveindy/anadat-r/master/scripts/NumEcolR2/panelutils.R')
+```
+
+
+```{r}
+# On importe un jeu de donn?es test : les poissons de la rivi?re Doubs
+data (doubs)
+spe <- doubs$fish# Une rivi?re, 30 sites, une longue liste de poissons
+env <- doubs$env # La m?me rivi?re, les m?mes sites, mais de nombreux types de descripteurs environnementaux
+?doubs #Plus d'infos
+# On retire le site ! car il est vide !
+spe = spe[-8,]
+env = env[-8,]
+```
+
+
+Pielou evenness is biased because it is systematically positively correlated with species richness, as shown in the correlation matrix (legendre)
+```{r}
+# Get help on the diversity() function
+?diversity
+# Compute alpha diversity indices of the fish communities
+N0 <- rowSums(spe > 0) # Species richness
+N0 <- specnumber(spe) # Species richness (alternate)
+H <- diversity(spe) # Shannon entropy (base e)
+Hb2 <- diversity(spe, base = 2) # Shannon entropy (base 2)
+N1 <- exp(H) # Shannon diversity (base e)
+# (number of abundant species)
+N1b2 <- 2^Hb2 # Shannon diversity (base 2)
+N2 <- diversity(spe, "inv") # Simpson diversity
+# (number of dominant species)
+J <- H / log(N0) # Pielou evenness
+E10 <- N1 / N0 # Shannon evenness (Hill's ratio)
+E20 <- N2 / N0 # Simpson evenness (Hill's ratio)
+(div <- data.frame(N0, H, Hb2, N1, N1b2, N2, E10, E20, J))
+```
+
+
+```{r}
+# Correlations among diversity indices
+cor(div)
+pairs(div[-1, ],
+lower.panel = panel.smooth,
+upper.panel = panel.cor,
+diag.panel = panel.hist,
+main = "Pearson Correlation Matrix"
+)
+```
+
+```{r}
+data(mite)
+# Number of species in the 70 moss or soil cores
+t<- (mite.nbsp <- specnumber(mite))
+t
+# Cores with minimum and maximum observed species richness
+mite.nbsp[mite.nbsp == min(mite.nbsp)]
+mite.nbsp[mite.nbsp == max(mite.nbsp)]
+range(mite.nbsp)
+# Total abundance in the 70 cores
+(mite.abund <- rowSums(mite))
+range(mite.abund)
+# Abundance in the cores with smallest number of species
+mite.abund[mite.nbsp == min(mite.nbsp)]
+# Abundance in the core with largest number of species
+mite.abund[mite.nbsp == max(mite.nbsp)]
+# Number of species in the core with smallest abundance
+mite.nbsp[mite.abund == min(mite.abund)]
+# Number of species in the core with largest abundance
+mite.nbsp[mite.abund == max(mite.abund)]
+# Rarefaction to 80 individuals
+mite.rare80 <- rarefy(mite, sample = 80)
+# Compare ranking of observed and rarefied cores
+sort(mite.nbsp)
+sort(round(mite.rare80))
+# Cores with minimum and maximum estimated species richness
+mite.rare80[mite.rare80 == min(mite.rare80)]
+mite.rare80[mite.rare80 == max(mite.rare80)]
+# Observed core with smallest predicted species richness
+mite[which(mite.rare80 == min(mite.rare80)),]
+# Observed core with largest predicted species richness
+mite[which(mite.rare80 == max(mite.rare80)),]
+```
+
+```{r}
+# Nombre d'espèces dans les 15 sites
+(mite.nbsp <- specnumber(mite))
+# Sites avec une richesse en espèces minimale et maximale observée
+mite.nbsp[mite.nbsp == min(mite.nbsp)]
+mite.nbsp[mite.nbsp == max(mite.nbsp)]
+range(mite.nbsp)
+# Abondance totale dans les 15 sites
+(mite.abund <- rowSums(mite))
+range(mite.abund)
+# Abondance dans les sites avec le plus petit nombre d'espèces
+mite.abund[mite.nbsp == min(mite.nbsp)]
+# Abondance dans les sites avec le plus grand nombre d'espèces
+mite.abund[mite.nbsp == max(mite.nbsp)]
+# Nombre d'espèces dans les sites avec la plus petite abondance
+mite.nbsp[mite.abund == min(mite.abund)]
+# Nombre d'espèces dans les sites avec la plus grande abondance
+mite.nbsp[mite.abund == max(mite.abund)]
+
+```
+

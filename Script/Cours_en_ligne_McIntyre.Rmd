@@ -329,6 +329,9 @@ Si on a des réplicats c'est bénéfique si on a de multiples réplicats. On peu
 
 Certains indices accentue les espèces rares ou abondantes, ou ont des conditions à respecté.
 
+# Note : les limites des indices de diversité et autres sont données ici :
+https://ericmarcon.github.io/MesuresBioDiv2/sec-conclusionSynthese.html#entropie-et-diversit%C3%A9-1
+
 Conseil
 1) Examiner nos objectives.
 Est-ce qu'on est intéressé par la richesse ou juste l'abondance ou evenness ou tout ?
@@ -405,6 +408,33 @@ Question à répondre
 7) Quel habitat a la plus grande diversité alpha ?
 8) Quels sites ont la composition d'espèces la plus similaire ?
 Bonus : Y avait-il des sites aberrants en ce qui concerne les espèces d'abeilles ?
+
+
+
+
+### Species abundance
+https://www.youtube.com/watch?v=awN2ks75AP0
+Hypothèse tacite
+- Toute les espèces sont détectables équitablement (la taille des WB influencent la capture)
+- Toutes les espèces sont echantillonné sur à la même échelle
+
+La météo d'un jour à l'autre peut influencer l'abondance.
+Quand on compare deux communautés on doit standariser l'abondance (à cause des artéfacts d'échantillonnage)
+=> raréfaction = déterminer nbr individus dans le plus petit échantillonnage et tirer au hasard ce nbr dans les échantillons plus grand pour estimer le nombre d'espèces attendus si on sample le plus petit nbr d'individus
+
+Le pattern le plus commun : la plupart des espèces sont rares et il y a peu d'espèce communes, ce qui signifie que peu d'espèces ont le plus d'individus dans une communauté
+
+Rank-abundance curve (=dominance diversity plot)
+axe des x : rang avec les sp avec ordre décroissant d'abondance (Bombus 1er, singleton dernier)
+axe des y : abondance de chaque sp
+Plus la pente est faible, plus la communauté est homogène, si la courbe est plate, c'est qu'il y a le même nombre d'individus pour chaque espèces (extrêmement rare)
+Généralement, la courbe a une pente négative avec différentes formes, ce qui montre un déséquilibre dans la distribution de l'abondance.
+Il existe deux dizaines de formes que la distribution peut prendre, chacun résultant d'un processus différent qui peut être modéler mathématiquement.
+Vagan a 5 des plus commune.
+1) Null model= modele broken stick
+
+
+
 
 
 
