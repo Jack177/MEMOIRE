@@ -144,7 +144,6 @@ Par contre, specpool() semble être utilisé pour l'ensemble des sites et néces
 Dans ?estimateR(), il différencie poolacc() et estimateR() en modèle d'accumulation et modèle quantitative
 estimateR() semble être similaire à specpool() tout comme l'est poolaccum() et estaccumR sont similaire à specaccum() => utilisé pour la courbe d'accumulation.
 
-Je ne sais rien faire de estimateR() vu qu'il donne des richesses inférieurs aux nombres d'espèces observées par sites.
 ```{r}
 # Isolation des box
 estim_data <- data_bee_sp
@@ -169,16 +168,9 @@ total <-  janitor::adorn_totals(total)
 total$Total <- rowSums(total[, 2:ncol(total)])
 # Valeur total des specimens capturés :
 total[nrow(total),ncol(total)]
-# Sp observé total par site
+# Individus observé total par site
 resume_total <- total[,c(1,ncol(total))]
 
-# Pourquoi avec estimateR() j'ai des valeurs bien plus basse ? La matrice a été donnée dans le mauvais sens ?
-estim_abun3 <- estimateR(data.frame(t(data_bee_sp)))
-# Il semblerait que non...
-
-
-# pool <- poolaccum(data_bee_sp)
-#plot(estim_abun2)
 
 
 resume_total
@@ -189,7 +181,7 @@ estim_abun2
 
 
 
-C'est étrange, on dirait que estaccmR() utilise des abundance-based, car il utilise Chao qui semble différent de celui utilisait avec poolaccu() (=Chao1?).
+C'est étrange, on dirait que estaccumR() utilise des abundance-based, car il utilise Chao qui semble différent de celui utilisait avec poolaccu() (=Chao1?).
 La documentation dit qu'il donne chaque fois le Chao biaisé
 Pourtant la documentation semble indiquer que tout comme specpool() il utilise des incidence-based.
 estacumR() calcul sur l'ensemble des sites des estimateurs abundance-based, Chao est semblable à Chao1 de spp.est() et McIntyre dit la même chose. 
