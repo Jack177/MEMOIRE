@@ -7,10 +7,14 @@ output: html_document
 
 ```{r}
 # Load the required packages
+library("readxl") 
+library(dplyr)
+library(vegan) # specpool () estimateR() poolaccum() estaccumR()
+library(ggplot2)
+library(tidyr)
 library(ade4)
 library(adegraphics)
 library(adespatial)
-library(vegan)
 #library(vegetarian)
 library(ggplot2)
 library(FD)
@@ -19,6 +23,173 @@ library(taxize)
 # Chargé la fonction panelutils
 source ('https://raw.githubusercontent.com/zdealveindy/anadat-r/master/scripts/NumEcolR2/panelutils.R')
 ```
+
+
+Importation des données.
+```{r Import}
+# Import
+# Tour PC
+setwd("D:/OneDrive - UMONS/UMONS/MA2/MEMOIRE/Statistique/R/STAT-MEMOIRE/RAW2")
+# Laptop
+#setwd("C:/Users/Jordan/OneDrive - UMONS/UMONS/MA2/MEMOIRE/Statistique/R/STAT-MEMOIRE/RAW2")
+
+SpecCondStat <- read_excel("SpecCondStat.xls")
+
+```
+
+```{r Nettoyage}
+# Nom plus compact
+SCS <- SpecCondStat
+
+# Retirer le site de Condorcet
+SCS <- filter(SCS, TOPO != "Condorcet" )
+
+# Renommer plus simplement
+rename(SCS, "sp" = "SPEC.TAXPRIO" ) -> SCS
+rename(SCS, "sites" = "TOPO" ) -> SCS
+
+# Retirer les observations contenant l'espèce : "XXX"
+# SCS <- filter(SCS, SPEC.TAXPRIO != "Bombus (Bombus)  sp." )
+
+# Remplacement des noms d'espèces désuets
+SCS$sp[SCS$sp == "Bombus lucorum"] <- "Terrestribombus  sp."
+SCS$sp[SCS$sp == "Bombus terrestris"] <- "Terrestribombus  sp."
+SCS$sp[SCS$sp == "Chalicodoma ericetorum"] <- "Megachile ericetorum"
+SCS$sp[SCS$sp == "Halictus tumulorum"] <- "Seladonia tumulorum"
+
+# Remplacement du noms de sites
+SCS$sites[SCS$sites == "Les Gourmandes de la Procession"] <- "Gourmandes de la Procession"
+```
+
+```{r }
+# Preparation des données 
+data_bee_sp <- select(SCS, sp, N, sites)
+data_bee_sp <- as.data.frame(data_bee_sp)
+data_bee_sp <- aggregate(N ~ sp + sites, data = data_bee_sp, sum)
+data_bee_sp <- xtabs(N ~ sites + sp, data_bee_sp)
+data_bee_sp <- type.convert(data_bee_sp)
+
+```
+
+
+
+```{r}
+#Isolation du chunk
+bee <- data_bee_sp
+# Nombre d'espèces observées dans les 15 sites
+(bee.nbsp <- specnumber(bee))
+# Sites avec une richesse en espèces minimale et maximale observée
+bee.nbsp[bee.nbsp == min(bee.nbsp)]
+bee.nbsp[bee.nbsp == max(bee.nbsp)]
+range(bee.nbsp)
+# Abondance totale dans les 15 sites
+(bee.abund <- rowSums(bee))
+range(bee.abund)
+# Abondance dans les sites avec le plus petit nombre d'espèces
+bee.abund[bee.nbsp == min(bee.nbsp)]
+# Abondance dans les sites avec le plus grand nombre d'espèces
+bee.abund[bee.nbsp == max(bee.nbsp)]
+# Nombre d'espèces dans les sites avec la plus petite abondance
+bee.nbsp[bee.abund == min(bee.abund)]
+# Nombre d'espèces dans les sites avec la plus grande abondance
+bee.nbsp[bee.abund == max(bee.abund)]
+
+```
+```{r}
+# Raréfaction à 33 individus (Parc Bonaert a le plus petit nbr d'individus)
+bee.rare33 <- rarefy(bee, sample = 33)
+# Comparer le classement de la richesse entre les sites observés et raréfiés
+sort(bee.nbsp)
+sort(round(bee.rare33)) 
+# Sites avec une richesse en espèces minimale et maximale estimée
+bee.rare33[bee.rare33 == min(bee.rare33)]
+bee.rare33[bee.rare33 == max(bee.rare33)]
+# Site observé avec la plus petite richesse prédite en espèces
+bee[which(bee.rare33 == min(bee.rare33)),]
+# Site observé avec la plus grande richesse d'espèces prédite
+bee[which(bee.rare33 == max(bee.rare33)),]
+
+```
+
+```{r}
+rarecurve(bee, 
+          step = 1,
+          sample = 33, 
+          xlab = "Nombre d'individus (Taille d'échantillon)", 
+          ylab = "Espèces", 
+          label = TRUE, 
+          col = "blue" )
+```
+
+```{r}
+rare <- rrarefy(bee,sample = 33)
+rarecurve(rare)
+```
+
+
+
+```{r}
+bee.rare <- sample_data(as.data.frame(bee))
+ggrare(bee, 
+          step = 1, label = NULL, color = NULL,
+  plot = TRUE, parallel = FALSE, se = TRUE)
+```
+
+
+```{r}
+# https://stat.ethz.ch/pipermail/r-sig-ecology/2018-December/005867.html
+data(BCI)
+out <- rarecurve(bee, step = 1, sample = 33, label = TRUE, col = "blue")
+names(out) <- paste("species", 1:nrow(bee), sep = "")
+
+# Coerce data into "long" form.
+protox <- mapply(FUN = function(x, y) {
+  mydf <- as.data.frame(x)
+  colnames(mydf) <- "value"
+  mydf$species <- y
+  mydf$subsample <- attr(x, "Subsample")
+  mydf
+}, x = out, y = as.list(names(out)), SIMPLIFY = FALSE)
+
+xy <- do.call(rbind, protox)
+rownames(xy) <- NULL  # pretty
+
+# Plot.
+ggplot(xy, aes(x = subsample, y = value, color = species)) +
+    theme_bw() +
+    theme(legend.position = "none") +  # ggplotly doesn't respect scales?
+    geom_line() +
+  geom_vline(xintercept = 33, color = "gray") +
+    labs(x = "Nombre d'individus collectées", y = "Nombre d'espèces observé (richesse)") +
+  theme(axis.title.x = element_text(face="bold", size = 10), # Titre axe x
+        axis.title.y = element_text(face="bold", size = 10), # Titre axe y
+        axis.text.x = element_text(face="bold", color= "black", size=10, hjust=0), # Echelle x
+        axis.text.y = element_text(face="bold", color= "black", size=10), # Echelle y
+        panel.grid.major = element_blank(),panel.grid.minor = element_blank(),
+        panel.background = element_rect(fill='white', colour='black'),
+        legend.position = "none")
+
+
+ggplotly(
+  ggplot(xy, aes(x = subsample, y = value, color = species)) +
+    theme_bw() +
+    theme(legend.position = "none") +  # ggplotly doesn't respect scales?
+    geom_line() +
+    labs(x = "Nombre d'individus collectées", y = "Nombre d'espèces observé (richesse)") +
+  theme(axis.title.x = element_text(face="bold", size = 10), # Titre axe x
+        axis.title.y = element_text(face="bold", size = 10), # Titre axe y
+        axis.text.x = element_text(face="bold", color= "black", size=10, hjust=0), # Echelle x
+        axis.text.y = element_text(face="bold", color= "black", size=10), # Echelle y
+        panel.grid.major = element_blank(),panel.grid.minor = element_blank(),
+        panel.background = element_rect(fill='white', colour='black'),
+        legend.position = "none") 
+
+)
+```
+
+
+
+
 
 
 ```{r}
@@ -118,5 +289,20 @@ mite.nbsp[mite.abund == min(mite.abund)]
 # Nombre d'espèces dans les sites avec la plus grande abondance
 mite.nbsp[mite.abund == max(mite.abund)]
 
+```
+
+```{r}
+# Rarefaction to 80 individuals
+mite.rare80 <- rarefy(mite, sample = 80)
+# Compare ranking of observed and rarefied cores
+sort(mite.nbsp)
+sort(round(mite.rare80))
+# Cores with minimum and maximum estimated species richness
+mite.rare80[mite.rare80 == min(mite.rare80)]
+mite.rare80[mite.rare80 == max(mite.rare80)]
+# Observed core with smallest predicted species richness
+mite[which(mite.rare80 == min(mite.rare80)),]
+# Observed core with largest predicted species richness
+mite[which(mite.rare80 == max(mite.rare80)),]
 ```
 
