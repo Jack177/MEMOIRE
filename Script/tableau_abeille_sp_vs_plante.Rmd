@@ -45,10 +45,12 @@ rename(SCS, "sites" = "TOPO" ) -> SCS
 # SCS <- filter(SCS, SPEC.TAXPRIO != "Bombus (Bombus)  sp." )
 
 # Remplacement des noms d'espèces désuets
-SCS$sp[SCS$sp == "Bombus lucorum"] <- "Bombus (Bombus)  sp."
-SCS$sp[SCS$sp == "Terrestribombus  sp."] <- "Bombus (Bombus)  sp."
+SCS$sp[SCS$sp == "Bombus lucorum"] <- "Terrestribombus  sp."
+SCS$sp[SCS$sp == "Bombus terrestris"] <- "Terrestribombus  sp."
 SCS$sp[SCS$sp == "Chalicodoma ericetorum"] <- "Megachile ericetorum"
 SCS$sp[SCS$sp == "Halictus tumulorum"] <- "Seladonia tumulorum"
+
+SCS$sp[SCS$sp == "COMPOSITAE"] <- ""
 
 # Remplacement du noms de sites
 SCS$sites[SCS$sites == "Les Gourmandes de la Procession"] <- "Gourmandes de la Procession"
