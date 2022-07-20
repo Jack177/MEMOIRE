@@ -13,8 +13,8 @@ library(vegan) # specpool () estimateR() poolaccum() estaccumR()
 library(ggplot2)
 library(tidyr)
 library(ade4)
-library(adegraphics)
-library(adespatial)
+#library(adegraphics)
+#library(adespatial)
 #library(vegetarian)
 library(ggplot2)
 library(FD)
@@ -95,6 +95,8 @@ bee.nbsp[bee.abund == min(bee.abund)]
 bee.nbsp[bee.abund == max(bee.abund)]
 
 ```
+
+
 ```{r}
 # Raréfaction à 33 individus (Parc Bonaert a le plus petit nbr d'individus)
 bee.rare33 <- rarefy(bee, sample = 33)
@@ -122,23 +124,23 @@ rarecurve(bee,
 ```
 
 ```{r}
-rare <- rrarefy(bee,sample = 33)
-rarecurve(rare)
+# rare <- rrarefy(bee,sample = 33)
+# rarecurve(rare)
 ```
 
 
 
 ```{r}
-bee.rare <- sample_data(as.data.frame(bee))
-ggrare(bee, 
-          step = 1, label = NULL, color = NULL,
-  plot = TRUE, parallel = FALSE, se = TRUE)
+# bee.rare <- sample_data(as.data.frame(bee))
+# ggrare(bee, 
+#           step = 1, label = NULL, color = NULL,
+#   plot = TRUE, parallel = FALSE, se = TRUE)
 ```
 
 
 ```{r}
 # https://stat.ethz.ch/pipermail/r-sig-ecology/2018-December/005867.html
-data(BCI)
+#data(BCI)
 out <- rarecurve(bee, step = 1, sample = 33, label = TRUE, col = "blue")
 names(out) <- paste("species", 1:nrow(bee), sep = "")
 
@@ -186,6 +188,12 @@ ggplotly(
 
 )
 ```
+
+
+
+
+
+
 
 
 
