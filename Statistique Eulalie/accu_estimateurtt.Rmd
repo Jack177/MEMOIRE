@@ -13,28 +13,28 @@ library("iNEXT")
 # library("rgdal")
 # library("ape")
 library("vegan")
-library("SpatialTools")
-library("betapart")
-library("pvclust")
-library("mapr")
-library("rgbif")
-library("dismo")
-library("mapplots")
-library("corrplot")
-library("MuMIn")
+# library("SpatialTools")
+# library("betapart")
+# library("pvclust")
+# library("mapr")
+# library("rgbif")
+# library("dismo")
+# library("mapplots")
+# library("corrplot")
+# library("MuMIn")
 #library("caret")
-library("pbkrtest")
-library("car")
-library("ggmap")
-library("gstat")
+# library("pbkrtest")
+# library("car")
+# library("ggmap")
+# library("gstat")
 library("tidyverse")
 library("ggplot2")
 #library(pheatmap)
-library("reshape2")
-library("reshape") 
+# library("reshape2")
+# library("reshape") 
 
-#setwd("C:/Users/Jordan/OneDrive - UMONS/UMONS/MA2/MEMOIRE/Statistique/R/STAT-MEMOIRE/Statistique Eulalie")
-setwd("D:/OneDrive - UMONS/UMONS/MA2/MEMOIRE/Statistique/R/STAT-MEMOIRE/Statistique Eulalie")
+setwd("C:/Users/Jordan/OneDrive - UMONS/UMONS/MA2/MEMOIRE/Statistique/R/STAT-MEMOIRE/Statistique Eulalie")
+#setwd("D:/OneDrive - UMONS/UMONS/MA2/MEMOIRE/Statistique/R/STAT-MEMOIRE/Statistique Eulalie")
 ```
 
 
@@ -51,7 +51,7 @@ cbp2 <- c( "#56B4E9", "#009E73",
 ```{r}
 ## Data combinée abeille, station, plante, trait
 reese <- read.csv ( "reesett.csv", header = T, sep = ";", check.names = F)
-reese <- iconv(reese,"WINDOWS-1252","UTF-8")
+#reese <- iconv(reese,"WINDOWS-1252","UTF-8") # fou la merde
 ruelle <- read.csv ( "beeplanttraitstat.csv", header = T, sep = ";", check.names = F)
 ruelle$trait_phénott_ID <-  as.character(ruelle$trait_phénott_ID)
 martin <- read.csv ( "beestatplanttrait_mart.csv",header = T, sep = ";")
@@ -172,7 +172,8 @@ S <- specnumber(milieutab) # observed number of species
 Srare <- rarefy(milieutab, raremax)
 plot(S, Srare, xlab = "Observed No. of Species", ylab = "Rarefied No. of Species")
 abline(0, 1)
-rarecurve(BCI2, step = 5, sample = raremax, col = cbp2, cex = 0.6)
+data(BCI)
+rarecurve(BCI, step = 5, sample = raremax, col = cbp2, cex = 0.6)
 raremax <- min(rowSums(milieutab))
 col <- c("green", "blue", "orange", "black", "red", "pink", "purple")
 lty <- c("solid", "dashed", "longdash", "dotdash")
@@ -213,6 +214,7 @@ names(bee.abond) <- c("Couverture", "site")
 ```
 
 
+```{r}
 ######################################rarefaction
 
 raremax <- min(rowSums(milieutab))
@@ -221,8 +223,11 @@ lty <- c("solid", "dashed", "longdash", "dotdash")
 pars <- expand.grid(col = col, stringsAsFactors = FALSE)
 head(pars)
 rarecurve(beestattab, step = 1, xlab = "Nombre d'individus collectés", ylab = "Nombre d'espèces observées", label = FALSE,col = type$couleur, border = NA, main = "Courbes de raréfaction des diférents types de milieux")
+```
 
 
+
+```{r}
 ##############################################H###rarefaction , hill
 
 abond <- iNEXT(t(beestattab), q = c(0,1,2), datatype ="abundance") 
@@ -245,10 +250,16 @@ rownames(hillmatrix)=rownames(beestattab)
 bee.abond <-DataInfotab%>% select( "SC","site")
 rownames(bee.abond)=rownames(beestattab)
 bee.abond <- bee.abond  %>% rename(c("SC" = "Couverture"))
+
+```
+
+
+```{r}
+
 #################################graph hill rarefier
 graphhill <- select(hillmatrix,H0r,H1r,H2r)
-rownames(graphhill)= rownames(milieutab)
-graphhill$type <- row.names(milieutab)
+#rownames(graphhill)= rownames(milieutab)
+graphhill <- tibble::rownames_to_column(graphhill, "type")
 
 graphhill<-melt(graphhill)
 graphhill<-graphhill %>%group_by(type)
@@ -274,6 +285,8 @@ ggplot(graphhill,aes(x = variable, y= value, group = type, color = type))   +
     axis.text.y=element_text(size = 13),
     legend.text =element_text(size = 12),
     legend.title =element_text(size = 14))
+```
+
 
 ```{r}
 ########################################éééboxplot couverture
