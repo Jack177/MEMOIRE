@@ -128,6 +128,18 @@ rarecurve(bee,
 # rarecurve(rare)
 ```
 
+```{r}
+#library("vegan")
+#data(BCI)
+Cumul <- apply(BCI, 2, cumsum)
+Richesse <- apply(Cumul, 1, function(x) sum(x > 0))
+SARplot <- ggplot(data.frame(A = 0:50, 
+                             S = c(0, Richesse))) +
+  aes(A, S) +
+  geom_line() +
+  labs(x = "Surface (ha)")
+SARplot
+```
 
 
 ```{r}
@@ -163,10 +175,10 @@ ggplot(xy, aes(x = subsample, y = value, color = species)) +
     geom_line() +
   geom_vline(xintercept = 33, color = "gray") +
     labs(x = "Nombre d'individus collectées", y = "Nombre d'espèces observé (richesse)") +
-  theme(axis.title.x = element_text(face="bold", size = 10), # Titre axe x
-        axis.title.y = element_text(face="bold", size = 10), # Titre axe y
-        axis.text.x = element_text(face="bold", color= "black", size=10, hjust=0), # Echelle x
-        axis.text.y = element_text(face="bold", color= "black", size=10), # Echelle y
+  theme(axis.title.x = element_text(face="bold", size = 20), # Titre axe x
+        axis.title.y = element_text(face="bold", size = 20), # Titre axe y
+        axis.text.x = element_text(face="bold", color= "black", size=15, hjust=0), # Echelle x
+        axis.text.y = element_text(face="bold", color= "black", size=15), # Echelle y
         panel.grid.major = element_blank(),panel.grid.minor = element_blank(),
         panel.background = element_rect(fill='white', colour='black'),
         legend.position = "none")
