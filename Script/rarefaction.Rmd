@@ -19,6 +19,8 @@ library(ade4)
 library(ggplot2)
 library(FD)
 library(taxize)
+library(iNEXT)
+library(RColorBrewer)
 
 # Chargé la fonction panelutils
 source ('https://raw.githubusercontent.com/zdealveindy/anadat-r/master/scripts/NumEcolR2/panelutils.R')
@@ -116,39 +118,23 @@ bee[which(bee.rare33 == max(bee.rare33)),]
 ```{r}
 rarecurve(bee, 
           step = 1,
-          sample = 33, 
           xlab = "Nombre d'individus (Taille d'échantillon)", 
-          ylab = "Espèces", 
+          ylab = "Nombre d'espèces observé (richesse)", 
           label = TRUE, 
-          col = "blue" )
+          border = NA,
+          col = mycolors,
+          cex = 0.5, bg = "red" )
+abline(v = 33, col="gray")
+
 ```
 
 ```{r}
-# rare <- rrarefy(bee,sample = 33)
-# rarecurve(rare)
+######################################rarefaction
+
+raremax <- min(rowSums(data_bee_sp))
+lty <- c("solid", "dashed", "longdash", "dotdash")
+rarecurve(data_bee_sp, step = 1, xlab = "Nombre d'individus collectés", ylab = "Nombre d'espèces observées", col = mycolors, label = TRUE, border = NA, main = "Courbes de raréfaction des diférents types de milieux")
 ```
-
-```{r}
-#library("vegan")
-#data(BCI)
-Cumul <- apply(BCI, 2, cumsum)
-Richesse <- apply(Cumul, 1, function(x) sum(x > 0))
-SARplot <- ggplot(data.frame(A = 0:50, 
-                             S = c(0, Richesse))) +
-  aes(A, S) +
-  geom_line() +
-  labs(x = "Surface (ha)")
-SARplot
-```
-
-
-```{r}
-# bee.rare <- sample_data(as.data.frame(bee))
-# ggrare(bee, 
-#           step = 1, label = NULL, color = NULL,
-#   plot = TRUE, parallel = FALSE, se = TRUE)
-```
-
 
 ```{r}
 # https://stat.ethz.ch/pipermail/r-sig-ecology/2018-December/005867.html
@@ -197,9 +183,109 @@ ggplotly(
         panel.grid.major = element_blank(),panel.grid.minor = element_blank(),
         panel.background = element_rect(fill='white', colour='black'),
         legend.position = "none") 
-
 )
 ```
+
+
+
+
+```{r}
+Bee_inext <- as.data.frame(t(data_bee_sp))
+my_list2 <- list()  
+
+for(i in 1:ncol(Bee_inext)) {             # Using for-loop to add columns to list
+  my_list2[[i]] <- Bee_inext[ , i]
+}
+```
+
+
+
+```{r}
+out <- iNEXT(as.data.frame(t(data_bee_sp)), q = c(0,1,2), datatype ="abundance", size=NULL, endpoint=NULL, knots=40, se=TRUE, conf=0.95, nboot=50) 
+
+
+```
+
+```{r}
+# Taux de couverture et nbr individus
+nb.cols <- 15
+mycolors <- colorRampPalette(brewer.pal(8, "Set1"))(nb.cols)
+
+ggiNEXT(out, type=2, se=FALSE, color.var="site" ) +
+  labs(title = "", y = 'Taux de couverture', x = "Nombre d'individus", col ="Site") +
+  scale_colour_manual(values = mycolors)  +
+  #scale_color_brewer(palette = "Set1") +
+  theme(axis.title.x = element_text(face="bold", size = 10), # Titre axe x
+        axis.title.y = element_text(face="bold", size = 10), # Titre axe y
+        axis.text.x = element_text(face="bold", color= "black", size=10, hjust=0), # Echelle x
+        axis.text.y = element_text(face="bold", color= "black", size=10), # Echelle y
+        panel.grid.major = element_blank(),panel.grid.minor = element_blank(),
+        panel.background = element_rect(fill='white', colour='black'),
+        legend.position = "bottom") 
+```
+
+
+
+
+```{r}
+DataInfotabee <-type.convert(out$DataInfo)
+
+iNextEsttab <-type.convert(out$iNextEst)
+AsyEsttab <-type.convert(out$AsyEst)
+
+hill <- estimateD(t(data_bee_sp), base="coverage")
+hillmatrix0= hill[hill[,"order"]==0,]
+hillmatrix1= hill[hill[,"order"]==1,]
+hillmatrix2= hill[hill[,"order"]==2,]
+hillmatrix = hillmatrix0[,c(1,2,4)]
+hillmatrix$SC0 = out$DataInfo$SC
+hillmatrix[,c("H0r","H0rU","H0rL")]=hillmatrix0[,c("qD","qD.UCL","qD.LCL")]
+hillmatrix[,c("H1r","H1rU","H1rL")]=hillmatrix1[,c("qD","qD.UCL","qD.LCL")]
+hillmatrix[,c("H2r","H2rU","H2rL")]=hillmatrix2[,c("qD","qD.UCL","qD.LCL")]
+rownames(hillmatrix)= rownames(data_bee_sp) 
+
+bee.out <-DataInfotabee%>% select( "SC","site")
+rownames(bee.out)=rownamesmilieu 
+names(bee.out) <- c("Couverture", "site")
+
+
+#################################graph hill rarefier
+graphhill <- select(hillmatrix,H0r,H1r,H2r)
+#rownames(graphhill)= rownames(milieutab)
+graphhill <- tibble::rownames_to_column(graphhill, "type")
+
+graphhill<-melt(graphhill)
+graphhill<-graphhill %>%group_by(type)
+
+ggplot(graphhill,aes(x = variable, y= value, group = type, color = type))   +
+  geom_line()+ 
+  geom_point()+
+  xlab("Nombre de Hill") +
+  ylab("Nombre d'espéces observées")  +
+  scale_y_continuous(breaks = round(seq(min(0), max(200), by = 4),1))+
+  labs(
+    title = "Nombre de Hill raréfiés pour les différents types de milieux",
+    subtitle = "",
+    caption = "") +
+  theme(
+    plot.title = element_text(hjust = 0.5, size=18),
+    plot.subtitle = element_text(face = ),
+    plot.caption = element_text(face = "italic", size = 9),
+    axis.title.x =element_text(size = 15 ), 
+    axis.title.y =element_text(size = 15),
+    axis.text.x=element_text(size = 12),
+    axis.text.y=element_text(size = 13),
+    legend.text =element_text(size = 12),
+    legend.title =element_text(size = 14))
+```
+
+
+
+
+
+
+
+
 
 
 

@@ -31,7 +31,8 @@ library("tidyverse")
 library("ggplot2")
 #library(pheatmap)
 # library("reshape2")
-# library("reshape") 
+library("reshape") 
+library(dplyr)
 
 setwd("C:/Users/Jordan/OneDrive - UMONS/UMONS/MA2/MEMOIRE/Statistique/R/STAT-MEMOIRE/Statistique Eulalie")
 #setwd("D:/OneDrive - UMONS/UMONS/MA2/MEMOIRE/Statistique/R/STAT-MEMOIRE/Statistique Eulalie")
@@ -254,38 +255,7 @@ bee.abond <- bee.abond  %>% rename(c("SC" = "Couverture"))
 ```
 
 
-```{r}
 
-#################################graph hill rarefier
-graphhill <- select(hillmatrix,H0r,H1r,H2r)
-#rownames(graphhill)= rownames(milieutab)
-graphhill <- tibble::rownames_to_column(graphhill, "type")
-
-graphhill<-melt(graphhill)
-graphhill<-graphhill %>%group_by(type)
-
-ggplot(graphhill,aes(x = variable, y= value, group = type, color = type))   +
-  geom_line()+ 
-  geom_point()+
-  xlab("Nombre de Hill") +
-  ylab("Nombre d'espéces observées")  +
-  scale_y_continuous(breaks = round(seq(min(0), max(200), by = 4),1))+
-  scale_fill_manual("Type de milieu",values = c("green", "blue", "orange", "black", "red", "pink", "purple"))+
-  labs(
-    title = "Nombre de Hill raréfiés pour les différents types de milieux",
-    subtitle = "",
-    caption = "") +
-  theme(
-    plot.title = element_text(hjust = 0.5, size=18),
-    plot.subtitle = element_text(face = ),
-    plot.caption = element_text(face = "italic", size = 9),
-    axis.title.x =element_text(size = 15 ), 
-    axis.title.y =element_text(size = 15),
-    axis.text.x=element_text(size = 12),
-    axis.text.y=element_text(size = 13),
-    legend.text =element_text(size = 12),
-    legend.title =element_text(size = 14))
-```
 
 
 ```{r}
