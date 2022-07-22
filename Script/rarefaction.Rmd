@@ -21,6 +21,7 @@ library(FD)
 library(taxize)
 library(iNEXT)
 library(RColorBrewer)
+library(reshape2)
 
 # Chargé la fonction panelutils
 source ('https://raw.githubusercontent.com/zdealveindy/anadat-r/master/scripts/NumEcolR2/panelutils.R')
@@ -226,32 +227,37 @@ ggiNEXT(out, type=2, se=FALSE, color.var="site" ) +
 ```
 
 
-
-
 ```{r}
+# Matrice Hill
 DataInfotabee <-type.convert(out$DataInfo)
 
 iNextEsttab <-type.convert(out$iNextEst)
 AsyEsttab <-type.convert(out$AsyEst)
 
-hill <- estimateD(t(data_bee_sp), base="coverage")
+# Explication colonne estimateD() http://cran.nexr.com/web/packages/iNextPD/vignettes/Introduction.html
+# the diversity estimate of order q (qPD), the 95% lower and upper confidence limits of diversity (qD.95.LCL, qD.95.UCL), and the sample coverage estimate (SC) along with the 95% lower and upper confidence limits of sample coverage (SC.95.LCL, SC.95.UCL). These sample coverage estimates with conf% confidence intervals are used for plotting the sample completeness curve and coverage-based R/E curves.
+
+hill <- estimateD(t(data_bee_sp), base="coverage") # par défaut conf = 0.95
 hillmatrix0= hill[hill[,"order"]==0,]
 hillmatrix1= hill[hill[,"order"]==1,]
 hillmatrix2= hill[hill[,"order"]==2,]
 hillmatrix = hillmatrix0[,c(1,2,4)]
 hillmatrix$SC0 = out$DataInfo$SC
-hillmatrix[,c("H0r","H0rU","H0rL")]=hillmatrix0[,c("qD","qD.UCL","qD.LCL")]
-hillmatrix[,c("H1r","H1rU","H1rL")]=hillmatrix1[,c("qD","qD.UCL","qD.LCL")]
-hillmatrix[,c("H2r","H2rU","H2rL")]=hillmatrix2[,c("qD","qD.UCL","qD.LCL")]
-rownames(hillmatrix)= rownames(data_bee_sp) 
+hillmatrix[,c("N0","N0rU","N0rL")]=hillmatrix0[,c("qD","qD.UCL","qD.LCL")] # q = ordre, D = diversité, UCL = UpperConfidenceLimits, LCL = LowerCL
+hillmatrix[,c("N1","N1rU","N1rL")]=hillmatrix1[,c("qD","qD.UCL","qD.LCL")] # Je retire NOr => N0, idem N1 et N2
+hillmatrix[,c("N2","N2rU","N2rL")]=hillmatrix2[,c("qD","qD.UCL","qD.LCL")]
+rownames(hillmatrix)= rownames(data_bee_sp)
 
-bee.out <-DataInfotabee%>% select( "SC","site")
-rownames(bee.out)=rownamesmilieu 
+bee.out <-DataInfotabee%>% select("SC","site") # SC = Sample Coverage
+#rownames(bee.out)=rownamesmilieu
 names(bee.out) <- c("Couverture", "site")
+```
 
+
+```{r}
 
 #################################graph hill rarefier
-graphhill <- select(hillmatrix,H0r,H1r,H2r)
+graphhill <- select(hillmatrix,N0,N1,N2)
 #rownames(graphhill)= rownames(milieutab)
 graphhill <- tibble::rownames_to_column(graphhill, "type")
 
@@ -262,12 +268,14 @@ ggplot(graphhill,aes(x = variable, y= value, group = type, color = type))   +
   geom_line()+ 
   geom_point()+
   xlab("Nombre de Hill") +
-  ylab("Nombre d'espéces observées")  +
+  ylab("Nombre d'espèces observées")  +
   scale_y_continuous(breaks = round(seq(min(0), max(200), by = 4),1))+
   labs(
-    title = "Nombre de Hill raréfiés pour les différents types de milieux",
+    title = "",
     subtitle = "",
     caption = "") +
+  #guides(fill = guide_legend(title = "Sites")) + # Titre légende (marche slmt pour Heatmap)
+  scale_color_discrete("")+ # Titre légende
   theme(
     plot.title = element_text(hjust = 0.5, size=18),
     plot.subtitle = element_text(face = ),
@@ -277,9 +285,68 @@ ggplot(graphhill,aes(x = variable, y= value, group = type, color = type))   +
     axis.text.x=element_text(size = 12),
     axis.text.y=element_text(size = 13),
     legend.text =element_text(size = 12),
-    legend.title =element_text(size = 14))
+    legend.title =element_text(size = 14),
+    panel.grid.major = element_blank(),
+    panel.grid.minor = element_blank(),
+    panel.background = element_rect(fill='white', colour='black'))
 ```
 
+
+
+```{r}
+abond <- out
+
+DataInfotab <-type.convert(abond$DataInfo)
+iNextEsttab <-type.convert(abond$iNextEst)
+AsyEsttab <-type.convert(abond$AsyEst)
+
+hill <- estimateD(t(data_bee_sp), base="coverage")
+hillmatrix0= hill[hill[,"order"]==0,]
+hillmatrix1= hill[hill[,"order"]==1,]
+hillmatrix2= hill[hill[,"order"]==2,]
+hillmatrix = hillmatrix0[,c(1,2,4)]
+hillmatrix$SC0 = abond$DataInfo$SC
+hillmatrix[,c("H0r","H0rU","H0rL")]=hillmatrix0[,c("qD","qD.UCL","qD.LCL")]
+hillmatrix[,c("H1r","H1rU","H1rL")]=hillmatrix1[,c("qD","qD.UCL","qD.LCL")]
+hillmatrix[,c("H2r","H2rU","H2rL")]=hillmatrix2[,c("qD","qD.UCL","qD.LCL")]
+rownames(hillmatrix)=rownames(data_bee_sp) 
+
+bee.abond <-DataInfotab%>% select( "SC","site")
+rownames(bee.abond)=rownames(data_bee_sp)
+rename(bee.abond,  "Couverture" = "SC") -> bee.abond
+
+########################################éééboxplot couverture
+
+beecouv <- left_join (bee.abond, type , by=c("site"="nom"))
+beecouv$Dummy <- factor("")
+```
+
+```{r}
+
+is_outlier <- function(x) {
+  return(x < quantile(x, 0.25) - 1.5 * IQR(x) | x > quantile(x, 0.75) + 1.5 * IQR(x))
+}
+beecouv %>%
+  group_by(site) %>%
+  mutate(outlier = ifelse(is_outlier(Couverture), Couverture, as.numeric(NA))) %>%
+  ggplot(.,aes(x = Dummy,y=Couverture))   +
+  geom_boxplot(fill = "#56B4E9" )+ 
+  geom_dotplot(binaxis='y', stackdir='center', dotsize=0.5)+
+  xlab("") +
+  ylab("Taux de couverture")+
+  geom_text(aes(label = outlier ,y = Couverture),nudge_x = 0.08, size =5)+
+  labs(title = "", subtitle = "", caption = "") +
+  theme(axis.title.x = element_text(face="bold", size = 12), # Titre axe x
+        axis.title.y = element_text(face="bold", size = 15), # Titre axe y
+        axis.text.x = element_text(face="bold", color= "black", size=10, hjust=0), # Echelle x
+        axis.text.y = element_text(face="bold", color= "black", size=10), # Echelle y
+        panel.grid.major = element_blank(),panel.grid.minor = element_blank(),
+        panel.background = element_rect(fill='white', colour='black'),
+        legend.position = "none") 
+
+
+
+```
 
 
 
