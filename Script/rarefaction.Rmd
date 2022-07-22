@@ -264,6 +264,9 @@ graphhill <- tibble::rownames_to_column(graphhill, "type")
 graphhill<-melt(graphhill)
 graphhill<-graphhill %>%group_by(type)
 
+nb.cols <- 15
+mycolors <- colorRampPalette(brewer.pal(8, "Set1"))(nb.cols)
+
 ggplot(graphhill,aes(x = variable, y= value, group = type, color = type))   +
   geom_line()+ 
   geom_point()+
@@ -276,6 +279,7 @@ ggplot(graphhill,aes(x = variable, y= value, group = type, color = type))   +
     caption = "") +
   #guides(fill = guide_legend(title = "Sites")) + # Titre légende (marche slmt pour Heatmap)
   scale_color_discrete("")+ # Titre légende
+  scale_colour_manual(values = mycolors)  +
   theme(
     plot.title = element_text(hjust = 0.5, size=18),
     plot.subtitle = element_text(face = ),
