@@ -37,6 +37,7 @@ setwd("D:/OneDrive - UMONS/UMONS/MA2/MEMOIRE/Statistique/R/STAT-MEMOIRE/RAW2")
 
 SpecCondStat <- read_excel("SpecCondStat.xls")
 
+
 ```
 
 ```{r Nettoyage}
