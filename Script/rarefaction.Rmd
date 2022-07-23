@@ -255,13 +255,12 @@ names(bee.out) <- c("Couverture", "site")
 
 
 ```{r}
-
-#################################graph hill rarefier
+# Graphique nombre de Hill
 graphhill <- select(hillmatrix,N0,N1,N2)
 #rownames(graphhill)= rownames(milieutab)
 graphhill <- tibble::rownames_to_column(graphhill, "type")
 
-graphhill<-melt(graphhill)
+graphhill<-reshape::melt(graphhill)
 graphhill<-graphhill %>%group_by(type)
 
 nb.cols <- 15
@@ -298,6 +297,8 @@ ggplot(graphhill,aes(x = variable, y= value, group = type, color = type))   +
 
 
 ```{r}
+# Boxplot
+
 abond <- out
 
 DataInfotab <-type.convert(abond$DataInfo)
@@ -319,7 +320,6 @@ bee.abond <-DataInfotab%>% select( "SC","site")
 rownames(bee.abond)=rownames(data_bee_sp)
 rename(bee.abond,  "Couverture" = "SC") -> bee.abond
 
-########################################éééboxplot couverture
 
 beecouv <- left_join (bee.abond, type , by=c("site"="nom"))
 beecouv$Dummy <- factor("")
@@ -400,6 +400,24 @@ J <- H / log(N0) # Pielou evenness
 E10 <- N1 / N0 # Shannon evenness (Hill's ratio)
 E20 <- N2 / N0 # Simpson evenness (Hill's ratio)
 (div <- data.frame(N0, H, Hb2, N1, N1b2, N2, E10, E20, J))
+```
+
+```{r}
+
+# Compute alpha diversity indices of the fish communities
+N0_rs <- rowSums(data_bee_sp > 0) # Species richness
+N0 <- specnumber(data_bee_sp) # Species richness (alternate)
+H <- diversity(data_bee_sp) # Shannon entropy (base e)
+Hb2 <- diversity(data_bee_sp, base = 2) # Shannon entropy (base 2)
+N1 <- exp(H) # Shannon diversity (base e)
+# (number of abundant species)
+N1b2 <- 2^Hb2 # Shannon diversity (base 2)
+N2 <- diversity(data_bee_sp, "inv") # Simpson diversity
+# (number of dominant species)
+J <- H / log(N0) # Pielou evenness
+E10 <- N1 / N0 # Shannon evenness (Hill's ratio)
+E20 <- N2 / N0 # Simpson evenness (Hill's ratio)
+(div <- data.frame(N0_rs,N0, N1, H, Hb2,  N1b2, N2, E10, E20, J))
 ```
 
 
