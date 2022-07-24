@@ -1,0 +1,336 @@
+---
+title: "beta"
+author: "Jordan"
+date: "`r Sys.Date()`"
+output: html_document
+---
+
+```{r}
+library(ggplot2)
+library(vegetarian)
+library(vegan)
+library(dplyr)
+library(readxl)
+library(iNEXT)
+```
+
+## SDD
+https://wp.sciviews.org/sdd-umons2-2019/indices-de-biodiversite.html
+```{r}
+data(BCI)
+
+#library(vegan)
+#data("BCI")
+
+set.seed(2003)
+bci_sub <- sample_n(BCI, 5) 
+
+# Exploration partielle des données (15 premières espèces)
+skimr::skim(bci_sub[, 1:15])
+```
+
+
+
+
+
+```{r}
+vegan::vegdist(bci_sub, method = "jaccard", binary = TRUE)
+```
+
+```{r}
+zoo <- read_excel("D:/OneDrive - UMONS/UMONS/MA2/MEMOIRE/Statistique/R/STAT-MEMOIRE/RAW1/zoo.xlsx")
+```
+
+```{r}
+zoo %>%
+  select(., -class) %>% # Elimination de la colonne class
+  scale(.) %>% # Standardisation des 19 colonnes
+  as_tibble(.) %>% # Conversion de la matrice en data.frame +tibble
+  slice(., 13:18) -> zoo6      # Récupération des lignes 13 à 18
+
+zoo6 %>%
+  vegan::vegdist(., method = "euclidean") -> zoo6std_dist
+
+zoo6std_dist %>%
+  hclust(.) -> zoo6std_clust # Calcul du dendrogramme
+  plot(zoo6std_clust)
+```
+## Mes données
+
+Importation des données.
+```{r Import}
+# Import
+# Tour PC
+setwd("D:/OneDrive - UMONS/UMONS/MA2/MEMOIRE/Statistique/R/STAT-MEMOIRE/RAW2")
+# Laptop
+#setwd("C:/Users/Jordan/OneDrive - UMONS/UMONS/MA2/MEMOIRE/Statistique/R/STAT-MEMOIRE/RAW2")
+
+SpecCondStat <- read_excel("SpecCondStat.xls")
+
+
+# Nom plus compact
+SCS <- SpecCondStat
+
+# Retirer le site de Condorcet
+SCS <- filter(SCS, TOPO != "Condorcet" )
+
+# Renommer plus simplement
+rename(SCS, "sp" = "SPEC.TAXPRIO" ) -> SCS
+rename(SCS, "sites" = "TOPO" ) -> SCS
+
+# Retirer les observations contenant l'espèce : "XXX"
+# SCS <- filter(SCS, SPEC.TAXPRIO != "Bombus (Bombus)  sp." )
+
+# Remplacement des noms d'espèces désuets
+SCS$sp[SCS$sp == "Bombus lucorum"] <- "Terrestribombus  sp."
+SCS$sp[SCS$sp == "Bombus terrestris"] <- "Terrestribombus  sp."
+SCS$sp[SCS$sp == "Chalicodoma ericetorum"] <- "Megachile ericetorum"
+SCS$sp[SCS$sp == "Halictus tumulorum"] <- "Seladonia tumulorum"
+
+# Remplacement du noms de sites
+SCS$sites[SCS$sites == "Les Gourmandes de la Procession"] <- "Gourmandes de la Procession"
+
+# Preparation des données 
+data_bee_sp <- select(SCS, sp, N, sites)
+data_bee_sp <- as.data.frame(data_bee_sp)
+data_bee_sp <- aggregate(N ~ sp + sites, data = data_bee_sp, sum)
+data_bee_sp <- xtabs(N ~ sites + sp, data_bee_sp)
+data_bee_sp <- type.convert(data_bee_sp)
+
+```
+Je ne sais pas du tout quelle methode dans hclust() il faudrait utiliser (bray, upgma, single), ni si je ferai mieux de raréfier sur la couverture ou abondance sur mes données.
+
+```{r}
+#data_bee_sp %>%
+bee.rare33 %>%
+  scale(.) %>% # Standardisation des 19 colonnes
+  as_tibble(.) -> data  # Conversion de la matrice en data.frame +tibble     
+
+data %>%
+  vegan::vegdist(., method = "single", binary = FALSE, na.rm = FALSE) -> data_dist
+
+data_dist %>%
+  hclust(., method = "complete") -> data_clust # Calcul du dendrogramme
+  plot(data_clust)
+  
+  
+# ggdendro::ggdendrogram(zoo6std_clust)
+```
+
+
+## David Zeleny
+https://www.davidzeleny.net/anadat-r/doku.php/en:hier-agglom_examples
+
+La méthode de Ward ne doit pas être combiné avec des mesures de distance qui ne sont pas strictement métriques, comme par exemple la distance de Bray-Curtis.
+```{r}
+vltava.spe <- read.delim ('https://raw.githubusercontent.com/zdealveindy/anadat-r/master/data/vltava-spe.txt', row.names = 1)
+#library (vegan)
+dis <- vegdist (sqrt (vltava.spe), method = 'bray') # percentage cover data are transformed by square root
+cluster.single <- hclust (d = dis, method = 'single')
+cluster.complete <- hclust (dis, 'complete')
+cluster.average <- hclust (dis, 'average')
+par (mfrow = c (1,3)) # will draw all dendrograms into one figure
+ 
+plot (cluster.single, main = 'Single linkage')
+plot (cluster.complete, main = 'Complete linkage')
+plot (cluster.average, main = 'Average linkage')
+```
+
+
+```{r}
+library (cluster)
+cluster.flexible <- agnes (x = dis, method = 'flexible', par.method = 0.625)
+cluster.flexible.hclust <- as.hclust (cluster.flexible)
+plot (cluster.flexible.hclust)
+```
+```{r}
+data (BCI)  # example using Barro Colorado data
+BCI.log <- log1p (BCI)  # first, log transform species data
+bc.dist <- vegdist (BCI.log, method = 'bray')
+bc.dist
+clust <- agnes (sqrt (bc.dist), method = 'ward') # calculate Ward's algorithm 
+# on square-rooted Bray-Curtis distance
+#plot (clust, which.plot = 2)
+# Change juste le titre
+clust.hclust <- as.hclust (clust)
+plot (clust.hclust)
+# Regrouper en cluster
+groups <- cutree (clust, k = 5)
+groups
+group.order <- groups[clust.hclust$order]
+group.order
+group.in.cluster <- unique (group.order)
+group.in.cluster
+
+plot (clust.hclust)
+rect.hclust (clust.hclust, border = group.in.cluster, k = 5) 
+legend ('topleft', legend = paste ('Cluster', 1:5), pch = 22, col = 1:5, bty = 'n')
+```
+
+```{r}
+# First, NMDS with Bray-Curtis distances
+NMDS <- metaMDS (vegdist (BCI.log))  # note that I could use also "NMDS <- metaMDS (bc.dist)" here
+par (mfrow = c(1,2)) # I want to plot both plots into one figure, with two panels in one row
+ordiplot (NMDS, type = 'n')
+points (NMDS, pch = groups, col = groups)
+legend ('topright', pch = 1:5, col = 1:5, legend = 1:5, bty = 'n')
+ 
+# Second, DCA ordination (implicitly using chi-square distance)
+DCA <- decorana (BCI.log)
+ordiplot (DCA, type = 'n', display = 'si')
+points (DCA, pch = groups, col = groups)
+legend ('topright', pch = 1:5, col = 1:5, legend = 1:5, bty = 'n')
+```
+
+
+
+
+### Mes données non raréfiées
+```{r}
+dis <- vegdist(sqrt (data_bee_sp), method = 'bray') # percentage cover data are transformed by square root
+cluster.single <- hclust (d = dis, method = 'single')
+cluster.complete <- hclust (dis, 'complete')
+cluster.average <- hclust (dis, 'average')
+
+par (mfrow = c (1,3)) # will draw all dendrograms into one figure
+ 
+plot (cluster.single, main = 'Single linkage')
+plot (cluster.complete, main = 'Complete linkage')
+plot (cluster.average, main = 'Average linkage')
+```
+
+```{r}
+
+data_bee_sp.log <- log1p (data_bee_sp)  # first, log transform species data
+bc.dist <- vegdist (data_bee_sp.log, method = 'bray')
+bc.dist
+print (bc.dist, diag = TRUE)
+clust <- agnes (sqrt (bc.dist), method = 'ward') # calculate Ward's algorithm 
+# on square-rooted Bray-Curtis distance
+#plot (clust, which.plot = 2)
+# Change juste le titre
+clust.hclust <- as.hclust (clust)
+plot (clust.hclust)
+# Regrouper en cluster
+groups <- cutree (clust, k = 2)
+groups
+group.order <- groups[clust.hclust$order]
+group.order
+group.in.cluster <- unique (group.order)
+group.in.cluster
+
+plot (clust.hclust)
+rect.hclust (clust.hclust, border = group.in.cluster, k = 2) 
+legend ('topleft', legend = paste ('Cluster', 1:2), pch = 22, col = 1:5, bty = 'n')
+```
+```{r}
+# First, NMDS with Bray-Curtis distances
+NMDS <- metaMDS (vegdist (data_bee_sp.log))  # note that I could use also "NMDS <- metaMDS (bc.dist)" here
+par (mfrow = c(1,2)) # I want to plot both plots into one figure, with two panels in one row
+ordiplot (NMDS, type = 'n')
+points (NMDS, pch = groups, col = groups)
+legend ('topright', pch = 1:2, col = 1:2, legend = 1:2, bty = 'n')
+ 
+# Second, DCA ordination (implicitly using chi-square distance)
+DCA <- decorana (data_bee_sp.log)
+ordiplot (DCA, type = 'n', display = 'si')
+points (DCA, pch = groups, col = groups)
+legend ('topright', pch = 1:2, col = 1:2, legend = 1:2, bty = 'n')
+```
+
+### Mes données raréfiés sur base de la couverture
+```{r}
+# raréfaction sur base de la couverture
+#hill <- estimateD(t(data_bee_sp), base="coverage")
+
+# Raréfaction à 33 individus (Parc Bonaert a le plus petit nbr d'individus)
+bee.rare33 <- rarefy(bee, sample = 33)
+
+dis <- vegdist(sqrt (bee.rare33), method = 'bray') # percentage cover data are transformed by square root
+cluster.single <- hclust (d = dis, method = 'single')
+cluster.complete <- hclust (dis, 'complete')
+cluster.average <- hclust (dis, 'average')
+
+par (mfrow = c (1,3)) # will draw all dendrograms into one figure
+ 
+plot (cluster.single, main = 'Single linkage')
+plot (cluster.complete, main = 'Complete linkage')
+plot (cluster.average, main = 'Average linkage')
+```
+
+
+
+
+## package vegan
+https://cran.r-project.org/web/packages/vegan/vignettes/diversity-vegan.pdf
+
+```{r}
+beta <- vegdist(BCI, binary=TRUE)
+mean(beta)
+```
+
+
+
+
+
+
+
+
+
+## Legendre 2012
+
+
+```{r}
+# On importe un jeu de donn?es test : les poissons de la rivi?re Doubs
+data (doubs)
+spe <- doubs$fish# Une rivi?re, 30 sites, une longue liste de poissons
+env <- doubs$env # La m?me rivi?re, les m?mes sites, mais de nombreux types de descripteurs environnementaux
+?doubs #Plus d'infos
+# On retire le site ! car il est vide !
+spe = spe[-8,]
+env = env[-8,]
+```
+
+```{r}
+#Multiplicative partitioning of Hill numbers (Jost 2006, 2007)
+?d
+# Mean alpha species richness
+d(spe, lev = "alpha", q = 0)
+# Mean alpha Shannon diversity
+d(spe, lev = "alpha", q = 1)
+# Mean alpha Simpson diversity
+d(spe, lev = "alpha", q = 2, boot = TRUE)
+# Multiplicative beta species richness
+d(spe, lev = "beta", q = 0)
+# Multiplicative beta Shannon diversity
+d(spe, lev = "beta", q = 1)
+# Multiplicative beta Simpson diversity
+d(spe, lev = "beta", q = 2, boot = TRUE)
+# Gamma species richness
+d(spe, lev = "gamma", q = 0)
+# Gamma Shannon diversity
+d(spe, lev = "gamma", q = 1)
+# Gamma Simpson diversity
+d(spe, lev = "gamma", q = 2, boot = TRUE)
+
+# Plot multiplicative beta diversity vs order
+mbeta <- data.frame(order = 0:20, beta = NA, se = NA)
+for (i in 1:nrow(mbeta)) {
+out <- d(spe, lev = "beta", q = mbeta$order[i], boot = TRUE)
+mbeta$beta[i] <- out$D.Value
+mbeta$se[i] <- out$StdErr
+}
+mbeta
+ggplot(mbeta, aes(order, beta)) +
+geom_point() +
+geom_line() +
+geom_errorbar(aes(order, beta, ymin = beta - se,
+ymax = beta + se), width = 0.2) +
+labs(y = "Multiplicative beta diversity",
+x = "Order of the diversity measure")
+```
+
+
+
+
+

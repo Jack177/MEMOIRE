@@ -162,7 +162,7 @@ ggplot(xy, aes(x = subsample, y = value, color = species)) +
     theme(legend.position = "none") +  # ggplotly doesn't respect scales?
     geom_line() +
   geom_vline(xintercept = 33, color = "gray") +
-    labs(x = "Nombre d'individus collectées", y = "Nombre d'espèces observé (richesse)") +
+    labs(x = "Nombre d'individus collectées (abondance observée)", y = "Nombre d'espèces observé (richesse observée)") +
   theme(axis.title.x = element_text(face="bold", size = 20), # Titre axe x
         axis.title.y = element_text(face="bold", size = 20), # Titre axe y
         axis.text.x = element_text(face="bold", color= "black", size=15, hjust=0), # Echelle x
@@ -177,7 +177,7 @@ ggplotly(
     theme_bw() +
     theme(legend.position = "none") +  # ggplotly doesn't respect scales?
     geom_line() +
-    labs(x = "Nombre d'individus collectées", y = "Nombre d'espèces observé (richesse)") +
+    labs(x = "Nombre d'individus collectées (abondance observée)", y = "Nombre d'espèces observé (richesse observée)") +
   theme(axis.title.x = element_text(face="bold", size = 10), # Titre axe x
         axis.title.y = element_text(face="bold", size = 10), # Titre axe y
         axis.text.x = element_text(face="bold", color= "black", size=10, hjust=0), # Echelle x
@@ -209,7 +209,6 @@ out <- iNEXT(as.data.frame(t(data_bee_sp)), q = c(0,1,2), datatype ="abundance",
 ```
 
 ```{r}
-# Taux de couverture et nbr individus
 nb.cols <- 15
 mycolors <- colorRampPalette(brewer.pal(8, "Set1"))(nb.cols)
 
