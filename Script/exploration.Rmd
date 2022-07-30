@@ -195,6 +195,7 @@ fviz_pca_ind (res.pca2_bee_genus,col.ind = grp, # Je colorie les points par grou
               legend.title = "Groups",
               palette = c("blue", "red", "black","green"))
 ```
+
 ```{r}
 ### CA ####
 res.ca_bee_genus = cca(soil_data_bee_genus)

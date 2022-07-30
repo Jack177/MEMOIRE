@@ -13,9 +13,10 @@ library(vegan) # specpool () estimateR() poolaccum() estaccumR()
 library(ggplot2)
 library(tidyr)
 library(ade4)
-#library(adegraphics)
+library(plotly)
 #library(adespatial)
 #library(vegetarian)
+
 library(ggplot2)
 library(FD)
 library(taxize)
@@ -116,6 +117,12 @@ bee[which(bee.rare33 == min(bee.rare33)),]
 bee[which(bee.rare33 == max(bee.rare33)),]
 
 ```
+
+```{r}
+nb.cols <- 15
+mycolors <- colorRampPalette(brewer.pal(8, "Set1"))(nb.cols)
+```
+
 
 ```{r}
 rarecurve(bee, 
@@ -319,7 +326,7 @@ bee.abond <-DataInfotab%>% select( "SC","site")
 rownames(bee.abond)=rownames(data_bee_sp)
 rename(bee.abond,  "Couverture" = "SC") -> bee.abond
 
-
+type <- read.csv ( "../Statistique Eulalie/listetype.csv",header = T, sep = ";") # C'est juste pour que le code copier/coller fonctionne, je n'utilise pas les types d'Eulalie
 beecouv <- left_join (bee.abond, type , by=c("site"="nom"))
 beecouv$Dummy <- factor("")
 ```

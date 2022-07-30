@@ -101,18 +101,18 @@ data_bee_sp <- type.convert(data_bee_sp)
 Je ne sais pas du tout quelle methode dans hclust() il faudrait utiliser (bray, upgma, single), ni si je ferai mieux de raréfier sur la couverture ou abondance sur mes données.
 
 ```{r}
-#data_bee_sp %>%
-bee.rare33 %>%
-  scale(.) %>% # Standardisation des 19 colonnes
-  as_tibble(.) -> data  # Conversion de la matrice en data.frame +tibble     
-
-data %>%
-  vegan::vegdist(., method = "single", binary = FALSE, na.rm = FALSE) -> data_dist
-
-data_dist %>%
-  hclust(., method = "complete") -> data_clust # Calcul du dendrogramme
-  plot(data_clust)
-  
+# #data_bee_sp %>%
+# bee.rare33 %>%
+#   scale(.) %>% # Standardisation des 19 colonnes
+#   as_tibble(.) -> data  # Conversion de la matrice en data.frame +tibble     
+# 
+# data %>%
+#   vegan::vegdist(data, method = "bray") -> data_dist
+# 
+# data_dist %>%
+#   hclust(., method = "complete") -> data_clust # Calcul du dendrogramme
+#   plot(data_clust)
+#   
   
 # ggdendro::ggdendrogram(zoo6std_clust)
 ```
@@ -202,7 +202,7 @@ plot (cluster.average, main = 'Average linkage')
 ```{r}
 
 data_bee_sp.log <- log1p (data_bee_sp)  # first, log transform species data
-bc.dist <- vegdist (data_bee_sp.log, method = 'bray')
+bc.dist <- vegdist (data_bee_sp.log, method = 'bray', scale= TRUE) # Scale sert à standardiser si on a des unités différentes, ici ce n'est pas le cas et cela ne change rien
 bc.dist
 print (bc.dist, diag = TRUE)
 clust <- agnes (sqrt (bc.dist), method = 'ward') # calculate Ward's algorithm 

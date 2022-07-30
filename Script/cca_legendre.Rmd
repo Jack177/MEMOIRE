@@ -1,0 +1,194 @@
+---
+title: "cca_legendre"
+author: "Jordan"
+date: "`r Sys.Date()`"
+output: html_document
+---
+
+```{r}
+# Load the required packages
+library(dplyr)
+library(vegan) # specpool () estimateR() poolaccum() estaccumR()
+library(ggplot2)
+library(ggplot2)
+```
+
+```{r}
+# On importe un jeu de donn?es test : les poissons de la rivi?re Doubs
+data (doubs)
+spe <- doubs$fish# Une rivi?re, 30 sites, une longue liste de poissons
+env <- doubs$env # La m?me rivi?re, les m?mes sites, mais de nombreux types de descripteurs environnementaux
+?doubs #Plus d'infos
+# On retire le site ! car il est vide !
+spe = spe[-8,]
+env = env[-8,]
+
+# Set aside the variable 'dfs' (distance from the source) for
+# later use
+dfs <- env[, 1]
+# Remove the 'dfs' variable from the env data frame
+env2 <- env[, -1]
+# variable to show how these are handled in the ordinations
+slo2 <- rep(".very_steep", nrow(env))
+slo2[env$slo <= quantile(env$slo)[4]] <- ".steep"
+slo2[env$slo <= quantile(env$slo)[3]] <- ".moderate"
+slo2[env$slo <= quantile(env$slo)[2]] <- ".low"
+slo2 <- factor(slo2,
+levels = c(".low", ".moderate", ".steep", ".very_steep"))
+table(slo2)
+# Create an env3 data frame with slope as a qualitative variable
+env3 <- env2
+env3$slo <- slo2
+```
+
+
+```{r}
+(spe.cca <- cca(spe ~ ., env3))
+summary(spe.cca) # Scaling 2 (default)
+# Unadjusted and adjusted R^2 - like statistics
+RsquareAdj(spe.cca)
+```
+
+
+```{r}
+par(mfrow = c(1, 2))
+# Scaling 1: species scoresscaled to the relative eigenvalues,
+# sites are weighted averages of the species
+plot(spe.cca,
+scaling = 1,
+display = c("sp", "lc", "cn"),
+main = "Triplot CCA spe ~ env3 - scaling 1"
+)
+# Default scaling 2: site scores scaled to the relative
+# eigenvalues, species are weighted averages of the sites
+plot(spe.cca,
+display = c("sp", "lc", "cn"),
+main = "Triplot CCA spe ~ env3 - scaling 2"
+)
+```
+
+```{r}
+# CCA scaling 1 biplot without species (using lc site scores)
+plot(spe.cca,
+scaling = 1,
+display = c("lc", "cn"),
+main = "Biplot CCA spe ~ env3 - scaling 1"
+)
+```
+
+
+
+```{r}
+# CCA scaling 2 biplot with species but without sites
+plot(spe.cca,
+scaling = 2,
+display = c("sp", "cn"),
+main = "Biplot CCA spe ~ env3 - scaling 2"
+)
+```
+
+Permutation Tests in CCA,Forward Selection
+and Parsimonious CCA
+CCA results can be tested for significance by permutation, in the same way as RDA.
+```{r}
+# Permutation test of the overall analysis
+anova(spe.cca, permutations = how(nperm = 999))
+# Permutation test of each axis
+anova(spe.cca, by = "axis", permutations = how(nperm = 999))
+
+```
+
+```{r}
+# CCA-based forward selection using vegan's ordistep()
+# This function allows the use of factors like 'slo' in env3
+cca.step.forward <-
+ordistep(cca(spe ~ 1, data = env3),
+scope = formula(spe.cca),
+direction = "forward",
+permutations = how(nperm = 199))
+```
+
+
+```{r}
+# calcul du VIF (corrélation entre variable)
+#vif <- diag(solve(cor(X)))
+
+# Variance inflation factors (VIF) in two RDAs
+# First RDA of this Chapter: all environmental variables
+# except dfs
+vif.cca(spe.cca)
+# Partial RDA – physiographic variables only
+#vif.cca(spechem.physio)
+
+```
+
+```{r}
+# CCA-based forward selection using vegan's ordistep()
+# This function allows the use of factors like 'slo' in env3
+cca.step.forward <-
+ordistep(cca(spe ~ 1, data = env3),
+scope = formula(spe.cca),
+direction = "forward",
+permutations = how(nperm = 199))
+```
+
+
+
+```{r}
+## Parsimonious CCA using ele, oxy and bod
+spe.cca.pars <- cca(spe ~  oxy + bdo, data = env3)
+anova(spe.cca.pars, permutations = how(nperm = 999))
+anova(spe.cca.pars, permutations = how(nperm = 999), by = "axis")
+# R-square – like statistics
+RsquareAdj(spe.cca.pars)
+# Compare variance inflation factors
+vif.cca(spe.cca)
+vif.cca(spe.cca.pars)
+```
+Three-Dimensional Interactive Plots
+
+```{r}
+#library(vegan3d)
+# Plot of the sites only (wa scores)
+ordirgl(spe.cca.pars, type = "t", scaling = 1)
+# Connect weighted average scores to linear combination scores
+orglspider(spe.cca.pars, scaling = 1, col = "purple")
+```
+
+```{r}
+# Plot the sites (wa scores) with a clustering result
+# Colour sites according to cluster membership
+# gr <- cutree(hclust(vegdist(spe.hel, "euc"), "ward.D2"), 4)
+# ordirgl(spe.cca.pars,
+# type = "t",
+# scaling = 1,
+# ax.col = "black",
+# col = gr + 1
+# )
+# # Connect sites to cluster centroids
+# orglspider(spe.cca.pars, gr, scaling = 1)
+```
+
+
+```{r}
+# Complete CCA 3D triplot
+ordirgl(spe.cca.pars, type = "t", scaling = 2)
+orgltext(spe.cca.pars,
+display = "species",
+type = "t",
+scaling = 2,
+col = "cyan"
+)
+# Plot species groups (Jaccard dissimilarity, useable in R mode)
+gs <-
+cutree(
+hclust(vegdist(t(spe), method = "jaccard"), "ward.D2"),
+k = 4)
+ordirgl(spe.cca.pars,
+display = "species",
+type = "t",
+col = gs + 1)
+```
+
+
+

@@ -1,0 +1,67 @@
+---
+title: "cca_tuto_Oksanen2012"
+author: "Jordan"
+date: "`r Sys.Date()`"
+output: html_document
+---
+
+```{r}
+library(vegan)
+```
+
+https://www.mooreecology.com/uploads/2/4/2/1/24213970/constrained_ordination.pdf
+
+```{r}
+data(varespec)
+data(varechem)
+```
+
+
+```{r}
+str(varechem)
+summary(varechem)
+```
+```{r}
+plot(varechem, gap=0, panel=panel.smooth)
+```
+
+```{r}
+m <- cca(varespec)
+mm <- cca(varespec, varechem)
+cca(varespec, varechem[, c("Al", "P", "K")])
+m
+mm
+```
+```{r}
+head(summary(mm))
+```
+
+```{r}
+plot(mm, display = c("lc","bp"))
+```
+```{r}
+# Short all env variable
+m1 <- cca(varespec ~ ., varechem)
+# Short no env variable
+m0 <- cca(varespec ~ 1, varechem)
+m1
+m0
+```
+
+```{r}
+m <- step(m0, scope=formula(m1), test="perm")
+```
+```{r}
+# test l'indépendance des variables
+# 1 = complétement indépendant, au dessus de 10 ou 20 : très multicollinéaire
+vif.cca(m1)
+vif.cca(m)
+vif.cca(mback)
+```
+```{r}
+anova(m, by="term", permu=200)
+
+anova(m, by="mar")
+anova(m, by="axis", perm=500)
+```
+

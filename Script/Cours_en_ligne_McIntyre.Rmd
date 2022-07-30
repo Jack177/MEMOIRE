@@ -318,6 +318,7 @@ On sait juste dire quelle communauté est plus diversifié qu'une autre.
 
 Indice
 Pielou J : appellé aussi the Shannon evenness index, est très utilisé, mais a les mêmes limitations que Shannon car il est basé dessus.
+Evenness = équitabilité
 
 ## Problèmes avec indices de richesse, diversité et evenness
 On a toujours des nombres, les indices ne prennent pas en compte l'identité des espèces !
@@ -352,6 +353,8 @@ Il est important de savoir à quelle échelle de diversité on s'intéresse et d
 
 Diversité alpha, béta, gamma, epsilon
 alpha = diversité locale d'un habitat (indice utilisé précédemment)
+
+(info beta interpretation: https://www.bonobosworld.org/fr/glossaire/diversite-beta )
 
 beta (= turnover diversity) = diversité entre habitats ou patch(= parcelle) elle représente la mesure dans laquelle la composition des espèces varie par localisation/habitat. Il est influencé par l'échelle (distance), il décroit à mesure que la superficie ou le temps d'échantillonage augmente.
 Les valeurs relatives de beta indique une diversité faible, cela revient à dire qu'il y a peu de similarité de communauté, avoir un beta de 0 indique qu'il y a un
@@ -432,6 +435,293 @@ Généralement, la courbe a une pente négative avec différentes formes, ce qui
 Il existe deux dizaines de formes que la distribution peut prendre, chacun résultant d'un processus différent qui peut être modéler mathématiquement.
 Vagan a 5 des plus commune.
 1) Null model= modele broken stick
+
+
+
+
+# Cluster analysis
+https://www.youtube.com/watch?v=Y-ZGHA2GZ3g
+Utilisé pour divisé les données en clusters non superposés
+
+Hierarchical vs non-hierarchical(disjoint)  
+  hierarchical - agglomerative vs divisive
+    agglomerative - single, complete, average linkiage
+  Disjoint - k-means
+
+Disjoint est utilisé si on a un à priori sur le nombre de cluster que l'on devrait avoir.
+Si on ne sais pas => hierarchical
+hierarchical peut être utilisé sur différent types de dissimilarité ou distance métrique
+Disjoint sont moins sensible aux outliers (= données abérantes) et sont utile pour les détecter.
+
+Il faut savoir quelle type de matrice de distance ou matrice dissimilarité on souhaite évaluer et également ce que l'on souhaite faire.
+Si on veut détecter les outliers, la puissance de calcul de notre ordinateur (important si bcp de données).
+
+
+## Hierarchical - agglomerative vs divisive
+On base le clustering sur la similarité (agglomerative) ou sur la distinction 
+
+agnes() vs diana()
+
+### Agglomerative
+Plus commun en écologie car bon pour identifié les petits clusters
+Output : les deux sites les plus similaires ou dissimilaires sont fusionné dans un noeud qui représente un cluster.
+Un axe (heigh ou dissimilarity) plus l'axe est haut moins les objets sont similaires. La proximité horizontal ne donne pas d'information sur la similarité.
+
+3 méthodes : single, complete, average linkiage
+single (= nearest neighbour methods) : accentue la similarité avec les éléments, le problème est qu'il surestime la similarité et 
+produit un dendrogramme en forme de chaîne (chaining)
+complete (=farthest neighbour method) à l'opposé extrême du single, il suraccentue les différences qui existe.
+Average est celui qui est généralement utilisé, surtout en écologie, suivi du complete linkage method, le single n'est vraiment pas recommandé.
+
+Commencer avec quelle approche une matrice de distance/dissimilarité: quel type ?
+pourcentage ?
+bcp de zaro ? si oui, on exclue euclédien, Manhattan et Canberra.
+Chi² désaccentue l'abondance des espèces, s'il y a bcp ce n'est pas le meilleur choix.
+Bray-Curtis : par défaut
+
+vegdist() vegan
+hclust() stats
+
+Le dendrogramme se lit de haut en bas, l'axe vertical montre la similarité, en bas : similarité de zéro.
+Dans l'exemple, les deux types de sites forme deux clusters. Cela signifie qu'il y a bien deux communautés de plantes différentes, car ils ont été séparé en deux clusters.
+On voit aussi des différences parmi les sites d'un même type.
+
+On peut calculer une correlation entre l'axe vertical (= cophanetique distance) et ma matrice de distance.
+comm.coph <- cophoenetic(comm.bc.clust)
+cor(comm.bc.dist, comm.coph)
+[1] 0.9316768
+Proche de 1, indique une bonne adaptation. On ne devrait pas utiliser seulement ce coefficient de correlation , car l'average method, produit généralement une correlation
+plus grande qu'avec. Il ne faut pas se fier uniquement sur le coefficient de correlation, il faut aussi regarder le structure du dendrogramme. 
+pvclust() : permet d'examiner statistiqument chaque branche. Produit une p-value pour chaque branche à l'aide du bootstrap.
+Conseil de se référence au livre "Community Ecology"
+
+Pour la variable environnemental $aspect, le premier type de site a un large gradient. Tandis que le 2ème type a une variation très faible.
+Cela suggère que le site 1 est indifférent, tandis que le 2ème est plus sensible, peut-être que des variables y sont corrélés (t°c, hygro,...)
+
+
+
+## non-hierarchical(disjoint,Divise) 
+Meilleur pour les gros clusters
+k-means
+k est le nombre de cluster que l'on veut créer.
+pam() produit un silouhette plot. McIntyre n'a quasiment jamais vue de plot silouhette en écologie. Car ce sont des mesures relatives.
+Pour chaque cluster, on a la similarité de chaque élement (site).
+Il est plus commun d'avoir une PCA. En comparant avec des boxplot une variable environnemental(siteinfo$aspect) par rapport au k-means généré (demopam\$clustering)
+On s'apercçoit que k=5 était trop, plusieurs boxplot ont la même variation.
+
+Comment choisir le meilleur k ?
+Si on a deux types d'environnement distinct le mieux est de choisir k = 2. 
+Si on n'est pas sûr 
+comm.clust <- hclust(comm.bc.dist, method = "complete")
+cutree(comm.clust, k = 2:5)
+cutree va comparer les groupes en fonction du k. On cherche quelque chose de logique pas de variable.
+En regardant, les clusters produit on peut trouver des outliers.
+Le graphique k = 3 donne le même coefficient de correlation que n'importe quelle autre valeur de k
+
+
+
+beta diversité
+betadiver() vegan : calcul la diversité béta 
+hclust() vegan pour réalisé un cluster hierarchique
+
+
+## Note de fin 
+Il est important de spécifier quelle type de méthode a été utilisé 
+
+
+
+
+
+
+# Ordination contrainte et non-contrainte
+https://www.youtube.com/watch?v=Wqa7_18jf5A
+
+Permet sur un grand jeu de données espèces/sites d'essayer d'identifier les sites et espèces les plus influents qui explique
+la plupart des tendances dans les données, ce qui donne des axe d'ordination qui résume les données selon les variables les 
+plus importantes. On utilisera ces axes d'ordination dans une analyse de redondance contrainte  (RDA) pour examiner l'influence
+des variables environnementales à partir d'un ensemble de données site par site sur la distribution des espèces dans les sites.
+
+PCA et RDA sont deux forme d'ordination
+
+
+##PCA : non contrainte
+Non contrainte signifie qu'on ne regarde qu'un seul ensemble de données à la fois. Ces techniques ne tentent pas de définir une
+relation entre des variables dépendantes et indépendantes.
+https://r.qcbs.ca/workshop09/book-fr/le-significat-de-lordination-sans-contrainte.html
+PCA réduit la "dimensionnalité" d'un grand ensemble de donnée de variable interreliées, mais ne supprime PAS les variables.
+Résume les variables dans des axes
+
+###L'ordination sans contraine peut être utilisé pour :
+Evaluer les relations au sein d'un ensemble de variable
+Trouver les éléments clés de variation au sein d'échantillons, de sites, d'espèces.
+Réduire les dimensions d'un jeu de données multivariées sans perte importante d'information
+Créer de nouvelles variables pour une utilisation dans des analyses ultérieures (comme la régression.)
+Résume la redondance des données en identifiants les gradients  de variation dominants et en placant des entités d'échantillonnage
+similaires dans des gradients de variations.
+Resultant dans une description très économique des données.
+Utilisé préliminairement dans le but de détecté des tendances parmi les variables. 
+Pivote le nuage de points pour faire apparaître le maximum de variabilité, ce qui permet d'identifier les gradients les plus importants.
+Généralement on utilise slmt 2 axes.
+
+###Supposition : relation linéaire parmi les variables, càd relation linéaire entre les abondances/présences des espèces et l'environnement.
+Malheureusement, on a plutôt souvent les espèces qui ont une courbe unimodale (= une seule courbe) avec le gradient de l'env. càd que l'abondance atteint un pic à un moment donnée. Il est possible d'avoir sur une partie de cette courbe une partie linéaire. 
+Si ce n'est pas linéaire, la PCA n'est pas le meilleur choix. Si on a bcp de zéro, la PCA peut produire des fer à cheval, cela signifie que c'est mauvais, car on a violé l'indépendance des axes. Il n'y a plus de sens biologique à la représentation graphique.
+On peut transformer les données avec un log() ou exp() ou utiliser Chord ou Hellenger. On ferait mieux d'essayer une autre forme d'ordination (CA par exemple).
+
+###4 éléments dans le output d'une PCA
+1) le % de variance (= mesure de la dispersion) expliqué par chaque PC
+Il faut au minimum que 60% de la variance soit expliqué par les deux axes, si non, ce n'est pas très utile/informatif. (règle souvent violée)
+2) species loadings : permet d'essayer d'identifier quelles espèces sont le plus influente dans l'ensemble des données
+3) site score : détermine quel sites sont les plus influencants
+4) ordination plot : biplot si 2 forme de data en même temps (site et sp)
+Loadings (component loadings or factor loadings or weight)
+
+
+###Interprétation 
+Si une espèce est très abondante et particulièrement sur un site A et a une faible abondance sur un site B. C'est possible que PC1 soit très lié à l'abondance de cette sp
+et PC2 à son absence, ce qui masque les autres espèces/
+Les valeurs des loadings (positif et negatif) s'interprete seulement par colonne (PC), si une sp a un score très élevé à PC1 => très associé à sa présence (si >0) ou absence (<0). Si l'absence de cette sp est très associé à PC2
+Si PC1 très associé à un site et PC2 très associé à un autre site
+Biplot : on peut voir que certaines sp sont associé avec certains sites.
+si les flèches (espèces) pointes vers la droite, cela indique que PC1 est associé positivement avec l'abondance avec ces sp. Une grande longueur indique une grande abondance (je suis pas sûr que ce soit correcte)
+si elles point vers la gauche, cela suggère que PC1 est associé avec l'absence des ces sp (corrélation inverse).
+Les sites éloignés de l'origine signifie qu'ils sont corrélés avec l'axe. Les points près du centre sont généralement mal représentés par le plan. 
+On ne peut les interpréter avec confiance. Si deux points sont très corrélés, c'est bien d'essayer de voir si avec un autre axe s'ils sont toujours proches ou pas.
+Les flèches avec des angles très proches signifie une grande corrélation, si proche de 180 correlation opposé, si angle droit pas de correlation.
+
+
+### code
+prcom() : scale = TRUE package vegan
+princomp() package vegan plus de site que d'espèce
+pca() : cor =TRUE package dsv
+cor et scale font la même chose (soustrait la moyenne et divise par Standard Deviation)
+Si les variables ont des unités différentes => standardiser => utiliser matrice de corrélation.
+Dans mon cas, matrice sp vs site pas besoin, par contre pour matrice env vs site oui !
+Si l'échelle des variables sont similaire => matrice covariance
+Ce qui est recommandé dans en écologie c'est d'utiliser une matrice de correlation pour éviter que les sp abondantes influe sur le résultat.
+Par contre utilisé une matrice de correlation  est une manière un peu brutale pour standardiser les données et peut étouffer la variance qu'on essaye d'examiner.
+Ca reste ok
+On peut aussi centrer les données (William disait que c'était important) en soustrayant les colonnes means.
+prcomp(x, center = TRUE, scale = TRUE) 
+matrice de correlation ou matrice de covariance ?
+Svt => matrice de correlation recommandé en écologie
+
+### Fin
+Quand on a des bons axes PC, on peut utiliser ces axes comme des variables indépendantes dans d'autres analyses qui nous permet d'examiner l'influence des variables environnementales sur les espèces des sites, il faut donc utiliser une forme d'ordination contrainte comme la RDA.
+Il est important de comprendre les limitations et les règles à respecté (assumptions)
+
+
+##RDA : contrainte
+Contrainte signifie que les patterns (tendance/motif) dans un ensemble de données site par espèce sont vraisemblablement
+limité par des variable
+Le but est d'identifier la relation entre un ensemble de variables réponse (matrice Y, décrivant généralement la composition en espèces des communautés)
+et un ensemble de variable explicative (matrice X, contenant généralement des descripteurs envirronnementaux).
+La RDA examine les relation que les variables env ont sur les axes PCA; sur ces ensembles de variables les plus influents.
+Pas top si bcp de zéros comme PCA. On peut faire des transformation ou CCA.
+
+### Utilisation
+On peut faire d'abord une PCA qui trie un grand nombre de variable qui peuvent ensuite être utilisé par la RDA. La RDA est bonne pour détecter les relations env. <=> sp
+
+### Code
+rda() package vegan
+rda(veg.center ~ env.scale, site) => les données ont été centré et réduite
+créer un triplot : site, espèces, var. env.
+
+### interpretation
+Si le nuage de point des sites est étiré verticalement, on peut dire que les sites diffèrens avec les variables env. horizontal.
+Si les sp ne semble pas fortement associé, cela signifie que les var env n'explique pas bcp la structuration des communautés
+
+###L'ordination contraine peut être utilisé pour :
+Permet de tester des hypothèses écologiques concernant les facteurs environnementaux qui déterminent la composition des communautés d'espèces.
+
+### Assumptions (conditions)
+les variables ont des relation linéaire avec les sites => transformer les données ou utiliser une autre méthode
+
+L'ensemble de ces ordination permet d'essayer de déterminer les effets des espèces du sites et de l'env.
+
+#CA : non contrainte
+CA (correspondence analysis) appelé aussi Reciprocal Averaging
+N'a pas besoin d'avoir des relations linéaires. Analogue à la PCA mais avec des relations unimodales.
+
+# NMDS : non contrainte
+https://www.youtube.com/watch?v=l3Rp3uiqFqw
+réponse des sp aux var env. : unimodal
+
+
+# CCA : contrainte
+Unimodal analogue de la RDA (contrainte aussi)
+
+
+# Canonical Correspondence Analysis
+https://www.youtube.com/watch?v=raPTZtjyNos&t=1476s
+Musique à associer 
+https://youtu.be/Ug2kIzGOnI4?t=1774
+
+PCA et RDA se font en deux étapes pour l'analyse des sp, sites et env.
+Contrainte => la position des échantillons sont contraintes par les variables env
+CCA : une des formes d'ordination contrainte les plus communément utilisé, à ne pas confondre avec CA (non contrainte)
+réponse des sp aux var env. : unimodal
+
+On commence avec une matrice de distance chi², ensuite on régresse par rapport aux var env afin d'obtenir des valeurs ajustées, puis on fait une regression pondéré où l'abondance total des sp par site est utilisé comme poids dans la régression pondéré. Après, on calcul la distance euclidienne de la matrice des données ajustées pour projeter les eigen values pour générer un triplot.
+
+##Inconvénient 
+accentue les sp rare et atténue les sp abondante
+
+## Conditions
+Données normalité multivarié (bien que la CCA gère bien les biais)
+Si les var dépendante (=var réponse= abondance des sp ?) sont un peu biaisé c'est préférable de les transformer (racine carré ou log).
+Cela empêche que la dominance de la contribution des variables.
+Homogénité de la variance.
+Unimodal (bell-shaped) réponse entre var env et composition des sp. Se rencontre lorsque l'on a des env propice et non propice aux sp.
+Si on a autant de var. que de sites, l'ordination n'est plus contrainte, si on arrive a expliquer 100% de la variation des sp cela sera uniquement dû a un overfitted (surassociation/surcorrespondance) => faire ordination non contrainte en 1er pour identifier les var indépendantes les plus importantes et utiliser ensuite ces axes dans la CCA (~ PCA->RDA).
+
+
+Il faut bien choisir les variables environnementales qui ne doivent pas être corrélés entres elles (ex : N, nitrite, nitrate). Note faire cor() pour savoir s'il y a une correlation entre les variables. 
+Code Thomas and_corr2 <- cor(landscape2, use = "pairwise.complete.obs", method = c("pearson")) 
+ggcorrplot(land_corr2, hc.order = TRUE, type = "lower", lab = TRUE)
+
+## Interpretation
+Inertie total (=variance=variation) qui peut être expliqué dans nos données.
+"Constrained" variabilité expliqué par CCA, elle doit être élevé pour être informative. Variance ou "spread" du score des sp
+Unconstrained variance non expliqué
+Score de la répartition des espèces
+Eigenvalues for constrained axes : montre la variance expliqué par les axes (CCA1~PC1).
+Il faut prendre ce % et multiplié par la proportion d'inertie expliqué par l'inertie contrainte pour connaitre le % de variance expliqué par ces axes.
+
+### Triplot
+cca() vegan
+rouge = sp
+noir = site
+bleu = var env
+distance des objets (site et sp ?) indique leur similarité, les élements proche sont plus similaire entre eux.
+L'angle des flèches montre la corrélation entre eux :petit angle = forte corrélation, 180° = corrélation négative, 90° pas de corrélation
+La longueur indique l'importance de cette var env
+La position des sites et sp par rapport aux flèches, indique les caractéristique otimal de chacune des sp
+La flèche ayant la longueur la plus petite indique que c'est la variable la moins influentes 
+Dans les notes elles montrent comment identifier les outmost (point extreme?)
+Arch effect : pas commun en CCA mais en CA; indique association pauvre, que les axes ne sont pas indépendant entre eux.
+Voir une courbe dans l'ordination signifie que c'est du caca
+Si on relance une CCA sur notre CCA en ajoutant nos var + (rac[var]) et que le ratio entre l'inertie contrainte/non-cont augmente, c'est un signal qu'on a un arc effect et des facteurs explicatives qui n'ont pas été incluses dans notre analyse. On doit faire qqch à ce propos. Cela reste rare en CCA.
+Exemple 3
+Ajouter des var, devrait augmenter l'inertie contrainte, mais n'aide pas a expliquer l'ensemble des variations des données
+On peut ajouter des variables qualitatives et avoir leur centroïdes sur le graphique .
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 

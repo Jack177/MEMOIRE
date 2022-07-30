@@ -109,6 +109,7 @@ fviz_pca_ind (pca2.metal,col.ind = grp, # Je colorie les points par groupes
               legend.title = "Groups",
               palette = "Dark2")
 ```
+
 ```{r ACP  Stat quest, echo=FALSE, message=FALSE, warning=FALSE, paged.print=FALSE, results='hide'}
 # Metaux
 pca <- prcomp(metal, scale = TRUE)
