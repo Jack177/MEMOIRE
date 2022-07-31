@@ -23,7 +23,7 @@ Importation des données.
 # Tour PC
 setwd("D:/OneDrive - UMONS/UMONS/MA2/MEMOIRE/Statistique/R/STAT-MEMOIRE/RAW2")
 # Laptop
-#setwd("C:/Users/Jordan/OneDrive - UMONS/UMONS/MA2/MEMOIRE/Statistique/R/STAT-MEMOIRE/RAW2")
+# setwd("C:/Users/Jordan/OneDrive - UMONS/UMONS/MA2/MEMOIRE/Statistique/R/STAT-MEMOIRE/RAW2")
 
 SpecCondStat <- read_excel("SpecCondStat.xls")
 
@@ -353,11 +353,15 @@ esti_foss <- data.frame(Chao1,Chao1SD, ACE, Chao2, Jacknife1,Jacknife2,ICE, Boot
 
 ```
 
+```{r}
+#Calcul de tous les estimateurs d'abondances (Chao1, ACE, et aussi Jack1)
+ 
+estimate_fossil <- spp.est(reverse_data, rand = 999, abund = TRUE, counter = TRUE)
+```
+
+
 
 ```{r}
-# Calcul de tous les estimateurs d'abondances (Chao1, ACE, et aussi Jack1)
-estimate_fossil <- spp.est(reverse_data, rand = 999, abund = TRUE, counter = TRUE)
-
 df <- as.data.frame(estimate_fossil)
 rename(df, "S.obs_min" = "S.obs(-95%)" ) -> df
 rename(df, "S.obs_max" = "S.obs(+95%)" ) -> df

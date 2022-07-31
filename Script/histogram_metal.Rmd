@@ -1,0 +1,171 @@
+---
+title: "methods comparaison"
+author: "Jordan Benrezkallah"
+date: "4/18/2022"
+output: pdf_document
+---
+
+```{r library, include=FALSE}
+library("readxl")
+library(dplyr)
+#library(ggpubr)
+library(tidyverse)
+library(knitr)
+library(ggplot2)
+library(ggpubr)
+library(ggthemes)
+library(viridis)
+library(RColorBrewer)
+```
+
+## Importation des données
+```{r Import, message=FALSE, warning=FALSE, include=FALSE, results='hide', paged.print=FALSE}
+# Tour PC
+setwd("D:/OneDrive - UMONS/UMONS/MA2/MEMOIRE/Statistique/R/STAT-MEMOIRE/RAW2")
+# Laptop
+#setwd("C:/Users/Jordan/OneDrive - UMONS/UMONS/MA2/MEMOIRE/Statistique/R/STAT-MEMOIRE/RAW2/Traits abeilles")
+
+# Import
+soil <- read_excel("Soil_R.xlsx")
+valeur_seuil <- read_excel("valeur_seuil.xlsx")
+
+soil$Site[soil$Site == "Les Gourmandes de la Procession"] <- "Gourmandes de la Procession"
+```
+
+Matrice metal X site
+```{r}
+### Sol
+## Metaux
+# Créer une colonne Code en fonction des types de sites
+soil$Code <- fct_collapse(
+    soil$Site,
+    "Potager" = Potagers,
+    "Parc" = Parcs)
+
+# Garder pour rownames
+soil_site_name <- select(soil, Site)
+
+# Garder les métaux et sites
+metal <- soil[, c("Site", "As", "Cd", "Cr", "Cu", "Hg", "Pb", "Ni", "Zn")]
+```
+
+```{r}
+df <- metal
+df <- gather(df, key="pollution", value="qte", 2:9)
+```
+
+
+```{r site}
+# 8 polluants
+nb.cols <- 8
+mycolors <- colorRampPalette(brewer.pal(8, "Set2"))(nb.cols)
+# Valeur seuil a afficher (III : Résidentiel)
+# hline_value <- valeur_seuil$Residentiel
+# Valeur seuil a afficher (II : Agricole)
+# ça a plus de sens vu que le but est de cultiver des fruits et légumes
+hline_value <- valeur_seuil$Agricole
+
+
+ggplot(df, aes(fill=pollution, y=qte, x=Site)) + 
+  geom_hline(yintercept = hline_value, linetype = 2, color = mycolors, lwd = 0.5) +
+  geom_bar(position="dodge", stat="identity", colour="black", size = 0.3) +
+  labs(x = "", y = "Quantité [mg/kg de MS]",fill = "Métaux lourd",fontface = "bold") + 
+  scale_fill_brewer(palette="Set2") +
+  theme(axis.title.x = element_text(face="bold", size = 10), # Study site
+        axis.title.y = element_text(face="bold", size = 10), # Quantité
+        axis.text.x = element_text(angle = 90,face="bold", color= "black", size=8), # Site
+        axis.text.y = element_text(face="bold", color= "black", size=5), # 
+        panel.grid.major = element_blank(),panel.grid.minor = element_blank(),
+        panel.background = element_rect(fill='white', colour='black'),
+        legend.title = element_text(size=8, face="bold"), # "Métaux lourd" dans la légende
+        legend.text = element_text(size=8, face="bold"), # les Métaux lourd dans la légende
+        legend.position="bottom") 
+
+
+```
+```{r site}
+# Retirer les polluants avec d'importante quantité
+df <- select(metal, -Pb, -Zn)
+df <- gather(df, key="pollution", value="qte", 2:7)
+
+# 8 polluants
+nb.cols <- 6
+mycolors <- colorRampPalette(brewer.pal(6, "Set2"))(nb.cols)
+
+# Valeur seuil a afficher (III : Résidentiel)
+# hline_value <- valeur_seuil$Residentiel
+# Valeur seuil a afficher (II : Agricole)
+# ça a plus de sens vu que le but est de cultiver des fruits et légumes
+hline_value <- filter(valeur_seuil, Polluant != "Zinc" & Polluant != "Plomb")
+hline_value <- hline_value$Agricole
+
+
+ggplot(df, aes(fill=pollution, y=qte, x=Site)) + 
+  geom_hline(yintercept = hline_value, linetype = 2, color = mycolors, lwd = 0.5) +
+  geom_bar(position="dodge", stat="identity", colour="black", size = 0.3) +
+  labs(x = "", y = "Quantité [mg/kg de MS]",fill = "Métaux lourd",fontface = "bold") + 
+  scale_fill_brewer(palette="Set2") +
+  theme(axis.title.x = element_text(face="bold", size = 10), # Study site
+        axis.title.y = element_text(face="bold", size = 10), # Quantité
+        axis.text.x = element_text(angle = 90,face="bold", color= "black", size=8), # Site
+        axis.text.y = element_text(face="bold", color= "black", size=5), # 
+        panel.grid.major = element_blank(),panel.grid.minor = element_blank(),
+        panel.background = element_rect(fill='white', colour='black'),
+        legend.title = element_text(size=8, face="bold"), # "Métaux lourd" dans la légende
+        legend.text = element_text(size=8, face="bold"), # les Métaux lourd dans la légende
+        legend.position="bottom") 
+```
+
+```{r site}
+# Garder seulement polluant avec faible quantité
+df <- select(metal, Site, Hg, Cd)
+df <- gather(df, key="pollution", value="qte", 2:3)
+
+# 2 polluants
+nb.cols <- 2
+mycolors <- colorRampPalette(brewer.pal(n=3, "Set2"))(nb.cols+1) # n = 3 minimum, faut chippoter
+mycolors <- mycolors[mycolors %in% c("#66C2A5",  "#FC8D62")]
+
+# Valeur seuil a afficher (II : agricole)
+hline_value <- filter(valeur_seuil, Polluant == "Cadmium" | Polluant == "Mercure")
+hline_value <- hline_value$Agricole
+
+
+ggplot(df, aes(fill=pollution, y=qte, x=Site)) + 
+  geom_hline(yintercept = hline_value, linetype = 2, color = mycolors, lwd = 0.5) +
+  geom_bar(position="dodge", stat="identity", colour="black", size = 0.3) +
+  labs(x = "", y = "Quantité [mg/kg de MS]",fill = "Métaux lourd",fontface = "bold") + 
+  scale_fill_brewer(palette="Set2") +
+  theme(axis.title.x = element_text(face="bold", size = 10), # Study site
+        axis.title.y = element_text(face="bold", size = 10), # Quantité
+        axis.text.x = element_text(angle = 90,face="bold", color= "black", size=8), # Site
+        axis.text.y = element_text(face="bold", color= "black", size=5), # 
+        panel.grid.major = element_blank(),panel.grid.minor = element_blank(),
+        panel.background = element_rect(fill='white', colour='black'),
+        legend.title = element_text(size=8, face="bold"), # "Métaux lourd" dans la légende
+        legend.text = element_text(size=8, face="bold"), # les Métaux lourd dans la légende
+        legend.position="bottom") 
+```
+
+
+```{export to pdf}
+
+ggsave(filename = "D:/OneDrive - UMONS/UMONS/MA2/ERASMUS CHYPRE/Internship report/img/site_compared.pdf", device = cairo_pdf)
+
+```
+
+```{export to png}
+
+ggsave(filename = "D:/OneDrive - UMONS/UMONS/MA2/ERASMUS CHYPRE/Internship report/img/site_compared.png", device = "png", width = 32, height = 17, units = "cm" )
+
+```
+
+```{r barplot}
+df <- as.data.frame(read_excel("DATA/method_R.xlsx",sheet = "R"))
+df$pop <- as.numeric(df$pop)
+
+barplot(height = df$pop, names= df$site, main=NULL, ylab = "(CI 95%)", cex.lab = 1.5, cex.main = 1.4, beside=TRUE, col=c("darkblue","red"))
+
+
+#ggsave(filename = "regression_A.pdf", device = cairo_pdf)
+```

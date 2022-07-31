@@ -34,9 +34,6 @@ granulo <- read_excel("granulo.xlsx")
 ```
 
 ```{r abbréger nom des sites}
-
-
-
 ### Granulo
 # Créer une colonne Code en fonction des types de sites
 granulo$Code <- fct_collapse(
