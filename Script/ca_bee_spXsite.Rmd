@@ -88,6 +88,7 @@ plot(spe.ca, main = "CA fish abundances - biplot scaling 2")
 
 
 ```{r}
+# Fonction ca() du package ca
 ca(data_bee_sp)
 #names(ca(data_bee_sp))
 #summary(ca(data_bee_sp))
