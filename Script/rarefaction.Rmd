@@ -377,6 +377,7 @@ beecouv %>%
 
 
 ```{r}
+library(ade4)
 # On importe un jeu de donn?es test : les poissons de la rivi?re Doubs
 data (doubs)
 spe <- doubs$fish# Une rivi?re, 30 sites, une longue liste de poissons
