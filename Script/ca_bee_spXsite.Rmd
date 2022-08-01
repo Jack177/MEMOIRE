@@ -1,0 +1,100 @@
+---
+title: "ca_bee_spXsite"
+author: "Jordan"
+date: "`r Sys.Date()`"
+output: html_document
+---
+
+
+```{r}
+# Load the required packages
+library(dplyr)
+library(vegan) # specpool () estimateR() poolaccum() estaccumR()
+library(ggplot2)
+library(forcats )
+library("readxl") 
+library(ca)
+```
+
+Importation des données.
+```{r Import}
+# Import
+# Tour PC
+setwd("D:/OneDrive - UMONS/UMONS/MA2/MEMOIRE/Statistique/R/STAT-MEMOIRE/RAW2")
+# Laptop
+#setwd("C:/Users/Jordan/OneDrive - UMONS/UMONS/MA2/MEMOIRE/Statistique/R/STAT-MEMOIRE/RAW2")
+
+# Import
+SpecCondStat <- read_excel("SpecCondStat.xls")
+```
+
+```{r Nettoyage}
+# Nom plus compact
+SCS <- SpecCondStat
+
+# Retirer le site de Condorcet
+SCS <- filter(SCS, TOPO != "Condorcet" )
+
+# Renommer plus simplement
+rename(SCS, "sp" = "SPEC.TAXPRIO" ) -> SCS
+rename(SCS, "sites" = "TOPO" ) -> SCS
+
+# Retirer les observations contenant l'espèce : "XXX"
+# SCS <- filter(SCS, SPEC.TAXPRIO != "Bombus (Bombus)  sp." )
+
+# Remplacement des noms d'espèces désuets
+SCS$sp[SCS$sp == "Bombus lucorum"] <- "Terrestribombus  sp."
+SCS$sp[SCS$sp == "Bombus terrestris"] <- "Terrestribombus  sp."
+SCS$sp[SCS$sp == "Chalicodoma ericetorum"] <- "Megachile ericetorum"
+SCS$sp[SCS$sp == "Halictus tumulorum"] <- "Seladonia tumulorum"
+
+# Remplacement du noms de sites
+SCS$sites[SCS$sites == "Les Gourmandes de la Procession"] <- "Gourmandes de la Procession"
+
+#### Abbréger le nom des sites
+# Liste des Potagers
+Potagers <- c("Abbaye St-Denis", "Rue de l'Egalite", "Chasse Cambier", "Mel Legumes", "Gourmandes de la Procession", "Jean d'Avesnes", "Parc du bois de Mons", "Jardin Suspendu", "Ecole de l'Esperance", "Fond du petit marais")
+# Liste des Parcs
+Parcs <- c("Village des abeilles", "Siege social", "Parc du Beffroi", "Stievenart", "Parc Bonaert")
+```
+
+```{r }
+# Preparation des données 
+data_bee_sp <- select(SCS, sp, N, sites)
+data_bee_sp <- as.data.frame(data_bee_sp)
+data_bee_sp <- aggregate(N ~ sp + sites, data = data_bee_sp, sum)
+data_bee_sp <- xtabs(N ~ sites + sp, data_bee_sp)
+data_bee_sp <- type.convert(data_bee_sp)
+```
+
+
+```{r}
+spe.ca <-cca(data_bee_sp)
+screeplot(spe.ca, bstick = TRUE)
+summary(spe.ca) # default scaling 2
+summary(spe.ca, scaling = 1)
+```
+```{r}
+par(mfrow = c(1, 2))
+# Scaling 1: sites are centroids of species
+plot(spe.ca,
+scaling = 1,
+main = "CA fish abundances - biplot scaling 1"
+)
+# Scaling 2 (default): species are centroids of sites
+plot(spe.ca, main = "CA fish abundances - biplot scaling 2")
+```
+
+
+
+```{r}
+ca(data_bee_sp)
+#names(ca(data_bee_sp))
+#summary(ca(data_bee_sp))
+plot(ca(data_bee_sp, supcol = 1))
+```
+
+
+
+
+

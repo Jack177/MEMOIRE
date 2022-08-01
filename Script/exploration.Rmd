@@ -204,6 +204,7 @@ screeplot(res.ca_bee_genus, bstick = TRUE)# L'axe 1 repr?sente beaucoup plus de 
 plot(res.ca_bee_genus, scaling =1) # Des sites proches ont des communaut?s de poissons similaires. Si un site est proche d'une esp?ce, celle-ci est probablement abondante sur ce site, ou en tout cas plus abondante en comparaison des autres sites plus ?loign?s de l'esp?ce.
 plot(res.ca_bee_genus, scaling =2) # Des poissons proches sont distribu?s de fa?on similaire parmi les sites. Si un poisson est proche d'un site, il y abonde probablement.
 ```
+
 ```{r}
 ### CA ####
 res.ca_bee_genus = cca(soil_data_bee_genus)
