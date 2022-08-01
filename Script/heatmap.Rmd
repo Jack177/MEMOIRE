@@ -69,10 +69,8 @@ hm.data_bee_sp <- data_bee_sp
 ```
 
 ### Heatmap sp vs site
-
 ```{r Heatmap ggplot}
 # Remodeler le jeux de données pour le heatmap
-
 
 hm.bee_sp <- gather(hm.data_bee_sp, key="sp", value="nbr", 2:ncol(hm.data_bee_sp)) # On prend pas la première colonne (site) et on va jusqu'à la dernière colonne (2 à 93) (xylo)
 

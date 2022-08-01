@@ -34,14 +34,6 @@ soil$Site[soil$Site == "Les Gourmandes de la Procession"] <- "Gourmandes de la P
 
 Matrice metal X site
 ```{r}
-### Sol
-## Metaux
-# Créer une colonne Code en fonction des types de sites
-soil$Code <- fct_collapse(
-    soil$Site,
-    "Potager" = Potagers,
-    "Parc" = Parcs)
-
 # Garder pour rownames
 soil_site_name <- select(soil, Site)
 
@@ -67,7 +59,7 @@ hline_value <- valeur_seuil$Agricole
 
 
 ggplot(df, aes(fill=pollution, y=qte, x=Site)) + 
-  geom_hline(yintercept = hline_value, linetype = 2, color = mycolors, lwd = 0.5) +
+  geom_hline(yintercept = hline_value, linetype = 2, color = mycolors, lwd = 0.2) +
   geom_bar(position="dodge", stat="identity", colour="black", size = 0.3) +
   labs(x = "", y = "Quantité [mg/kg de MS]",fill = "Métaux lourd",fontface = "bold") + 
   scale_fill_brewer(palette="Set2") +
@@ -101,7 +93,7 @@ hline_value <- hline_value$Agricole
 
 
 ggplot(df, aes(fill=pollution, y=qte, x=Site)) + 
-  geom_hline(yintercept = hline_value, linetype = 2, color = mycolors, lwd = 0.5) +
+  geom_hline(yintercept = hline_value, linetype = 2, color = mycolors, lwd = 0.3) +
   geom_bar(position="dodge", stat="identity", colour="black", size = 0.3) +
   labs(x = "", y = "Quantité [mg/kg de MS]",fill = "Métaux lourd",fontface = "bold") + 
   scale_fill_brewer(palette="Set2") +
@@ -122,8 +114,8 @@ df <- select(metal, Site, Hg, Cd)
 df <- gather(df, key="pollution", value="qte", 2:3)
 
 # 2 polluants
-nb.cols <- 2
-mycolors <- colorRampPalette(brewer.pal(n=3, "Set2"))(nb.cols+1) # n = 3 minimum, faut chippoter
+nb.cols <- 8
+mycolors <- colorRampPalette(brewer.pal(n=8, "Set2"))(nb.cols+1) # n = 3 minimum, faut chippoter
 mycolors <- mycolors[mycolors %in% c("#66C2A5",  "#FC8D62")]
 
 # Valeur seuil a afficher (II : agricole)

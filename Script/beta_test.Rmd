@@ -273,6 +273,87 @@ mean(beta)
 
 
 
+## Dan Knights
+https://www.youtube.com/watch?v=lcbp6EecDg4
+```{r}
+d_bray <- vegdist(data_bee_sp)
+pc_bray <-  cmdscale(d_bray, k = 2)
+plot(pc_bray[,1], pc_bray[,2], cex= 3, pch=16)
+```
+Heatmap
+```{r}
+heatmap(as.matrix(d_bray))
+# scale: a character indicating if the values should be centered and scaled in either the row direction or the column direction, or none. Allowed values are in c(“row”, “column”, “none”). Default is “row”.
+```
+
+Pour obtenir l'association d'un site avec lui-même on utilise diag = TRUE, la diagonal est de 0 ce qui signifie que la dissimilarité est de 0, on a donc une matrice de dissimilarité et pas de similarité !
+Bray-curtis s'étale de 0 à 1, tandis que le chi² part de 0 mais n'a pas de limite supérieur.
+9.2.1.1
+https://essicolo.github.io/ecologie-mathematique-R/chapitre-ordination.html
+```{r}
+# Matrice de distance pour calculer la diversité Beta
+dis <- vegdist(sqrt (data_bee_sp), method = 'bray', diag =TRUE) # percentage cover data are transformed by square root
+cluster.single <- hclust (d = dis, method = 'single')
+cluster.complete <- hclust (dis, 'complete')
+cluster.average <- hclust (dis, 'average')
+heatmap(as.matrix(dis))
+```
+
+```{r}
+library("pheatmap")
+dis <- vegdist(sqrt (data_bee_sp), method = 'bray', diag =TRUE)
+D_chisq_R <- as.matrix(dis )
+pheatmap(D_chisq_R, display_numbers = round(D_chisq_R, 2))
+# exporter en 8x8
+```
+
+```{r}
+occurence <- as.data.frame(data_bee_sp) %>%
+  transmute_all(~if_else(. > 0, 1, 0))
+occurence_r <- (occurence)
+D_jacc_R <- as.matrix(vegdist(occurence_r, method = "jaccard"))
+pheatmap(D_jacc_R, display_numbers = round(D_jacc_R, 2))
+```
+
+
+```{r}
+vare.dist <- vegdist(data_bee_sp)
+
+#vare.hc <- cluster.average (hclust average)
+vare.hc <- hclust(as.dist(vare.dist))
+
+# melt library(reshape2)
+vare.dist.long <- vare.dist %>% as.matrix %>% melt %>%
+mutate(Var1 = factor(Var1, levels = unique(vare.hc$labels)[vare.hc$order]))%>%
+mutate(Var2 = factor(Var2, levels = unique(vare.hc$labels)[vare.hc$order]))
+
+vare.dist %>% as.matrix %>% .[vare.hc$order, vare.hc$order] %>% melt %>%
+ggplot(aes(x = Var1, y = Var2, fill = value)) + geom_tile() + scale_fill_viridis(direction = 1) +
+theme(axis.text.x = element_text(angle = 270, hjust = 0, vjust = 0.5
+                                ))
+```
+
+```{r}
+ggplot(d_bray, aes(x = Labels, y = Size, fill = Size)) +
+  labs(title = "Abondance des abeilles sauvages", x = '', y = '') + # Titre et titre axe
+  geom_tile(color = "black") +
+  coord_fixed() +
+  guides(fill = guide_colourbar(label = FALSE,
+                                ticks = FALSE)) +
+  theme(axis.text.x = element_text(angle = 90, vjust = 0, size = 3, hjust = 0),
+        axis.text.y = element_text(size = 3, hjust = 0,  vjust = 0.4),
+        legend.position = "left", # position légende
+        legend.title = element_text(size = 6), # Taille titre légende texte 
+        legend.text = element_text(size = 6), # Taille légende échelle texte 
+        plot.title = element_text(size = 8, hjust = 0.5), # Taille titre texte 
+        legend.key.size = unit(1.5, "cm"),
+        legend.key.width = unit(.65,"cm")) + 
+  scale_y_discrete(position = "right") + # y label à droite
+  guides(fill = guide_colourbar(title = "Abondance")) + # Titre légende
+  #scale_fill_distiller(palette = "Reds", direction = +1)  # couleur
+  #scale_fill_distiller(palette = "YlOrBr", direction = 1, na.value = "grey50")
+  scale_fill_viridis(option = "B", direction = -1, na.value = "white")  # couleur
+```
 
 
 
@@ -280,8 +361,10 @@ mean(beta)
 ## Legendre 2012
 
 
+
 ```{r}
 # On importe un jeu de donn?es test : les poissons de la rivi?re Doubs
+library(ade4)
 data (doubs)
 spe <- doubs$fish# Une rivi?re, 30 sites, une longue liste de poissons
 env <- doubs$env # La m?me rivi?re, les m?mes sites, mais de nombreux types de descripteurs environnementaux
@@ -328,6 +411,37 @@ geom_errorbar(aes(order, beta, ymin = beta - se,
 ymax = beta + se), width = 0.2) +
 labs(y = "Multiplicative beta diversity",
 x = "Order of the diversity measure")
+```
+```{r}
+## Q-mode dissimilarity and distance measures for
+## (semi-)quantitative data
+# Percentage difference (aka Bray-Curtis) dissimilarity matrix
+# on raw species data
+spe.db <- vegdist(spe) # method = "bray" (default)
+head(spe.db)
+# Percentage difference (aka Bray-Curtis) dissimilarity matrix
+# on log-transformed abundances
+spe.dbln <- vegdist(log1p(spe))
+head(spe.dbln)
+# Chord distance matrix
+spe.dc <- dist.ldc(spe, "chord")
+# Alternate, two-step computation in vegan:
+spe.norm <- decostand(spe, "nor")
+spe.dc <- dist(spe.norm)
+head(spe.dc)
+# Hellinger distance matrix
+spe.dh <- dist.ldc(spe) # Hellinger is the default distance
+# Alternate, two-step computation in vegan:
+spe.hel <- decostand(spe, "hel")
+spe.dh <- dist(spe.hel)
+head(spe.dh)
+# Log-chord distance matrix
+spe.logchord <- dist.ldc(spe, "log.chord")
+# Alternate, three-step computation in vegan:
+spe.ln <- log1p(spe)
+spe.ln.norm <- decostand(spe.ln, "nor")
+spe.logchord <- dist(spe.ln.norm)
+head(spe.logchord)
 ```
 
 
