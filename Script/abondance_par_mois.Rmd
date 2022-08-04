@@ -18,9 +18,9 @@ library(dplyr)
 
 ```{r importation, echo=FALSE}
 # Tour PC
-#setwd("D:/OneDrive - UMONS/UMONS/MA2/MEMOIRE/Statistique/R/STAT-MEMOIRE/RAW1/From DFF")
+setwd("D:/OneDrive - UMONS/UMONS/MA2/MEMOIRE/Statistique/R/STAT-MEMOIRE/RAW1/From DFF")
 # Laptop
-setwd("C:/Users/Jordan/OneDrive - UMONS/UMONS/MA2/MEMOIRE/Statistique/R/STAT-MEMOIRE/RAW1/From DFF")
+#setwd("C:/Users/Jordan/OneDrive - UMONS/UMONS/MA2/MEMOIRE/Statistique/R/STAT-MEMOIRE/RAW1/From DFF")
 date <- read_excel("date_sp.xls")
 ```
 

@@ -74,6 +74,7 @@ screeplot(spe.ca, bstick = TRUE)
 summary(spe.ca) # default scaling 2
 summary(spe.ca, scaling = 1)
 ```
+
 ```{r}
 par(mfrow = c(1, 2))
 # Scaling 1: sites are centroids of species
