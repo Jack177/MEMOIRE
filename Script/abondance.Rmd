@@ -90,13 +90,13 @@ ggplot(bee_sp, aes(x = sp)) +
   scale_y_continuous(sec.axis = sec_axis(~.*scaleRight, name = "Pourcentage cumulative (%)", breaks = seq(0, 100, 10))) + # 2ème axe-y : grille
   #geom_path(aes(y=cumulative, group=1), colour="slateblue1", lty=3, size=0.9) +
   geom_vline(xintercept = "Andrena humilis", colour = "dark red", size=1.1) + # ligne vertical doubleton
-  annotation_custom(grobTree(textGrob("Doubleton", x=0.74,  y=0.8, hjust=0, gp=gpar(col="dark red", fontsize=15)))) + # texte doubleton
+  annotation_custom(grobTree(textGrob("Doubleton", x=0.78, y=0.8, hjust=0, gp=gpar(col="dark red", fontsize=15)))) + # texte doubleton
   geom_vline(xintercept = "Andrena nigroaenea", colour = "dark red", size=1.1) + # ligne vertical singleton
-  annotation_custom(grobTree(textGrob("Singleton", x=0.863,  y=0.8, hjust=0, gp=gpar(col="dark red", fontsize=15)))) + # texte singleton
-  theme(axis.title.x = element_text(face="bold", size = 10), # Titre axe x
-        axis.title.y = element_text(face="bold", size = 10), # Titre axe y
+  annotation_custom(grobTree(textGrob("Singleton", x=0.9,  y=0.8, hjust=0, gp=gpar(col="dark red", fontsize=15)))) + # texte singleton
+  theme(axis.title.x = element_text(face="bold", size = 12), # Titre axe x
+        axis.title.y = element_text(face="bold", size = 12), # Titre axe y
         axis.title.y.right = element_text(angle = 90), # Angle 2ème axe y
-        axis.text.x = element_text(face="bold", color= "black", size=10, angle=90, hjust=0), # Echelle x
+        axis.text.x = element_text(face="bold.italic", color= "black", size=10, angle=90, hjust=0), # Echelle x
         axis.text.y = element_text(face="bold", color= "black", size=10), # Echelle y
         panel.background = element_rect(fill='white', colour='black'),
         panel.grid.major.y = element_line(colour = "gray70", size = 0.5, linetype = "dashed"),
