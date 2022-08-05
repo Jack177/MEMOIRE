@@ -65,7 +65,7 @@ data_bee_sp <- type.convert(data_bee_sp)
 
 ```{r}
 
-## Comparer le nombre d'espèces observé dans data_bee_sp
+## Comparer le nombre de specimens observé dans data_bee_sp
 # Rownames to column
 total <- tibble::rownames_to_column(as.data.frame(data_bee_sp), "Sites")
 # Ajoute une ligne total
@@ -80,7 +80,7 @@ total <- total[,c(1,ncol(total))]
 # Ordonner par abondance
 total <- total[order(total$Total),]
 # Renommer les colonnes pour l'Excel
-colnames(total) <- c("Sites", "Nombre d'abeilles observées")
+colnames(total) <- c("Sites", "abon")
 
 # Attribuer le type de site
 # Liste des Potagers
@@ -88,17 +88,118 @@ Potagers <- c("Abbaye St-Denis", "Rue de l'Egalite", "Chasse Cambier", "Mel Legu
 # Liste des Parcs
 Parcs <- c("Village des abeilles", "Siege social", "Parc du Beffroi", "Stievenart", "Parc Bonaert")
 
-# Changement de nom
-resume_total <- total
 # Créer une colonne Type en fonction des sites
-resume_total$Type <- fct_collapse(
-    resume_total$Sites,
+total$Type <- fct_collapse(
+    total$Sites,
     "Potager" = Potagers,
     "Parc" = Parcs,
     NULL = "Total" # réécris total si non
 )
 
-resume_total
+# Changement de nom
+abondance <- total
+
+abondance
+```
+
+```{r}
+
+## Comparer le nombre d'espèces observées dans data_bee_sp
+
+
+# Rownames to column
+total <- tibble::rownames_to_column(as.data.frame(data_bee_sp), "Sites")
+
+# Pas se faire chier, il suffit de remplacer tous les chiffre par 1
+total <-  mutate_if(total, is.numeric, ~1 * (. > 0)) 
+
+# Ajoute une ligne total
+total <-  janitor::adorn_totals(total)
+# Ajoute une colonne total
+total$Total <- rowSums(total[, 2:ncol(total)])
+# Valeur total des specimens capturés (coordonnée de la dernière cellule [ligne,colonne])
+total[nrow(total),ncol(total)]
+# Sp observé total par site
+# Garde toutes les lignes et prend la colonne 1 et la dernière (Total) :
+total <- total[,c(1,ncol(total))]
+# Ordonner par abondance
+total <- total[order(total$Total),]
+# Renommer les colonnes pour l'Excel
+colnames(total) <- c("Sites", "rich")
+
+# Attribuer le type de site
+# Liste des Potagers
+Potagers <- c("Abbaye St-Denis", "Rue de l'Egalite", "Chasse Cambier", "Mel Legumes", "Gourmandes de la Procession", "Jean d'Avesnes", "Parc du bois de Mons", "Jardin Suspendu", "Ecole de l'Esperance", "Fond du petit marais")
+# Liste des Parcs
+Parcs <- c("Village des abeilles", "Siege social", "Parc du Beffroi", "Stievenart", "Parc Bonaert")
+
+
+# Créer une colonne Type en fonction des sites
+total$Type <- fct_collapse(
+    total$Sites,
+    "Potager" = Potagers,
+    "Parc" = Parcs,
+    NULL = "Total" # réécris total si non
+)
+
+# Changement de nom
+richesse <- total
+
+richesse
+```
+```{r}
+# FUUUUUUSIIIIOOON ! AHhhh !!!
+resume_total <- dplyr::left_join(abondance, richesse, by = "Sites")
+# Selection des colonnes
+resume_total <- select(resume_total, Sites, abon, rich, Type.y)
+# Retirer le total d'espèces (incorrecte d'additionner)
+resume_total[nrow(resume_total), 3] <- NA
+# Renommer proprement
+rename(resume_total, "Type" = "Type.y" ) -> resume_total
+```
+
+```{r}
+out <- iNEXT(as.data.frame(t(data_bee_sp)), q = c(0,1,2), datatype ="abundance", size=NULL, endpoint=NULL, knots=40, se=TRUE, conf=0.95, nboot=50) 
+```
+
+```{r}
+
+# Matrice Hill
+DataInfotabee <-type.convert(out$DataInfo)
+
+iNextEsttab <-type.convert(out$iNextEst)
+AsyEsttab <-type.convert(out$AsyEst)
+
+# Explication colonne estimateD() http://cran.nexr.com/web/packages/iNextPD/vignettes/Introduction.html
+# the diversity estimate of order q (qPD), the 95% lower and upper confidence limits of diversity (qD.95.LCL, qD.95.UCL), and the sample coverage estimate (SC) along with the 95% lower and upper confidence limits of sample coverage (SC.95.LCL, SC.95.UCL). These sample coverage estimates with conf% confidence intervals are used for plotting the sample completeness curve and coverage-based R/E curves.
+
+hill <- estimateD(t(data_bee_sp), base="coverage") # par défaut conf = 0.95
+hillmatrix0= hill[hill[,"order"]==0,]
+hillmatrix1= hill[hill[,"order"]==1,]
+hillmatrix2= hill[hill[,"order"]==2,]
+hillmatrix = hillmatrix0[,c(1,2,4)]
+hillmatrix$SC0 = out$DataInfo$SC
+hillmatrix[,c("N0","N0rU","N0rL")]=hillmatrix0[,c("qD","qD.UCL","qD.LCL")] # q = ordre, D = diversité, UCL = UpperConfidenceLimits, LCL = LowerCL
+hillmatrix[,c("N1","N1rU","N1rL")]=hillmatrix1[,c("qD","qD.UCL","qD.LCL")] # Je retire NOr => N0, idem N1 et N2
+hillmatrix[,c("N2","N2rU","N2rL")]=hillmatrix2[,c("qD","qD.UCL","qD.LCL")]
+rownames(hillmatrix)= rownames(data_bee_sp)
+
+# Rownames to column
+hillmatrix <- tibble::rownames_to_column(as.data.frame(hillmatrix), "Sites")
+hillmatrix$N0 <- round(hillmatrix$N0)
+hillmatrix$N1 <- round(hillmatrix$N1)
+hillmatrix$N2 <- round(hillmatrix$N2)
+hillmatrix <- select(hillmatrix, Sites,N0,N1,N2)
+```
+
+```{r}
+# FUUUUUUSIIIIOOON ! AHhhh !!! SSJ4
+resume_total <- dplyr::left_join(resume_total,hillmatrix, by = "Sites")
+
+# Selection des colonnes
+resume_total <- select(resume_total, Sites, abon, rich, N0, N1, N2, Type)
+rename(resume_total, "Nombre d'individus observées" = "abon" ) -> resume_total
+rename(resume_total, "Nombre d'espèces observées" = "rich" ) -> resume_total
 ```
 
 
