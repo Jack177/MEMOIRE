@@ -73,7 +73,10 @@ data_bee_sp <- as.data.frame(data_bee_sp)
 data_bee_sp <- aggregate(N ~ sp + sites, data = data_bee_sp, sum)
 data_bee_sp <- xtabs(N ~ sites + sp, data_bee_sp)
 data_bee_sp <- type.convert(data_bee_sp)
+
 ```
+
+
 
 ```{r}
 #Isolation du chunk
@@ -231,6 +234,7 @@ ggiNEXT(out, type=2, se=FALSE, color.var="site" ) +
 
 
 ```{r}
+out <- iNEXT(as.data.frame(t(data_bee_sp)), q = c(0,1,2), datatype ="abundance", size=NULL, endpoint=NULL, knots=40, se=TRUE, conf=0.95, nboot=50) 
 # Matrice Hill
 DataInfotabee <-type.convert(out$DataInfo)
 
@@ -261,19 +265,20 @@ names(bee.out) <- c("Couverture", "site")
 # Graphique nombre de Hill
 graphhill <- select(hillmatrix,N0,N1,N2)
 #rownames(graphhill)= rownames(milieutab)
-graphhill <- tibble::rownames_to_column(graphhill, "type")
+graphhill <- tibble::rownames_to_column(graphhill, "Site")
 
 graphhill<-reshape::melt(graphhill)
-graphhill<-graphhill %>%group_by(type)
+graphhill<-graphhill %>%group_by(Site)
 
 nb.cols <- 15
 mycolors <- colorRampPalette(brewer.pal(8, "Set1"))(nb.cols)
 
-ggplot(graphhill,aes(x = variable, y= value, group = type, color = type))   +
+ggplot(graphhill,aes(x = variable, y= value, group = Site, color = Site))   +
   geom_line()+ 
   geom_point()+
   xlab("Nombre de Hill") +
-  ylab("Nombre d'espèces observées")  +
+  ylab("Richesse observées")  +
+  guides(fill = guide_colourbar(title = "")) + # Titre légende
   scale_y_continuous(breaks = round(seq(min(0), max(200), by = 4),1))+
   labs(
     title = "",
@@ -290,8 +295,9 @@ ggplot(graphhill,aes(x = variable, y= value, group = type, color = type))   +
     axis.title.y =element_text(size = 15),
     axis.text.x=element_text(size = 12),
     axis.text.y=element_text(size = 13),
-    legend.text =element_text(size = 12),
+    legend.text =element_text(size = 14),
     legend.title =element_text(size = 14),
+    legend.position="right",
     panel.grid.major = element_blank(),
     panel.grid.minor = element_blank(),
     panel.background = element_rect(fill='white', colour='black'))

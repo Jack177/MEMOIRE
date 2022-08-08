@@ -1,0 +1,396 @@
+---
+title: "cca"
+author: "Jordan"
+date: "`r Sys.Date()`"
+output: html_document
+---
+
+
+```{r}
+# Load the required packages
+library(dplyr)
+library(vegan) # specpool () estimateR() poolaccum() estaccumR()
+library(ggplot2)
+library(forcats )
+library(reshape2)
+library("readxl") 
+```
+
+Importation des données.
+```{r}
+# Import
+# Tour PC
+setwd("D:/OneDrive - UMONS/UMONS/MA2/MEMOIRE/Statistique/R/STAT-MEMOIRE/RAW2")
+# Laptop
+#setwd("C:/Users/Jordan/OneDrive - UMONS/UMONS/MA2/MEMOIRE/Statistique/R/STAT-MEMOIRE/RAW2")
+
+# Import
+soil <- read_excel("Soil_R.xlsx")
+granulo <- read_excel("granulo.xlsx")
+granulo_simple <- read_excel("granulo.xlsx", sheet = "simple")
+SpecCondStat <- read_excel("SpecCondStat.xls")
+```
+
+```{r Nettoyage}
+# Nom plus compact
+SCS <- SpecCondStat
+
+# Retirer le site de Condorcet
+SCS <- filter(SCS, TOPO != "Condorcet" )
+
+# Renommer plus simplement
+rename(SCS, "sp" = "SPEC.TAXPRIO" ) -> SCS
+rename(SCS, "sites" = "TOPO" ) -> SCS
+
+# Retirer les observations contenant l'espèce : "XXX"
+# SCS <- filter(SCS, SPEC.TAXPRIO != "Bombus (Bombus)  sp." )
+
+# Remplacement des noms d'espèces désuets
+SCS$sp[SCS$sp == "Bombus lucorum"] <- "Terrestribombus  sp."
+SCS$sp[SCS$sp == "Bombus terrestris"] <- "Terrestribombus  sp."
+SCS$sp[SCS$sp == "Chalicodoma ericetorum"] <- "Megachile ericetorum"
+SCS$sp[SCS$sp == "Halictus tumulorum"] <- "Seladonia tumulorum"
+
+# Remplacement du noms de sites
+SCS$sites[SCS$sites == "Les Gourmandes de la Procession"] <- "Gourmandes de la Procession"
+soil$Site[soil$Site == "Les Gourmandes de la Procession"] <- "Gourmandes de la Procession"
+granulo$Site[granulo$Site == "Les Gourmandes de la Procession"] <- "Gourmandes de la Procession"
+
+
+
+#### Abbréger le nom des sites
+# Liste des Potagers
+Potagers <- c("Abbaye St-Denis", "Rue de l'Egalite", "Chasse Cambier", "Mel Legumes", "Gourmandes de la Procession", "Jean d'Avesnes", "Parc du bois de Mons", "Jardin Suspendu", "Ecole de l'Esperance", "Fond du petit marais")
+# Liste des Parcs
+Parcs <- c("Village des abeilles", "Siege social", "Parc du Beffroi", "Stievenart", "Parc Bonaert")
+
+### Sol
+## Metaux
+# Créer une colonne Code en fonction des types de sites
+soil$Code <- fct_collapse(
+    soil$Site,
+    "Potager" = Potagers,
+    "Parc" = Parcs)
+
+# Garder pour rownames
+soil_site_name <- select(soil, Site)
+
+
+## Granulo
+# Créer une colonne Code en fonction des types de sites
+granulo$Code <- fct_collapse(
+    granulo$Site,
+    "Potager" = Potagers,
+    "Parc" = Parcs)
+
+# substring prend les premiers caractères, abbreviate abrège comme il le sent
+granulo$code_site <- abbreviate(granulo$Site)
+# retirer les apostrophes
+granulo$code_site <- gsub("'", "", granulo$code_site)
+
+```
+
+```{r Preparation des données}
+# Granulométrie
+#Granulo_site_name <- select(granulo, code_site)
+Granulo <- granulo[,2:6]
+#row.names(Granulo) <- Granulo_site_name
+```
+
+```{r }
+# Preparation des données 
+data_bee_sp <- select(SCS, sp, N, sites)
+data_bee_sp <- as.data.frame(data_bee_sp)
+data_bee_sp <- aggregate(N ~ sp + sites, data = data_bee_sp, sum)
+data_bee_sp <- xtabs(N ~ sites + sp, data_bee_sp)
+data_bee_sp <- type.convert(data_bee_sp)
+```
+
+# 1 CCA sur toutes les variables granulo, non centrées et non réduites
+```{r}
+spe <- data_bee_sp
+# le "." signifie contre toutes les var env; 1 : signifie aucune var env
+spe.cca <- cca(spe ~ ., Granulo)
+summary(spe.cca) # Scaling 2 (default)
+# Unadjusted and adjusted R^2 - like statistics
+RsquareAdj(spe.cca)
+```
+## 1.1
+VIF 36999 pour le sable fin, le plus faible est l'argile avec 3929
+```{r}
+vif.cca(spe.cca)
+```
+# 2 Test avec 4 variables
+La proportion d'inertie contrainte diminue (comme prévu).
+On a un vif max de 10
+```{r}
+spe <- data_bee_sp
+# le "." signifie contre toutes les var env; 1 : signifie aucune var env
+spe.cca <- cca(spe ~ ., Granulo[c("Argile", "Limon fin", "Limon grossier", "Sable grossier")])
+summary(spe.cca) # Scaling 2 (default)
+# Unadjusted and adjusted R^2 - like statistics
+RsquareAdj(spe.cca)
+```
+## 2.1 Vif max de 10 pour limon fin et grossier
+
+```{r}
+vif.cca(spe.cca)
+
+```
+# 3 Test avec 3 variables seulement.
+On perd toujours en proportion contrainte avec un R² faible...
+```{r}
+spe <- data_bee_sp
+# le "." signifie contre toutes les var env; 1 : signifie aucune var env
+spe.cca <- cca(spe ~ ., Granulo[c("Argile", "Limon grossier", "Sable grossier")])
+summary(spe.cca) # Scaling 2 (default)
+# Unadjusted and adjusted R^2 - like statistics
+RsquareAdj(spe.cca)
+```
+# 4  CCA sur toutes les variables granulo, centrées et réduites
+cela ne change pas grand chose de centrer et réduire.
+```{r}
+# centrer et réduire
+Granulo_scale <- scale(Granulo, center = TRUE, scale = TRUE)
+str(Granulo_scale)
+summary(Granulo_scale)
+```
+CCA granulo c/r
+Cela ne change rien au résultat
+```{r}
+spe <- data_bee_sp
+spe.cca <- cca(spe ~ ., as.data.frame(Granulo_scale))
+summary(spe.cca) # Scaling 2 (default)
+# Unadjusted and adjusted R^2 - like statistics
+RsquareAdj(spe.cca)
+```
+
+
+```{r}
+# CCA scaling 1 biplot without species (using lc site scores)
+plot(spe.cca,
+scaling = 1,
+display = c("lc", "cn"),
+main = "Biplot CCA spe ~ env3 - scaling 1"
+)
+```
+
+
+# 5 CCA sur les espèces terricoles
+##5.1 importation et nettoyage des données
+Contrainte 0.3532
+R² 0.35
+
+```{r Import, message=FALSE, warning=FALSE, include=FALSE, results='hide', paged.print=FALSE}
+# Tour PC
+setwd("D:/OneDrive - UMONS/UMONS/MA2/MEMOIRE/Statistique/R/STAT-MEMOIRE/RAW2/Traits abeilles")
+# Laptop
+#setwd("C:/Users/Jordan/OneDrive - UMONS/UMONS/MA2/MEMOIRE/Statistique/R/STAT-MEMOIRE/RAW2/Traits abeilles")
+
+# Import
+traits <- read_excel("Trait-bee-each-site.xlsx")
+
+# Réécriture des noms de familles
+traits$familly[traits$familly == "ANDRENIDAE"] <- "Andrenidae"
+traits$familly[traits$familly == "APIDAE"] <- "Apidae"
+traits$familly[traits$familly == "COLLETIDAE"] <- "Colletidae"
+traits$familly[traits$familly == "HALICTIDAE"] <- "Halictidae"
+traits$familly[traits$familly == "MEGACHILIDAE"] <- "Megachilidae"
+traits$familly[traits$familly == "MELITTIDAE"] <- "Melittidae"
+
+# Remplacement du noms de sites
+traits$sites[traits$site == "Les Gourmandes de la Procession"] <- "Gourmandes de la Procession"
+```
+
+```{r}
+terricole <- filter(traits, Nest_area == "Soil")
+
+# Preparation des données 
+terricole <- select(terricole, sp, N, site)
+terricole <- as.data.frame(terricole)
+terricole <- aggregate(N ~ sp + site, data = terricole, sum)
+terricole <- xtabs(N ~ site + sp, terricole)
+terricole <- type.convert(terricole)
+```
+
+## 5.2 CCA espèces terricoles X granulométrie
+```{r}
+spe <- terricole
+# le "." signifie contre toutes les var env; 1 : signifie aucune var env
+spe.cca <- cca(spe ~ ., Granulo)
+summary(spe.cca) # Scaling 2 (default)
+# Unadjusted and adjusted R^2 - like statistics
+RsquareAdj(spe.cca)
+```
+```{r}
+# CCA scaling 1 biplot without species (using lc site scores)
+plot(spe.cca,
+scaling = 1,
+display = c("lc", "cn"),
+main = "Biplot CCA spe ~ env3 - scaling 1"
+)
+```
+# 5.3 CCA avec 3 variables env sur espèces terricoles
+R² = 0.1965
+```{r}
+spe <- data_bee_sp
+# le "." signifie contre toutes les var env; 1 : signifie aucune var env
+spe.cca <- cca(spe ~ ., Granulo[c("Argile", "Limon grossier", "Sable grossier")])
+summary(spe.cca) # Scaling 2 (default)
+# Unadjusted and adjusted R^2 - like statistics
+RsquareAdj(spe.cca)
+```
+
+```{r}
+# CCA scaling 1 biplot without species (using lc site scores)
+plot(spe.cca,
+scaling = 1,
+display = c("lc", "cn"),
+main = "Biplot CCA spe ~ env3 - scaling 1"
+)
+```
+
+# 6 CCA sp terricole avec simplification de la granulo
+Limon = limon fin + limon grossier
+Sable = sable fin + sable grossier
+
+Comparé avec 3 variables sur espèces terricoles, la proportion contrainte s'améliore légèrement 0.1966 => 2091
+Idem pour le R² 0.196 => 0.2090595
+```{r}
+granulo <- granulo_simple
+Granulo <- granulo[,2:4]
+```
+
+```{r}
+spe <- terricole
+# le "." signifie contre toutes les var env; 1 : signifie aucune var env
+spe.cca <- cca(spe ~ ., Granulo)
+summary(spe.cca) # Scaling 2 (default)
+# Unadjusted and adjusted R^2 - like statistics
+RsquareAdj(spe.cca)
+```
+Le jardin suspend est le site avec le % de sable le plus faible, pourtant il se trouve très proche de l'axe sable.
+Le Stivenart a quasiment la même texture, mais il se trouve à l'opposé, cela signifie que malgré la texture du sol les populations sont très différentes ? La diversité beta entre les deux site est de 0.45 (données abondance non raréfié) ce qui n'est pas énorme par rapport aux autres sites
+```{r}
+# CCA scaling 1 biplot without species (using lc site scores)
+plot(spe.cca,
+scaling = 1,
+display = c("lc", "cn"),
+main = "Biplot CCA spe ~ env3 - scaling 1"
+)
+```
+# 7 toutes les abeilles vs granulo simple
+R² = 0.182416
+```{r}
+spe <- data_bee_sp
+# le "." signifie contre toutes les var env; 1 : signifie aucune var env
+spe.cca <- cca(spe ~ ., Granulo)
+summary(spe.cca) # Scaling 2 (default)
+# Unadjusted and adjusted R^2 - like statistics
+RsquareAdj(spe.cca)
+
+spe.ca <- ca(spe)
+summary(spe.ca) # Scaling 2 (default)
+```
+
+```{r}
+# CCA scaling 1 biplot without species (using lc site scores)
+plot(spe.ca,
+scaling = 1,
+display = c("lc", "cn"),
+main = "Biplot CCA spe ~ env3 - scaling 1"
+)
+
+
+```
+# Conclusion
+Centrer/réduire ne change rien, les espèces terricoles augmentent le R², utiliser moins de variables réduit le R².
+
+```{r}
+granulo <- granulo_simple
+Granulo <- granulo[,2:4]
+```
+
+```{r}
+spe <- terricole
+# le "." signifie contre toutes les var env; 1 : signifie aucune var env
+spe.cca <- cca(spe ~ ., Granulo)
+summary(spe.cca) # Scaling 2 (default)
+# Unadjusted and adjusted R^2 - like statistics
+RsquareAdj(spe.cca)
+```
+
+```{r}
+# https://blogs.ncl.ac.uk/mep/2018/04/08/reproducible-publication-quality-multivariate-plots-in-r/
+library(ggrepel)
+
+varechem <- as.data.frame(Granulo)
+varespec <- as.data.frame(data_bee_sp)
+vare_cca <- cca(varespec ~ ., varechem)
+
+
+vare_spp_sco <- scores(vare_cca, display = "species")
+vare_sam_sco <- scores(vare_cca, display = "sites")
+vare_env_sco <- scores(vare_cca, display = "bp")
+vare_spp_tbl <- as_tibble(vare_spp_sco)
+vare_sam_tbl <- as_tibble(vare_sam_sco)
+vare_env_tbl <- as_tibble(vare_env_sco)
+vare_spp_tbl <- mutate(vare_spp_tbl, vgntxt=rownames(vare_spp_sco),
+                       ccatype = "species")
+vare_sam_tbl <- mutate(vare_sam_tbl, vgntxt=rownames(vare_sam_sco),
+                       ccatype = "sites")
+vare_env_tbl <- mutate(vare_env_tbl, vgntxt=rownames(vare_env_sco),
+                       ccatype = "bp")
+
+ggplot(vare_spp_tbl, aes(x = CCA1, y = CCA2, label = vgntxt)) +
+       geom_point() +
+       geom_text_repel(seed = 123)
+
+
+
+rescaled <- vare_env_tbl %>% 
+            select(CCA1, CCA2) %>%
+            as.matrix() * 1.5
+vare_tbl <- select(vare_env_tbl, vgntxt, ccatype) %>%
+            bind_cols(as_tibble(rescaled)) %>%
+            bind_rows(vare_spp_tbl)
+
+ggplot() +
+  geom_point(aes(x=CCA1, y=CCA2), data=filter(vare_tbl, ccatype=="species"))  +
+  geom_text_repel(aes(x=CCA1, y=CCA2, label=vgntxt, size=3.5),
+                  data=vare_tbl, seed=123) + 
+  geom_segment(aes(x=0, y=0, xend=CCA1, yend=CCA2), arrow=arrow(length = unit(0.2,"cm")),
+               data=filter(vare_tbl, ccatype=="bp"), color="blue") +
+  coord_fixed() +
+  theme_classic() +
+  theme(legend.position="none")
+
+summary(vare_cca)
+RsquareAdj(spe.cca)
+```
+```{r}
+vif.cca(vare_cca)
+```
+
+Test anova sur toutes les variables simplifiés
+```{r}
+# test l'ensemble de la CCA si le modèle explique une quantité significatif de la variation dans les données
+anova(vare_cca) 
+# test pour chacune des var env
+anova(vare_cca, by = "term", permutations = 999)
+# test pour la significativité des effets marginaux (jsp c'est quoi)
+anova(vare_cca, by = "mar", permutations = 999)
+# test pour la significativité de chaque axe (jsp pq)
+anova(vare_cca, by = "axis", permutations = 999)
+```
+Test anova sur toutes les variables
+```{r}
+# cca(formula = spe ~ Argile + `Limon fin` + `Limon grossier` + `Sable fin` + `Sable grossier`, data = as.data.frame(Granulo_scale))
+# test l'ensemble de la CCA si le modèle explique une quantité significatif de la variation dans les données
+anova(spe.cca) 
+# test pour chacune des var env
+anova(spe.cca, by = "term", permutations = 999)
+```
+
+
+

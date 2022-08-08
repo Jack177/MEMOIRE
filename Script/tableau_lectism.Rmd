@@ -49,97 +49,91 @@ lectism <- aggregate(N ~ sp + Lectism, data = traits, sum)
 ```{r Espèce}
 ### Abondance des sp
 # Socialité abondance-espèces
-sociality_abu <-  spread(sociality, key = sociality , value = N)
+lectism_abu <-  spread(lectism, key = Lectism , value = N)
 # Ajoute une ligne total
-sociality_abu <- janitor::adorn_totals(sociality_abu)
+lectism_abu <- janitor::adorn_totals(lectism_abu)
 # Ajoute une colonne total
-sociality_abu$Total <- rowSums(sociality_abu[, c("Cleptoparasite", "Primitivelyeusocial", "Social parasite", "Solitary")])
+lectism_abu$Total <- rowSums(lectism_abu[, c("Oligolectic", "Polylectic")])
 
-# Pourcentage abon Clepto
-pct_abu_cle <- round(sociality_abu[nrow(sociality_abu), "Cleptoparasite"]/sociality_abu[nrow(sociality_abu), "Total"], digits = 2)
-# Pourcentage abon Primitivelyeusocial
-pct_abu_pri <- round(sociality_abu[nrow(sociality_abu), "Primitivelyeusocial"]/sociality_abu[nrow(sociality_abu), "Total"], 2)
-# Pourcentage abon Social parasite
-pct_abu_par <- round(sociality_abu[nrow(sociality_abu), "Social parasite"]/sociality_abu[nrow(sociality_abu), "Total"], 2)
-# Pourcentage abon Solitary
-pct_abu_sol <- round(sociality_abu[nrow(sociality_abu), "Solitary"]/sociality_abu[nrow(sociality_abu), "Total"], 2)
+lectism_abu$Oligolectic <- as.integer(lectism_abu$Oligolectic)
+lectism_abu$Polylectic <- as.integer(lectism_abu$Polylectic)
 
-sociality_abu[nrow(sociality_abu) + 1,] = c("Pourcentage", pct_abu_cle,pct_abu_pri,pct_abu_par,pct_abu_sol,"")
+
+# Pourcentage abon Oligolectic
+pct_abu_oli <- round(lectism_abu[nrow(lectism_abu), "Oligolectic"]/lectism_abu[nrow(lectism_abu), "Total"], digits = 2)
+# Pourcentage abon Polylectic
+pct_abu_pol <- round(lectism_abu[nrow(lectism_abu), "Polylectic"]/lectism_abu[nrow(lectism_abu), "Total"], 2)
+
+
+lectism_abu[nrow(lectism_abu) + 1,] = c("Pourcentage", pct_abu_oli,pct_abu_pol,"")
+
+
 
 
 ### Richesse 
-sociality_rich <- sociality
+lectism_rich <- lectism
 # Changer tous les chiffres d'abondances par 1
-sociality_rich$N[sociality_rich$N > 0] <- 1  
+lectism_rich$N[lectism_rich$N > 0] <- 1  
 # Tableau avec colonne (Solitaire, clepto, ...)
-sociality_rich <-  spread(sociality_rich, key = sociality , value = N)
+lectism_rich <-  spread(lectism_rich, key = Lectism , value = N)
 # Ajoute une ligne total
-sociality_rich <- janitor::adorn_totals(sociality_rich)
+lectism_rich <- janitor::adorn_totals(lectism_rich)
 # Ajoute une colonne total
-sociality_rich$Total <- rowSums(sociality_rich[, c("Cleptoparasite", "Primitivelyeusocial", "Social parasite", "Solitary")])
+lectism_rich$Total <- rowSums(lectism_rich[, c("Oligolectic", "Polylectic")])
 
 # Pourcentage rich Clepto
-pct_rich_cle <- round(sociality_rich[nrow(sociality_rich), "Cleptoparasite"]/sociality_rich[nrow(sociality_rich), "Total"], digits = 2)
-# Pourcentage rich Primitivelyeusocial
-pct_rich_pri <- round(sociality_rich[nrow(sociality_rich), "Primitivelyeusocial"]/sociality_rich[nrow(sociality_rich), "Total"], 2)
-# Pourcentage rich Social parasite
-pct_rich_par <- round(sociality_rich[nrow(sociality_rich), "Social parasite"]/sociality_rich[nrow(sociality_rich), "Total"], 2)
-# Pourcentage rich Solitary
-pct_rich_sol <- round(sociality_rich[nrow(sociality_rich), "Solitary"]/sociality_rich[nrow(sociality_rich), "Total"], 2)
+pct_rich_oli <- round(lectism_rich[nrow(lectism_rich), "Oligolectic"]/lectism_rich[nrow(lectism_rich), "Total"], digits = 2)
+# Pourcentage rich Polylectic
+pct_rich_pol <- round(lectism_rich[nrow(lectism_rich), "Polylectic"]/lectism_rich[nrow(lectism_rich), "Total"], 2)
 
-sociality_rich[nrow(sociality_rich) + 1,] = c("Pourcentage", pct_rich_cle,pct_rich_pri,pct_rich_par,pct_rich_sol,"")
+
+lectism_rich[nrow(lectism_rich) + 1,] = c("Pourcentage", pct_rich_oli, pct_rich_pol, "")
 ```
 Par genre
 ```{r}
 # Addition des genres avec la socialité
-sociality_gen <- aggregate(N ~ genus + sociality, data = traits, sum)
+lectism_gen <- aggregate(N ~ genus + Lectism, data = traits, sum)
 ```
 
 ```{r}
 ### Abondance des genres
 # Socialité abondance-espèces
-sociality_gen_abu <-  spread(sociality_gen, key = sociality , value = N)
+lectism_gen_abu <-  spread(lectism_gen, key = Lectism , value = N)
 # Ajoute une ligne total
-sociality_gen_abu <- janitor::adorn_totals(sociality_gen_abu)
+lectism_gen_abu <- janitor::adorn_totals(lectism_gen_abu)
 # Ajoute une colonne total
-sociality_gen_abu$Total <- rowSums(sociality_gen_abu[, c("Cleptoparasite", "Primitivelyeusocial", "Social parasite", "Solitary")])
+lectism_gen_abu$Total <- rowSums(lectism_gen_abu[, c("Oligolectic", "Polylectic")])
 
-# Pourcentage abon Clepto
-pct_abu_cle <- round(sociality_gen_abu[nrow(sociality_gen_abu), "Cleptoparasite"]/sociality_gen_abu[nrow(sociality_gen_abu), "Total"], digits = 2)
-# Pourcentage abon Primitivelyeusocial
-pct_abu_pri <- round(sociality_gen_abu[nrow(sociality_gen_abu), "Primitivelyeusocial"]/sociality_gen_abu[nrow(sociality_gen_abu), "Total"], 2)
-# Pourcentage abon Social parasite
-pct_abu_par <- round(sociality_gen_abu[nrow(sociality_gen_abu), "Social parasite"]/sociality_gen_abu[nrow(sociality_gen_abu), "Total"], 2)
-# Pourcentage abon Solitary
-pct_abu_sol <- round(sociality_gen_abu[nrow(sociality_gen_abu), "Solitary"]/sociality_gen_abu[nrow(sociality_gen_abu), "Total"], 2)
+# Pourcentage abon Oligolectic
+pct_abu_oli <- round(lectism_gen_abu[nrow(lectism_gen_abu), "Oligolectic"]/lectism_gen_abu[nrow(lectism_gen_abu), "Total"], digits = 2)
+# Pourcentage abon Polylectic
+pct_abu_pol <- round(lectism_gen_abu[nrow(lectism_gen_abu), "Polylectic"]/lectism_gen_abu[nrow(lectism_gen_abu), "Total"], 2)
 
-sociality_gen_abu[nrow(sociality_gen_abu) + 1,] = c("Pourcentage", pct_abu_cle,pct_abu_pri,pct_abu_par,pct_abu_sol,"")
+
+lectism_gen_abu[nrow(lectism_gen_abu) + 1,] = c("Pourcentage", pct_abu_oli,pct_abu_pol,pct_abu_par,pct_abu_sol,"")
 
 
 ### Richesse des genres
-sociality_gen_rich <- sociality_gen
+lectism_gen_rich <- lectism_gen
 # Changer tous les chiffres d'abondances par 1
-sociality_gen_rich$N[sociality_gen_rich$N > 0] <- 1  
-# Tableau avec colonne (Solitaire, clepto, ...)
-sociality_gen_rich <-  spread(sociality_gen_rich, key = sociality , value = N)
+lectism_gen_rich$N[lectism_gen_rich$N > 0] <- 1  
+# Tableau avec colonne (Polylectic, Oligolectic, ...)
+lectism_gen_rich <-  spread(lectism_gen_rich, key = Lectism , value = N)
 # Ajoute une ligne total
-sociality_gen_rich <- janitor::adorn_totals(sociality_gen_rich)
+lectism_gen_rich <- janitor::adorn_totals(lectism_gen_rich)
 # Ajoute une colonne total
-sociality_gen_rich$Total <- rowSums(sociality_gen_rich[, c("Cleptoparasite", "Primitivelyeusocial", "Social parasite", "Solitary")])
+lectism_gen_rich$Total <- rowSums(lectism_gen_rich[, c("Oligolectic", "Polylectic")])
 
-# Pourcentage rich Clepto
-pct_rich_cle <- round(sociality_gen_rich[nrow(sociality_gen_rich), "Cleptoparasite"]/sociality_gen_rich[nrow(sociality_gen_rich), "Total"], digits = 2)
-# Pourcentage rich Primitivelyeusocial
-pct_rich_pri <- round(sociality_gen_rich[nrow(sociality_gen_rich), "Primitivelyeusocial"]/sociality_gen_rich[nrow(sociality_gen_rich), "Total"], 2)
-# Pourcentage rich Social parasite
-pct_rich_par <- round(sociality_gen_rich[nrow(sociality_gen_rich), "Social parasite"]/sociality_gen_rich[nrow(sociality_gen_rich), "Total"], 2)
-# Pourcentage rich Solitary
-pct_rich_sol <- round(sociality_gen_rich[nrow(sociality_gen_rich), "Solitary"]/sociality_gen_rich[nrow(sociality_gen_rich), "Total"], 2)
+# Pourcentage rich Oligolectic
+pct_rich_oli <- round(lectism_gen_rich[nrow(lectism_gen_rich), "Oligolectic"]/lectism_gen_rich[nrow(lectism_gen_rich), "Total"], digits = 2)
+# Pourcentage rich Polylectic
+pct_rich_pol <- round(lectism_gen_rich[nrow(lectism_gen_rich), "Polylectic"]/lectism_gen_rich[nrow(lectism_gen_rich), "Total"], 2)
 
-sociality_gen_rich[nrow(sociality_gen_rich) + 1,] = c("Pourcentage", pct_rich_cle,pct_rich_pri,pct_rich_par,pct_rich_sol,"")
+
+lectism_gen_rich[nrow(lectism_gen_rich) + 1,] = c("Pourcentage", pct_rich_oli,pct_rich_pol,pct_rich_par,pct_rich_sol,"")
 ```
 
 ```{r}
 # Exportation tableur Excel
-write_xlsx(category_IUCN_fam,"D:/OneDrive - UMONS/UMONS/MA2/MEMOIRE/Statistique/R/STAT-MEMOIRE/Output/sociality.xlsx")
+write_xlsx(category_IUCN_fam,"D:/OneDrive - UMONS/UMONS/MA2/MEMOIRE/Statistique/R/STAT-MEMOIRE/Output/lectism.xlsx")
 ```

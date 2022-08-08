@@ -31,9 +31,13 @@ setwd("D:/OneDrive - UMONS/UMONS/MA2/MEMOIRE/Statistique/R/STAT-MEMOIRE/RAW2")
 #setwd("C:/Users/Jordan/OneDrive - UMONS/UMONS/MA2/MEMOIRE/Statistique/R/STAT-MEMOIRE/RAW2")
 
 granulo <- read_excel("granulo.xlsx")
+granulo_simple <- read_excel("granulo.xlsx", sheet = "simple")
+
 ```
 
 ```{r abbréger nom des sites}
+granulo <- granulo_simple
+
 ### Granulo
 # Créer une colonne Code en fonction des types de sites
 granulo$Code <- fct_collapse(
@@ -51,13 +55,18 @@ granulo$code_site <- gsub("'", "", granulo$code_site)
 ```{r Preparation des données }
 # Granulométrie
 Granulo_site_name <- select(granulo, code_site)
-Granulo <- granulo[,2:7]
+# Granulo <- granulo[,2:7]
+Granulo <- granulo[,2:4]
 row.names(Granulo) <- Granulo_site_name$code_site
 ```
 
 ```{r}
+
+
 # Sélectionne toutes les colonnes sauf la dernière
-g <- Granulo[, -ncol(Granulo)] 
+g <- Granulo
+# # Sélectionne toutes les colonnes sauf la dernière
+# g <- Granulo[, -ncol(Granulo)] 
 # Calcul PCA avec vegan::rda() 
 #pca_m <- rda(m)
 # Mettre à l'échelle (=?réduire donnée) comment centrer les données
@@ -76,12 +85,19 @@ screeplot(pca_g2, bstick = TRUE)
 
 
 biplot(pca_g2, scaling = "sites")
-autoplot(pca_g2, data = metal, colour = "Code", label = TRUE, label.size = 3, shape = FALSE,
+autoplot(pca_g2, data = metal, colour = granulo$Code, label = TRUE, label.size = 3, shape = FALSE,
          loadings = TRUE, loadings.colour = 'blue',
          loadings.label = TRUE, frame = TRUE)
 ```
 
 ```{r}
+
+# Début enregistrement .pdf
+pdf(file = "D:/OneDrive - UMONS/UMONS/MA2/MEMOIRE/Rapport de mémoire/figure/PCA_granulo.pdf",   # The directory you want to save the file in
+    width = 8.27, # The width of the plot in inches
+    height = 8.27)
+
+
 # Code d'origine 
 # https://www.benjaminbell.co.uk/2018/02/principal-components-analysis-pca-in-r.html
 p <- pca_g2
@@ -117,6 +133,9 @@ l.pos <- replace(l.pos, lo, "1")
 l.pos <- replace(l.pos, hi, "3")
 # Variable labels
 text(l.x, l.y, labels=row.names(p$rotation), col="red", pos=l.pos)
+
+# Fin enregistrement .pdf
+dev.off()
 ```
 
 

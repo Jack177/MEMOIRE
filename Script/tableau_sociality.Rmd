@@ -134,6 +134,20 @@ sociality_gen_rich[nrow(sociality_gen_rich) + 1,] = c("Pourcentage", pct_rich_cl
 ```
 
 ```{r}
+my_df <- list(sociality,sociality_abu,sociality_rich,sociality_gen_abu,sociality_gen_rich)
 # Exportation tableur Excel
-write_xlsx(category_IUCN_fam,"D:/OneDrive - UMONS/UMONS/MA2/MEMOIRE/Statistique/R/STAT-MEMOIRE/Output/sociality.xlsx")
+# Brute
+write_xlsx(my_df , "D:/OneDrive - UMONS/UMONS/MA2/MEMOIRE/Statistique/R/STAT-MEMOIRE/Output/sociality.xlsx")
+
+# # sociality_abondance 
+# write_xlsx(sociality_abu, "D:/OneDrive - UMONS/UMONS/MA2/MEMOIRE/Statistique/R/STAT-MEMOIRE/Output/sociality.xlsx", sheetName="sociality_abu")
+# 
+# # sociality par sp 
+# write_xlsx(sociality_rich, "D:/OneDrive - UMONS/UMONS/MA2/MEMOIRE/Statistique/R/STAT-MEMOIRE/Output/sociality.xlsx", sheetName="sociality_rich")
+# 
+# # sociality abondance par genre 
+# write_xlsx(sociality_gen_abu, "D:/OneDrive - UMONS/UMONS/MA2/MEMOIRE/Statistique/R/STAT-MEMOIRE/Output/sociality.xlsx", sheetName="sociality_gen_abu")
+# 
+# # sociality par genre 
+# write_xlsx(sociality_gen_rich, "D:/OneDrive - UMONS/UMONS/MA2/MEMOIRE/Statistique/R/STAT-MEMOIRE/Output/sociality.xlsx", sheetName="sociality_gen_rich")
 ```

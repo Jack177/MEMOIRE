@@ -14,6 +14,8 @@ library(ggplot2)
 library(forcats )
 library("readxl") 
 library(ca)
+library(FactoMineR)
+library(factoextra)
 ```
 
 Importation des données.
@@ -69,7 +71,7 @@ data_bee_sp <- type.convert(data_bee_sp)
 
 
 ```{r}
-spe.ca <-cca(data_bee_sp)
+spe.ca <-cca(data_bee_sp, supcol = 1)
 screeplot(spe.ca, bstick = TRUE)
 summary(spe.ca) # default scaling 2
 summary(spe.ca, scaling = 1)
@@ -92,9 +94,23 @@ plot(spe.ca, main = "CA fish abundances - biplot scaling 2")
 # Fonction ca() du package ca
 ca(data_bee_sp)
 #names(ca(data_bee_sp))
-#summary(ca(data_bee_sp))
-plot(ca(data_bee_sp, supcol = 1))
+summary(ca(data_bee_sp))
+plot(ca(data_bee_sp, supcol = 15))
+
+#cca(data_bee_sp)
+#plot(cca(data_bee_sp, supcol = 1))
 ```
+
+
+
+
+```{r}
+# package FactoMiner
+res.ca <- CA(data_bee_sp, ncp = 5, graph = FALSE)
+fviz_ca_biplot(res.ca, repel = TRUE)
+summary(res.ca)
+```
+
 
 
 

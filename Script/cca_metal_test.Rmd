@@ -440,6 +440,7 @@ anova(vare_cca, by = "term", permutations = 999)
 
 RsquareAdj(vare_cca)
 ```
+
 ```{r}
 vif.cca(vare_cca)
 ```
@@ -449,3 +450,52 @@ vif.cca(vare_cca)
 summary(vare_cca)
 ```
 
+# Espèce terricole
+
+```{r Import, message=FALSE, warning=FALSE, include=FALSE, results='hide', paged.print=FALSE}
+# Tour PC
+setwd("D:/OneDrive - UMONS/UMONS/MA2/MEMOIRE/Statistique/R/STAT-MEMOIRE/RAW2/Traits abeilles")
+# Laptop
+#setwd("C:/Users/Jordan/OneDrive - UMONS/UMONS/MA2/MEMOIRE/Statistique/R/STAT-MEMOIRE/RAW2/Traits abeilles")
+
+# Import
+traits <- read_excel("Trait-bee-each-site.xlsx")
+
+# Réécriture des noms de familles
+traits$familly[traits$familly == "ANDRENIDAE"] <- "Andrenidae"
+traits$familly[traits$familly == "APIDAE"] <- "Apidae"
+traits$familly[traits$familly == "COLLETIDAE"] <- "Colletidae"
+traits$familly[traits$familly == "HALICTIDAE"] <- "Halictidae"
+traits$familly[traits$familly == "MEGACHILIDAE"] <- "Megachilidae"
+traits$familly[traits$familly == "MELITTIDAE"] <- "Melittidae"
+
+# Remplacement du noms de sites
+traits$sites[traits$site == "Les Gourmandes de la Procession"] <- "Gourmandes de la Procession"
+```
+
+```{r}
+terricole <- filter(traits, Nest_area == "Soil")
+
+# Preparation des données 
+terricole <- select(terricole, sp, N, site)
+terricole <- as.data.frame(terricole)
+terricole <- aggregate(N ~ sp + site, data = terricole, sum)
+terricole <- xtabs(N ~ site + sp, terricole)
+terricole <- type.convert(terricole)
+```
+
+```{r}
+varechem <- as.data.frame(metal[c( "As", "Cr","Cd", "Hg", "Pb","Ni")])
+varespec <- as.data.frame(terricole)
+vare_cca <- cca(spe ~ ., metal[c( "As", "Cr","Cd", "Hg", "Pb","Ni")])
+```
+
+```{r}
+# cca(formula = spe ~ Argile + `Limon fin` + `Limon grossier` + `Sable fin` + `Sable grossier`, data = as.data.frame(Granulo_scale))
+# test l'ensemble de la CCA si le modèle explique une quantité significatif de la variation dans les données
+anova(vare_cca) 
+# test pour chacune des var env
+anova(vare_cca, by = "term", permutations = 999)
+
+RsquareAdj(vare_cca)
+```

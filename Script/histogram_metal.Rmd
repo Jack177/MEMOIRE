@@ -29,7 +29,7 @@ setwd("D:/OneDrive - UMONS/UMONS/MA2/MEMOIRE/Statistique/R/STAT-MEMOIRE/RAW2")
 soil <- read_excel("Soil_R.xlsx")
 valeur_seuil <- read_excel("valeur_seuil.xlsx")
 
-soil$Site[soil$Site == "Les Gourmandes de la Procession"] <- "Gourmandes de la Procession"
+soil$Site[soil$Site == "Les Gourmandes de la Procession"] <- "Gourmandes"
 ```
 
 Matrice metal X site
@@ -72,9 +72,8 @@ ggplot(df, aes(fill=pollution, y=qte, x=Site)) +
         legend.title = element_text(size=8, face="bold"), # "Métaux lourd" dans la légende
         legend.text = element_text(size=8, face="bold"), # les Métaux lourd dans la légende
         legend.position="bottom") 
-
-
 ```
+
 ```{r site}
 # Retirer les polluants avec d'importante quantité
 df <- select(metal, -Pb, -Zn)
@@ -92,20 +91,21 @@ hline_value <- filter(valeur_seuil, Polluant != "Zinc" & Polluant != "Plomb")
 hline_value <- hline_value$Agricole
 
 
-ggplot(df, aes(fill=pollution, y=qte, x=Site)) + 
+ggplot(df, aes(fill=pollution, y=qte, x=Site)) +
   geom_hline(yintercept = hline_value, linetype = 2, color = mycolors, lwd = 0.3) +
   geom_bar(position="dodge", stat="identity", colour="black", size = 0.3) +
-  labs(x = "", y = "Quantité [mg/kg de MS]",fill = "Métaux lourd",fontface = "bold") + 
+  labs(x = "", y = "Quantité [mg/kg de MS]",fill = "Métaux lourd",fontface = "bold") +
   scale_fill_brewer(palette="Set2") +
   theme(axis.title.x = element_text(face="bold", size = 10), # Study site
         axis.title.y = element_text(face="bold", size = 10), # Quantité
         axis.text.x = element_text(angle = 90,face="bold", color= "black", size=8), # Site
-        axis.text.y = element_text(face="bold", color= "black", size=5), # 
+        axis.text.y = element_text(face="bold", color= "black", size=5), #
         panel.grid.major = element_blank(),panel.grid.minor = element_blank(),
         panel.background = element_rect(fill='white', colour='black'),
         legend.title = element_text(size=8, face="bold"), # "Métaux lourd" dans la légende
         legend.text = element_text(size=8, face="bold"), # les Métaux lourd dans la légende
-        legend.position="bottom") 
+        legend.position="bottom")
+ggsave(filename = "histo_metal_2.pdf", device = cairo_pdf)
 ```
 
 ```{r site}
@@ -116,15 +116,41 @@ df <- gather(df, key="pollution", value="qte", 2:3)
 # 2 polluants
 nb.cols <- 8
 mycolors <- colorRampPalette(brewer.pal(n=8, "Set2"))(nb.cols+1) # n = 3 minimum, faut chippoter
-mycolors <- mycolors[mycolors %in% c("#66C2A5",  "#FC8D62")]
+mycolors <- mycolors[c(1,2)] 
 
 # Valeur seuil a afficher (II : agricole)
-hline_value <- filter(valeur_seuil, Polluant == "Cadmium" | Polluant == "Mercure")
+valeur_seuil <- filter(valeur_seuil, Polluant == "Cadmium" | Polluant == "Mercure")
+hline_value <- valeur_seuil$Agricole
+
+
+ggplot(df, aes(fill=pollution, y=qte, x=Site)) +
+  geom_hline(yintercept = hline_value, linetype = 2, color = mycolors, lwd = 0.5) +
+  geom_bar(position="dodge", stat="identity", colour="black", size = 0.3) +
+  labs(x = "", y = "Quantité [mg/kg de MS]",fill = "Métaux lourd",fontface = "bold") +
+  scale_fill_brewer(palette="Set2") +
+  theme(axis.title.x = element_text(face="bold", size = 10), # Study site
+        axis.title.y = element_text(face="bold", size = 10), # Quantité
+        axis.text.x = element_text(angle = 90,face="bold", color= "black", size=8), # Site
+        axis.text.y = element_text(face="bold", color= "black", size=5), #
+        panel.grid.major = element_blank(),panel.grid.minor = element_blank(),
+        panel.background = element_rect(fill='white', colour='black'),
+        legend.title = element_text(size=8, face="bold"), # "Métaux lourd" dans la légende
+        legend.text = element_text(size=8, face="bold"), # les Métaux lourd dans la légende
+        legend.position="bottom")
+
+# ggsave(filename = "histo_metal_3.pdf", device = cairo_pdf)
+```
+
+
+```{r site}
+# 8 polluants : As
+df <- select(metal, Site, As)
+df <- gather(df, key="pollution", value="qte", 2)
+hline_value <- filter(valeur_seuil, Polluant == "Arsenic" )
 hline_value <- hline_value$Agricole
 
-
 ggplot(df, aes(fill=pollution, y=qte, x=Site)) + 
-  geom_hline(yintercept = hline_value, linetype = 2, color = mycolors, lwd = 0.5) +
+  geom_hline(yintercept = hline_value, linetype = 2, color = mycolors[1], lwd = 0.2) +
   geom_bar(position="dodge", stat="identity", colour="black", size = 0.3) +
   labs(x = "", y = "Quantité [mg/kg de MS]",fill = "Métaux lourd",fontface = "bold") + 
   scale_fill_brewer(palette="Set2") +
@@ -137,27 +163,31 @@ ggplot(df, aes(fill=pollution, y=qte, x=Site)) +
         legend.title = element_text(size=8, face="bold"), # "Métaux lourd" dans la légende
         legend.text = element_text(size=8, face="bold"), # les Métaux lourd dans la légende
         legend.position="bottom") 
+
+ggsave(filename = "histo_metal_1.pdf", device = cairo_pdf)
 ```
 
-
-```{export to pdf}
-
-ggsave(filename = "D:/OneDrive - UMONS/UMONS/MA2/ERASMUS CHYPRE/Internship report/img/site_compared.pdf", device = cairo_pdf)
-
-```
-
-```{export to png}
-
-ggsave(filename = "D:/OneDrive - UMONS/UMONS/MA2/ERASMUS CHYPRE/Internship report/img/site_compared.png", device = "png", width = 32, height = 17, units = "cm" )
-
-```
-
-```{r barplot}
-df <- as.data.frame(read_excel("DATA/method_R.xlsx",sheet = "R"))
-df$pop <- as.numeric(df$pop)
-
-barplot(height = df$pop, names= df$site, main=NULL, ylab = "(CI 95%)", cex.lab = 1.5, cex.main = 1.4, beside=TRUE, col=c("darkblue","red"))
-
-
-#ggsave(filename = "regression_A.pdf", device = cairo_pdf)
+```{r site}
+# 8 polluants : As
+# df <- select(metal, Site, Cd)
+# df <- gather(df, key="pollution", value="qte", 2)
+# hline_value <- filter(valeur_seuil, Polluant == "Cadmium" )
+# hline_value <- hline_value$Agricole
+# 
+# ggplot(df, aes(fill=mycolors[3], y=qte, x=Site)) + 
+#   geom_hline(yintercept = hline_value, linetype = 2, color = mycolors[2], lwd = 0.2) +
+#   geom_bar(position="dodge", stat="identity", colour="black", size = 0.3) +
+#   labs(x = "", y = "Quantité [mg/kg de MS]",fill = "Métaux lourd",fontface = "bold") + 
+#   scale_fill_brewer(palette="Set2") +
+#   theme(axis.title.x = element_text(face="bold", size = 10), # Study site
+#         axis.title.y = element_text(face="bold", size = 10), # Quantité
+#         axis.text.x = element_text(angle = 90, face="bold", color= "black", size=8), # Site
+#         axis.text.y = element_text(face="bold", color= "black", size=5), # 
+#         panel.grid.major = element_blank(),panel.grid.minor = element_blank(),
+#         panel.background = element_rect(fill='white', colour='black'),
+#         legend.title = element_text(size=8, face="bold"), # "Métaux lourd" dans la légende
+#         legend.text = element_text(size=8, face="bold"), # les Métaux lourd dans la légende
+#         legend.position="bottom") 
+# 
+# ggsave(filename = "histo_metal_2.pdf", device = cairo_pdf)
 ```

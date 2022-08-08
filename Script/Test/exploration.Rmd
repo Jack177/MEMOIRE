@@ -255,6 +255,7 @@ soil <- soil[,-1]
 soil_data_bee_genus.cca <- cca(data_bee_genus, soil)
 plot(soil_data_bee_genus.cca)
 ```
+
 ```{r CCA2}
 data_bee_genus <- data_bee_genus[,-1]
 soil <- soil[,-1]
