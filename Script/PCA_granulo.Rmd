@@ -26,7 +26,7 @@ Importation des données.
 ```{r Import}
 # Import
 # Tour PC
-setwd("D:/OneDrive - UMONS/UMONS/MA2/MEMOIRE/Statistique/R/STAT-MEMOIRE/RAW2")
+setwd("D:/OneDrive - UMONS/UMONS/MA2/MEMOIRE/Statistique/R/STAT-MEMOIRE/RAW")
 # Laptop
 #setwd("C:/Users/Jordan/OneDrive - UMONS/UMONS/MA2/MEMOIRE/Statistique/R/STAT-MEMOIRE/RAW2")
 
@@ -84,10 +84,10 @@ s <- summary(pca_g2)
 screeplot(pca_g2, bstick = TRUE)
 
 
-biplot(pca_g2, scaling = "sites")
-autoplot(pca_g2, data = metal, colour = granulo$Code, label = TRUE, label.size = 3, shape = FALSE,
-         loadings = TRUE, loadings.colour = 'blue',
-         loadings.label = TRUE, frame = TRUE)
+# biplot(pca_g2, scaling = "sites")
+# autoplot(pca_g2, data = metal, colour = granulo$Code, label = TRUE, label.size = 3, shape = FALSE,
+#          loadings = TRUE, loadings.colour = 'blue',
+#          loadings.label = TRUE, frame = TRUE)
 ```
 
 ```{r}

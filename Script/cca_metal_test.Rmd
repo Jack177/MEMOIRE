@@ -427,7 +427,7 @@ ggplot() +
   geom_segment(aes(x=0, y=0, xend=CCA1, yend=CCA2), arrow=arrow(length = unit(0.2,"cm")),
                data=filter(vare_tbl, ccatype=="bp"), color="blue") +
   coord_fixed() +
-  theme_classic() +
+  theme_bw() +
   theme(legend.position="none")
 ```
 
@@ -439,6 +439,14 @@ anova(vare_cca)
 anova(vare_cca, by = "term", permutations = 999)
 
 RsquareAdj(vare_cca)
+```
+
+```{r}
+permutest(vare_cca, permutations = 999)
+```
+
+```{r}
+permutest(vare_cca, by = "term", permutations = 999)
 ```
 
 ```{r}

@@ -33,9 +33,9 @@ Importation des données.
 ```{r Import}
 # Import
 # Tour PC
-setwd("D:/OneDrive - UMONS/UMONS/MA2/MEMOIRE/Statistique/R/STAT-MEMOIRE/RAW2")
+setwd("D:/OneDrive - UMONS/UMONS/MA2/MEMOIRE/Statistique/R/STAT-MEMOIRE/RAW")
 # Laptop
-#setwd("C:/Users/Jordan/OneDrive - UMONS/UMONS/MA2/MEMOIRE/Statistique/R/STAT-MEMOIRE/RAW2")
+#setwd("C:/Users/Jordan/OneDrive - UMONS/UMONS/MA2/MEMOIRE/Statistique/R/STAT-MEMOIRE/RAW")
 
 SpecCondStat <- read_excel("SpecCondStat.xls")
 
@@ -46,32 +46,35 @@ SpecCondStat <- read_excel("SpecCondStat.xls")
 # Nom plus compact
 SCS <- SpecCondStat
 
+## Nettoyage
 # Retirer le site de Condorcet
 SCS <- filter(SCS, TOPO != "Condorcet" )
 
 # Renommer plus simplement
 rename(SCS, "sp" = "SPEC.TAXPRIO" ) -> SCS
-rename(SCS, "sites" = "TOPO" ) -> SCS
+rename(SCS, "Site" = "TOPO" ) -> SCS
 
-# Retirer les observations contenant l'espèce : "XXX"
-# SCS <- filter(SCS, SPEC.TAXPRIO != "Bombus (Bombus)  sp." )
+# Retirer les observations contenant l'espèce : "Apis mellifera"
+SCS <- filter(SCS, sp != "Apis mellifera" )
 
 # Remplacement des noms d'espèces désuets
+SCS$sp[SCS$sp == "Bombus (Bombus)  sp."] <- "Terrestribombus  sp."
 SCS$sp[SCS$sp == "Bombus lucorum"] <- "Terrestribombus  sp."
 SCS$sp[SCS$sp == "Bombus terrestris"] <- "Terrestribombus  sp."
 SCS$sp[SCS$sp == "Chalicodoma ericetorum"] <- "Megachile ericetorum"
 SCS$sp[SCS$sp == "Halictus tumulorum"] <- "Seladonia tumulorum"
+SCS$sp[SCS$sp == "Halictus tumulorum"] <- "Seladonia tumulorum"
 
-# Remplacement du noms de sites
-SCS$sites[SCS$sites == "Les Gourmandes de la Procession"] <- "Gourmandes de la Procession"
+# Remplacement du noms de Site
+SCS$Site[SCS$Site == "Les Gourmandes de la Procession"] <- "Gourmandes"
 ```
 
 ```{r }
 # Preparation des données 
-data_bee_sp <- select(SCS, sp, N, sites)
+data_bee_sp <- select(SCS, sp, N, Site)
 data_bee_sp <- as.data.frame(data_bee_sp)
-data_bee_sp <- aggregate(N ~ sp + sites, data = data_bee_sp, sum)
-data_bee_sp <- xtabs(N ~ sites + sp, data_bee_sp)
+data_bee_sp <- aggregate(N ~ sp + Site, data = data_bee_sp, sum)
+data_bee_sp <- xtabs(N ~ Site + sp, data_bee_sp)
 data_bee_sp <- type.convert(data_bee_sp)
 
 ```
@@ -81,40 +84,40 @@ data_bee_sp <- type.convert(data_bee_sp)
 ```{r}
 #Isolation du chunk
 bee <- data_bee_sp
-# Nombre d'espèces observées dans les 15 sites
+# Nombre d'espèces observées dans les 15 Site
 (bee.nbsp <- specnumber(bee))
-# Sites avec une richesse en espèces minimale et maximale observée
+# Site avec une richesse en espèces minimale et maximale observée
 bee.nbsp[bee.nbsp == min(bee.nbsp)]
 bee.nbsp[bee.nbsp == max(bee.nbsp)]
 range(bee.nbsp)
-# Abondance totale dans les 15 sites
+# Abondance totale dans les 15 Site
 (bee.abund <- rowSums(bee))
 range(bee.abund)
-# Abondance dans les sites avec le plus petit nombre d'espèces
+# Abondance dans les Site avec le plus petit nombre d'espèces
 bee.abund[bee.nbsp == min(bee.nbsp)]
-# Abondance dans les sites avec le plus grand nombre d'espèces
+# Abondance dans les Site avec le plus grand nombre d'espèces
 bee.abund[bee.nbsp == max(bee.nbsp)]
-# Nombre d'espèces dans les sites avec la plus petite abondance
+# Nombre d'espèces dans les Site avec la plus petite abondance
 bee.nbsp[bee.abund == min(bee.abund)]
-# Nombre d'espèces dans les sites avec la plus grande abondance
+# Nombre d'espèces dans les Site avec la plus grande abondance
 bee.nbsp[bee.abund == max(bee.abund)]
 
 ```
 
 
 ```{r}
-# Raréfaction à 33 individus (Parc Bonaert a le plus petit nbr d'individus)
-bee.rare33 <- rarefy(bee, sample = 33)
-# Comparer le classement de la richesse entre les sites observés et raréfiés
+# Raréfaction à 39 individus (Parc Bonaert a le plus petit nbr d'individus)
+bee.rare39 <- rarefy(bee, sample = 39)
+# Comparer le classement de la richesse entre les Site observés et raréfiés
 sort(bee.nbsp)
-sort(round(bee.rare33)) 
-# Sites avec une richesse en espèces minimale et maximale estimée
-bee.rare33[bee.rare33 == min(bee.rare33)]
-bee.rare33[bee.rare33 == max(bee.rare33)]
+sort(round(bee.rare39)) 
+# Site avec une richesse en espèces minimale et maximale estimée
+bee.rare39[bee.rare39 == min(bee.rare39)]
+bee.rare39[bee.rare39 == max(bee.rare39)]
 # Site observé avec la plus petite richesse prédite en espèces
-bee[which(bee.rare33 == min(bee.rare33)),]
+bee[which(bee.rare39 == min(bee.rare39)),]
 # Site observé avec la plus grande richesse d'espèces prédite
-bee[which(bee.rare33 == max(bee.rare33)),]
+bee[which(bee.rare39 == max(bee.rare39)),]
 
 ```
 
@@ -133,7 +136,7 @@ rarecurve(bee,
           border = NA,
           col = mycolors,
           cex = 0.5, bg = "red" )
-abline(v = 33, col="gray")
+abline(v = 39, col="gray")
 
 ```
 
@@ -148,7 +151,7 @@ rarecurve(data_bee_sp, step = 1, xlab = "Nombre d'individus collectés", ylab = 
 ```{r}
 # https://stat.ethz.ch/pipermail/r-sig-ecology/2018-December/005867.html
 #data(BCI)
-out <- rarecurve(bee, step = 1, sample = 33, label = TRUE, col = "blue")
+out <- rarecurve(bee, step = 1, sample = 39, label = TRUE, col = "blue")
 names(out) <- paste("species", 1:nrow(bee), sep = "")
 
 # Coerce data into "long" form.
@@ -168,7 +171,7 @@ ggplot(xy, aes(x = subsample, y = value, color = species)) +
     theme_bw() +
     theme(legend.position = "none") +  # ggplotly doesn't respect scales?
     geom_line() +
-  geom_vline(xintercept = 33, color = "gray") +
+  geom_vline(xintercept = 39, color = "gray") +
     labs(x = "Nombre d'individus collectées (abondance observée)", y = "Nombre d'espèces observé (richesse observée)") +
   theme(axis.title.x = element_text(face="bold", size = 20), # Titre axe x
         axis.title.y = element_text(face="bold", size = 20), # Titre axe y
@@ -284,7 +287,7 @@ ggplot(graphhill,aes(x = variable, y= value, group = Site, color = Site))   +
     title = "",
     subtitle = "",
     caption = "") +
-  #guides(fill = guide_legend(title = "Sites")) + # Titre légende (marche slmt pour Heatmap)
+  #guides(fill = guide_legend(title = "Site")) + # Titre légende (marche slmt pour Heatmap)
   scale_color_discrete("")+ # Titre légende
   scale_colour_manual(values = mycolors)  +
   theme(
@@ -357,8 +360,6 @@ beecouv %>%
         panel.background = element_rect(fill='white', colour='black'),
         legend.position = "none") 
 
-
-
 ```
 
 
@@ -383,8 +384,8 @@ beecouv %>%
 library(ade4)
 # On importe un jeu de donn?es test : les poissons de la rivi?re Doubs
 data (doubs)
-spe <- doubs$fish# Une rivi?re, 30 sites, une longue liste de poissons
-env <- doubs$env # La m?me rivi?re, les m?mes sites, mais de nombreux types de descripteurs environnementaux
+spe <- doubs$fish# Une rivi?re, 30 Site, une longue liste de poissons
+env <- doubs$env # La m?me rivi?re, les m?mes Site, mais de nombreux types de descripteurs environnementaux
 ?doubs #Plus d'infos
 # On retire le site ! car il est vide !
 spe = spe[-8,]
@@ -477,22 +478,22 @@ mite[which(mite.rare80 == max(mite.rare80)),]
 ```
 
 ```{r}
-# Nombre d'espèces dans les 15 sites
+# Nombre d'espèces dans les 15 Site
 (mite.nbsp <- specnumber(mite))
-# Sites avec une richesse en espèces minimale et maximale observée
+# Site avec une richesse en espèces minimale et maximale observée
 mite.nbsp[mite.nbsp == min(mite.nbsp)]
 mite.nbsp[mite.nbsp == max(mite.nbsp)]
 range(mite.nbsp)
-# Abondance totale dans les 15 sites
+# Abondance totale dans les 15 Site
 (mite.abund <- rowSums(mite))
 range(mite.abund)
-# Abondance dans les sites avec le plus petit nombre d'espèces
+# Abondance dans les Site avec le plus petit nombre d'espèces
 mite.abund[mite.nbsp == min(mite.nbsp)]
-# Abondance dans les sites avec le plus grand nombre d'espèces
+# Abondance dans les Site avec le plus grand nombre d'espèces
 mite.abund[mite.nbsp == max(mite.nbsp)]
-# Nombre d'espèces dans les sites avec la plus petite abondance
+# Nombre d'espèces dans les Site avec la plus petite abondance
 mite.nbsp[mite.abund == min(mite.abund)]
-# Nombre d'espèces dans les sites avec la plus grande abondance
+# Nombre d'espèces dans les Site avec la plus grande abondance
 mite.nbsp[mite.abund == max(mite.abund)]
 
 ```

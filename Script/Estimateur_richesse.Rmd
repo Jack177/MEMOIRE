@@ -21,7 +21,7 @@ Importation des données.
 ```{r Import}
 # Import
 # Tour PC
-setwd("D:/OneDrive - UMONS/UMONS/MA2/MEMOIRE/Statistique/R/STAT-MEMOIRE/RAW2")
+setwd("D:/OneDrive - UMONS/UMONS/MA2/MEMOIRE/Statistique/R/STAT-MEMOIRE/RAW")
 # Laptop
 # setwd("C:/Users/Jordan/OneDrive - UMONS/UMONS/MA2/MEMOIRE/Statistique/R/STAT-MEMOIRE/RAW2")
 
@@ -105,24 +105,26 @@ plot(pool)
 
 ```{r}
 # Isolation des chunks
+estim_inci <- specpool(data_bee_sp)
 df <- estim_inci
 
-# Renommer les colonnes
-df <- as.data.frame(df)
-rename(df, "S.obs_min" = "S.obs(-95%)" ) -> df
-rename(df, "S.obs_max" = "S.obs(+95%)" ) -> df
-rename(df, "chao_min" = "Chao1(lower)" ) -> df
-rename(df, "chao_max" = "Chao1(upper)" ) -> df
-rename(df, "Jack1_min" = "Jack1(lower)" ) -> df
-rename(df, "Jack1_max" = "Jack1(upper)" ) -> df
-rename(df, "ACE_min" = "ACE(lower)" ) -> df
-rename(df, "ACE_max" = "ACE(upper)" ) -> df
 
-# Arrondir à l'unité
-df <- round(estimateurs_specpool)
-
-# Retirer la colonne n (nombre de sites)
-estimateurs_specpool$n <- NULL
+# # Renommer les colonnes
+# df <- as.data.frame(df)
+# rename(df, "S.obs_min" = "S.obs(-95%)" ) -> df
+# rename(df, "S.obs_max" = "S.obs(+95%)" ) -> df
+# rename(df, "chao_min" = "Chao1(lower)" ) -> df
+# rename(df, "chao_max" = "Chao1(upper)" ) -> df
+# rename(df, "Jack1_min" = "Jack1(lower)" ) -> df
+# rename(df, "Jack1_max" = "Jack1(upper)" ) -> df
+# rename(df, "ACE_min" = "ACE(lower)" ) -> df
+# rename(df, "ACE_max" = "ACE(upper)" ) -> df
+# 
+# # Arrondir à l'unité
+# df <- round(estimateurs_specpool)
+# 
+# # Retirer la colonne n (nombre de sites)
+# estimateurs_specpool$n <- NULL
 ```
 
 

@@ -20,7 +20,7 @@ Importation des données.
 ```{r}
 # Import
 # Tour PC
-setwd("D:/OneDrive - UMONS/UMONS/MA2/MEMOIRE/Statistique/R/STAT-MEMOIRE/RAW2")
+setwd("D:/OneDrive - UMONS/UMONS/MA2/MEMOIRE/Statistique/R/STAT-MEMOIRE/RAW")
 # Laptop
 #setwd("C:/Users/Jordan/OneDrive - UMONS/UMONS/MA2/MEMOIRE/Statistique/R/STAT-MEMOIRE/RAW2")
 
@@ -52,7 +52,6 @@ SCS$sp[SCS$sp == "Halictus tumulorum"] <- "Seladonia tumulorum"
 
 # Remplacement du noms de sites
 SCS$sites[SCS$sites == "Les Gourmandes de la Procession"] <- "Gourmandes"
-soil$Site[soil$Site == "Les Gourmandes de la Procession"] <- "Gourmandes"
 granulo$Site[granulo$Site == "Les Gourmandes de la Procession"] <- "Gourmandes"
 
 row.names(granulo) <- granulo$Site
@@ -72,12 +71,12 @@ data_bee_sp <- xtabs(N ~ sites + sp, data_bee_sp)
 data_bee_sp <- type.convert(data_bee_sp)
 ```
 
-
+Pas de sable fin, vif = 36535.545
 ```{r}
 # https://blogs.ncl.ac.uk/mep/2018/04/08/reproducible-publication-quality-multivariate-plots-in-r/
 library(ggrepel)
 
-varechem <- as.data.frame(granulo[c("Argile", "Limon fin", "Sable fin")])
+varechem <- as.data.frame(granulo[c("Argile", "Limon fin", "Limon grossier", "Sable grossier")])
 varespec <- as.data.frame(data_bee_sp)
 vare_cca <- vegan::cca(varespec ~ ., varechem)
 
@@ -115,7 +114,7 @@ ggplot() +
   geom_segment(aes(x=0, y=0, xend=CCA1, yend=CCA2), arrow=arrow(length = unit(0.2,"cm")),
                data=filter(vare_tbl, ccatype=="bp"), color="blue") +
   coord_fixed() +
-  theme_classic() +
+  theme_bw() +
   theme(legend.position="none")
 
 summary(vare_cca)

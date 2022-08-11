@@ -1,0 +1,68 @@
+---
+title: "texture_soil"
+author: "Jordan"
+date: "`r Sys.Date()`"
+output: html_document
+---
+
+```{r}
+# Load the required packages
+library(dplyr)
+library(vegan) # specpool () estimateR() poolaccum() estaccumR()
+library(ggplot2)
+library(ggtern)
+library(forcats )
+library(reshape2)
+library("readxl") 
+```
+
+Importation des données.
+```{r}
+# Import
+# Tour PC
+setwd("D:/OneDrive - UMONS/UMONS/MA2/MEMOIRE/Statistique/R/STAT-MEMOIRE/RAW")
+# Laptop
+#setwd("C:/Users/Jordan/OneDrive - UMONS/UMONS/MA2/MEMOIRE/Statistique/R/STAT-MEMOIRE/RAW2")
+
+# Import
+granulo_simple <- read_excel("granulo.xlsx", sheet = "simple")
+
+# Remplacement du noms de sites
+granulo_simple$Site[granulo_simple$Site == "Les Gourmandes de la Procession"] <- "Gourmandes"
+
+#### Abbréger le nom des sites
+# Liste des Potagers
+Potagers <- c("Abbaye St-Denis", "Rue de l'Egalite", "Chasse Cambier", "Mel Legumes", "Gourmandes", "Jean d'Avesnes", "Parc du bois de Mons", "Jardin Suspendu", "Ecole de l'Esperance", "Fond du petit marais")
+# Liste des Parcs
+Parcs <- c("Village des abeilles", "Siege social", "Parc du Beffroi", "Stievenart", "Parc Bonaert")
+
+granulo_simple$Code <- fct_collapse(
+    granulo_simple$Site,
+    "Potager" = Potagers,
+    "Parc" = Parcs)
+
+# substring prend les premiers caractères, abbreviate abrège comme il le sent
+granulo_simple$code_site <- paste(substring(granulo_simple$Code, 0,3),"-", granulo_simple$Site)
+# retirer les apostrophes
+granulo_simple$code_site <- gsub(" ", "", granulo_simple$code_site)
+
+row.names(granulo_simple) <- granulo_simple$code_site
+```
+
+```{r}
+theme_set(theme_bw())
+granulo_simple %>%
+  ggtern(aes(
+    x = Sable,
+    y = Argile,
+    z = Limon,
+    color = code_site
+  )) +
+  theme(legend.title = element_blank()) +
+  geom_point(size = 5) +
+  theme_showarrows() +
+    labs(yarrow = "Argile (%)",  #<<
+       zarrow = "Limon (%)",  #<<
+       xarrow = "Sable (%)")   #<
+```
+

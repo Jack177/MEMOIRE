@@ -22,7 +22,7 @@ Importation des données.
 ```{r Import}
 # Import
 # Tour PC
-setwd("D:/OneDrive - UMONS/UMONS/MA2/MEMOIRE/Statistique/R/STAT-MEMOIRE/RAW2")
+setwd("D:/OneDrive - UMONS/UMONS/MA2/MEMOIRE/Statistique/R/STAT-MEMOIRE/RAW")
 # Laptop
 #setwd("C:/Users/Jordan/OneDrive - UMONS/UMONS/MA2/MEMOIRE/Statistique/R/STAT-MEMOIRE/RAW2")
 
@@ -39,33 +39,45 @@ SCS <- filter(SCS, TOPO != "Condorcet" )
 
 # Renommer plus simplement
 rename(SCS, "sp" = "SPEC.TAXPRIO" ) -> SCS
-rename(SCS, "sites" = "TOPO" ) -> SCS
+rename(SCS, "Site" = "TOPO" ) -> SCS
 
-# Retirer les observations contenant l'espèce : "XXX"
-# SCS <- filter(SCS, SPEC.TAXPRIO != "Bombus (Bombus)  sp." )
+# Retirer les observations contenant l'espèce : "Apis mellifera"
+SCS <- filter(SCS, sp != "Apis mellifera" )
 
 # Remplacement des noms d'espèces désuets
+SCS$sp[SCS$sp == "Bombus (Bombus)  sp."] <- "Terrestribombus  sp."
 SCS$sp[SCS$sp == "Bombus lucorum"] <- "Terrestribombus  sp."
 SCS$sp[SCS$sp == "Bombus terrestris"] <- "Terrestribombus  sp."
 SCS$sp[SCS$sp == "Chalicodoma ericetorum"] <- "Megachile ericetorum"
 SCS$sp[SCS$sp == "Halictus tumulorum"] <- "Seladonia tumulorum"
+SCS$sp[SCS$sp == "Halictus tumulorum"] <- "Seladonia tumulorum"
 
 # Remplacement du noms de sites
-SCS$sites[SCS$sites == "Les Gourmandes de la Procession"] <- "Gourmandes de la Procession"
+SCS$sites[SCS$Site == "Les Gourmandes de la Procession"] <- "Gourmandes"
 
 #### Abbréger le nom des sites
 # Liste des Potagers
-Potagers <- c("Abbaye St-Denis", "Rue de l'Egalite", "Chasse Cambier", "Mel Legumes", "Gourmandes de la Procession", "Jean d'Avesnes", "Parc du bois de Mons", "Jardin Suspendu", "Ecole de l'Esperance", "Fond du petit marais")
+Potagers <- c("Abbaye St-Denis", "Rue de l'Egalite", "Chasse Cambier", "Mel Legumes", "Gourmandes", "Jean d'Avesnes", "Parc du bois de Mons", "Jardin Suspendu", "Ecole de l'Esperance", "Fond du petit marais")
 # Liste des Parcs
 Parcs <- c("Village des abeilles", "Siege social", "Parc du Beffroi", "Stievenart", "Parc Bonaert")
+
+SCS$Code <- fct_collapse(
+    SCS$Site,
+    "Potager" = Potagers,
+    "Parc" = Parcs)
+
+# substring prend les premiers caractères, abbreviate abrège comme il le sent
+SCS$code_site <- paste(substring(SCS$Code, 0,3),"-", SCS$Site)
+# retirer les apostrophes
+SCS$code_site <- gsub(" ", "", SCS$code_site)
 ```
 
 ```{r }
 # Preparation des données 
-data_bee_sp <- select(SCS, sp, N, sites)
+data_bee_sp <- select(SCS, sp, N, code_site)
 data_bee_sp <- as.data.frame(data_bee_sp)
-data_bee_sp <- aggregate(N ~ sp + sites, data = data_bee_sp, sum)
-data_bee_sp <- xtabs(N ~ sites + sp, data_bee_sp)
+data_bee_sp <- aggregate(N ~ sp + code_site, data = data_bee_sp, sum)
+data_bee_sp <- xtabs(N ~ code_site + sp, data_bee_sp)
 data_bee_sp <- type.convert(data_bee_sp)
 ```
 
@@ -107,12 +119,121 @@ plot(ca(data_bee_sp, supcol = 15))
 ```{r}
 # package FactoMiner
 res.ca <- CA(data_bee_sp, ncp = 5, graph = FALSE)
-fviz_ca_biplot(res.ca, repel = TRUE)
+fviz_ca_biplot(res.ca, repel = TRUE, geom = c("text", "point")) +
+  scale_color_gradient2(low="white", mid="blue",high="red", midpoint=10) +
+  #geom_text(size=60) + 
+  theme_bw() 
+  # theme(panel.border = element_rect(colour = "gray90"),
+  #   axis.text.x = element_text(angle = 0, size = 10, family = "Trebuchet MS"),
+  #   axis.text.y = element_text(size = 9, family = "Trebuchet MS"),
+  #   axis.title.y = element_text(size = 11, family = "Trebuchet MS"),
+  #   axis.title.x = element_text(size = 11, family = "Trebuchet MS"),
+  #   plot.caption = element_text(size = 10, hjust = 0, margin=margin(t=10), 
+  #                               family = "Trebuchet MS"))
+
 summary(res.ca)
 ```
+Pourcentage abeille par site
 
+```{r}
+# dataframe compte nbr individus par sp tous sites confondu
+SCS %>%
+  group_by(sp) %>%
+  count(sp) -> df1 
+rename(df1, "tot" = "n" ) -> df1
 
+# dataframe compte nbr individus par sp pour le site "XXX"
+SCS %>%
+  group_by(Site, sp) %>%
+  count(sp) -> df2 
+# df <- filter(df, site == "Siege social")
+df2 <- filter(df2, Site == "Village des abeilles")
+df2 <- df2[,2:3]
 
+ss <- dplyr::inner_join(df2 , df1, by = "sp")
+ss$Percentage <- round((ss$n/ss$tot)*100 , digits = 0)
+# table(df$sp)
+```
+
+```{r}
+# dataframe compte nbr individus par sp tous sites confondu
+SCS %>%
+  group_by(sp) %>%
+  count(sp) -> df1 
+rename(df1, "tot" = "n" ) -> df1
+
+# dataframe compte nbr individus par sp pour le site "XXX"
+SCS %>%
+  group_by(Site, sp) %>%
+  count(sp) -> df2 
+# df <- filter(df, site == "Siege social")
+df2 <- filter(df2, Site == "Parc Bonaert")
+df2 <- df2[,2:3]
+
+ss <- dplyr::inner_join(df2 , df1, by = "sp")
+ss$Percentage <- round((ss$n/ss$tot)*100 , digits = 0)
+# table(df$sp)
+```
+
+```{r}
+# dataframe compte nbr individus par sp tous sites confondu
+SCS %>%
+  group_by(sp) %>%
+  count(sp) -> df1 
+rename(df1, "tot" = "n" ) -> df1
+
+# dataframe compte nbr individus par sp pour le site "XXX"
+SCS %>%
+  group_by(Site, sp) %>%
+  count(sp) -> df2 
+# df <- filter(df, site == "Siege social")
+df2 <- filter(df2, Site == "Parc du Beffroi")
+df2 <- df2[,2:3]
+
+ss <- dplyr::inner_join(df2 , df1, by = "sp")
+ss$Percentage <- round((ss$n/ss$tot)*100 , digits = 0)
+# table(df$sp)
+```
+
+```{r}
+# dataframe compte nbr individus par sp tous sites confondu
+SCS %>%
+  group_by(sp) %>%
+  count(sp) -> df1 
+rename(df1, "tot" = "n" ) -> df1
+
+# dataframe compte nbr individus par sp pour le site "XXX"
+SCS %>%
+  group_by(Site, sp) %>%
+  count(sp) -> df2 
+# df <- filter(df, site == "Siege social")
+df2 <- filter(df2, Site == "Fond du petit marais")
+df2 <- df2[,2:3]
+
+ss <- dplyr::inner_join(df2 , df1, by = "sp")
+ss$Percentage <- round((ss$n/ss$tot)*100 , digits = 0)
+# table(df$sp)
+```
+
+```{r}
+# dataframe compte nbr individus par sp tous sites confondu
+SCS %>%
+  group_by(sp) %>%
+  count(sp) -> df1 
+rename(df1, "tot" = "n" ) -> df1
+
+# dataframe compte nbr individus par sp pour le site "XXX"
+SCS %>%
+  group_by(Site, sp) %>%
+  count(sp) -> df2 
+# df <- filter(df, site == "Siege social")
+df2 <- filter(df2, Site == "Les Gourmandes de la Procession")
+df2 <- df2[,2:3]
+
+ss <- dplyr::inner_join(df2 , df1, by = "sp")
+ss$Percentage <- round((ss$n/ss$tot)*100 , digits = 0)
+# table(df$sp)
+```
 
 
 

@@ -21,7 +21,7 @@ library("writexl")
 ## Importation des données
 ```{r Import, message=FALSE, warning=FALSE, include=FALSE, results='hide', paged.print=FALSE}
 # Tour PC
-setwd("D:/OneDrive - UMONS/UMONS/MA2/MEMOIRE/Statistique/R/STAT-MEMOIRE/RAW2")
+setwd("D:/OneDrive - UMONS/UMONS/MA2/MEMOIRE/Statistique/R/STAT-MEMOIRE/RAW")
 # Laptop
 #setwd("C:/Users/Jordan/OneDrive - UMONS/UMONS/MA2/MEMOIRE/Statistique/R/STAT-MEMOIRE/RAW2")
 
@@ -79,7 +79,6 @@ category_IUCN_fam <- spread(IUCN_fam, key = category , value = N )
 category_IUCN_fam[is.na(category_IUCN_fam)] <- 0
 
 # Rajouter les catégories manquante
-category_IUCN_fam$CR <- c(0,0,0,0,0,0)
 category_IUCN_fam$EN <- c(0,0,0,0,0,0)
 
 # Réorganisation des colonnes
@@ -92,5 +91,5 @@ category_IUCN_fam$Total <- rowSums(category_IUCN_fam[, c("CR", "EN", "VU", "NT",
 category_IUCN_fam <- janitor::adorn_totals(category_IUCN_fam)
 
 # Exportation tableur Excel
-write_xlsx(category_IUCN_fam,"D:/OneDrive - UMONS/UMONS/MA2/MEMOIRE/Statistique/R/STAT-MEMOIRE/RAW2/IUCN_familly.xlsx")
+write_xlsx(category_IUCN_fam,"D:/OneDrive - UMONS/UMONS/MA2/MEMOIRE/Statistique/R/STAT-MEMOIRE/Output/IUCN_familly.xlsx")
 ```

@@ -39,14 +39,19 @@ rename(SCS, "sp" = "SPEC.TAXPRIO" ) -> SCS
 rename(SCS, "site" = "TOPO" ) -> SCS
 
 
+# Retirer les observations contenant l'espèce : "Apis mellifera"
+SCS <- filter(SCS, sp != "Apis mellifera" )
+
 # Remplacement des noms d'espèces désuets
+SCS$sp[SCS$sp == "Bombus (Bombus)  sp."] <- "Terrestribombus  sp."
 SCS$sp[SCS$sp == "Bombus lucorum"] <- "Terrestribombus  sp."
 SCS$sp[SCS$sp == "Bombus terrestris"] <- "Terrestribombus  sp."
 SCS$sp[SCS$sp == "Chalicodoma ericetorum"] <- "Megachile ericetorum"
 SCS$sp[SCS$sp == "Halictus tumulorum"] <- "Seladonia tumulorum"
+SCS$sp[SCS$sp == "Halictus tumulorum"] <- "Seladonia tumulorum"
 
 # Remplacement du noms de sites
-SCS$site[SCS$site == "Les Gourmandes de la Procession"] <- "Gourmandes"
+SCS$Site[SCS$site == "Les Gourmandes de la Procession"] <- "Gourmandes"
 
 # Filter les Bombus abondant
 #SCS <- filter(SCS, sp != "Terrestribombus  sp." | sp != "Bombus pascuorum" | sp != "Bombus (Bombus)  sp.")
@@ -74,7 +79,7 @@ traits$familly[traits$familly == "MEGACHILIDAE"] <- "Megachilidae"
 traits$familly[traits$familly == "MELITTIDAE"] <- "Melittidae"
 
 # Remplacement du noms de sites
-traits$sites[traits$site == "Les Gourmandes de la Procession"] <- "Gourmandes de la Procession"
+traits$sites[traits$site == "Les Gourmandes de la Procession"] <- "Gourmandes"
 ```
 ```{r}
 SCS %>%
@@ -110,6 +115,7 @@ ss$Percentage <- round((ss$n/ss$tot)*100 , digits = 0)
 Tri sp terricole
 ```{r}
 terricole <- filter(traits, Nest_area == "Soil")
+cavite <- filter(traits, Nest_area == "Cavities" & site == "Village des abeilles")
 
 ```
 

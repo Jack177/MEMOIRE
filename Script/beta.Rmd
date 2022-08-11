@@ -28,40 +28,52 @@ SpecCondStat <- read_excel("SpecCondStat.xls")
 # Nom plus compact
 SCS <- SpecCondStat
 
+## Nettoyage
 # Retirer le site de Condorcet
 SCS <- filter(SCS, TOPO != "Condorcet" )
 
 # Renommer plus simplement
 rename(SCS, "sp" = "SPEC.TAXPRIO" ) -> SCS
-rename(SCS, "sites" = "TOPO" ) -> SCS
+rename(SCS, "Site" = "TOPO" ) -> SCS
 
-# Retirer les observations contenant l'espèce : "XXX"
-# SCS <- filter(SCS, SPEC.TAXPRIO != "Bombus (Bombus)  sp." )
+# Retirer les observations contenant l'espèce : "Apis mellifera"
+SCS <- filter(SCS, sp != "Apis mellifera" )
 
 # Remplacement des noms d'espèces désuets
+SCS$sp[SCS$sp == "Bombus (Bombus)  sp."] <- "Terrestribombus  sp."
 SCS$sp[SCS$sp == "Bombus lucorum"] <- "Terrestribombus  sp."
 SCS$sp[SCS$sp == "Bombus terrestris"] <- "Terrestribombus  sp."
 SCS$sp[SCS$sp == "Chalicodoma ericetorum"] <- "Megachile ericetorum"
 SCS$sp[SCS$sp == "Halictus tumulorum"] <- "Seladonia tumulorum"
+SCS$sp[SCS$sp == "Halictus tumulorum"] <- "Seladonia tumulorum"
 
 # Remplacement du noms de sites
-SCS$sites[SCS$sites == "Les Gourmandes de la Procession"] <- "Gourmandes de la Procession"
+SCS$Site[SCS$Site == "Les Gourmandes de la Procession"] <- "Gourmandes"
 
-# Preparation des données 
-data_bee_sp <- select(SCS, sp, N, sites)
-data_bee_sp <- as.data.frame(data_bee_sp)
-data_bee_sp <- aggregate(N ~ sp + sites, data = data_bee_sp, sum)
-data_bee_sp <- xtabs(N ~ sites + sp, data_bee_sp)
-data_bee_sp <- type.convert(data_bee_sp)
 
+#### Abbréger le nom des sites
+# Liste des Potagers
+Potagers <- c("Abbaye St-Denis", "Rue de l'Egalite", "Chasse Cambier", "Mel Legumes", "Gourmandes", "Jean d'Avesnes", "Parc du bois de Mons", "Jardin Suspendu", "Ecole de l'Esperance", "Fond du petit marais")
+# Liste des Parcs
+Parcs <- c("Village des abeilles", "Siege social", "Parc du Beffroi", "Stievenart", "Parc Bonaert")
+
+SCS$Code <- fct_collapse(
+    SCS$Site,
+    "Potager" = Potagers,
+    "Parc" = Parcs)
+
+# substring prend les premiers caractères, abbreviate abrège comme il le sent
+SCS$code_site <- paste(substring(SCS$Code, 0,3),"-", SCS$Site)
+# retirer les apostrophes
+SCS$code_site <- gsub(" ", "", SCS$code_site)
 ```
 
 ```{r }
 # Preparation des données 
-data_bee_sp <- select(SCS, sp, N, sites)
+data_bee_sp <- select(SCS, sp, N, code_site)
 data_bee_sp <- as.data.frame(data_bee_sp)
-data_bee_sp <- aggregate(N ~ sp + sites, data = data_bee_sp, sum)
-data_bee_sp <- xtabs(N ~ sites + sp, data_bee_sp)
+data_bee_sp <- aggregate(N ~ sp + code_site, data = data_bee_sp, sum)
+data_bee_sp <- xtabs(N ~ code_site + sp, data_bee_sp)
 data_bee_sp <- type.convert(data_bee_sp)
 ```
 # Matrice non-raréfié
@@ -83,16 +95,16 @@ D_jacc_R <- as.matrix(vegdist(occurence_r, method = "jaccard"))
 pheatmap(D_jacc_R, display_numbers = round(D_jacc_R, 2))
 ```
 # Matrice raréfié
-Raréfaction à 33 individus + racine carré
+Raréfaction à 39 individus + racine carré
 ```{r}
-# Raréfaction à 33 individus (Parc Bonaert a le plus petit nbr d'individus)
-bee.rare33 <- rarefy(data_bee_sp, sample = 33)
-dis <- vegdist(bee.rare33, method = 'bray') # percentage cover data are transformed by square root
+# Raréfaction à 39 individus (Parc Bonaert a le plus petit nbr d'individus)
+bee.rare39 <- rarefy(data_bee_sp, sample = 39)
+dis <- vegdist(bee.rare39, method = 'bray') # percentage cover data are transformed by square root
 ```
 ## Abondance
 ```{r}
 # Matrice dissimilarité d'abondance
-#dis <- vegdist(sqrt (bee.rare33), method = 'bray', diag =TRUE)
+#dis <- vegdist(sqrt (bee.rare39), method = 'bray', diag =TRUE)
 D_chisq_R <- as.matrix(dis)
 pheatmap(D_chisq_R, display_numbers = round(D_chisq_R, 2))
 # exporter en 8x8

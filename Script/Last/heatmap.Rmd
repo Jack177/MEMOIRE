@@ -25,48 +25,40 @@ library(forcats)
 # Tour PC
 setwd("D:/OneDrive - UMONS/UMONS/MA2/MEMOIRE/Statistique/R/STAT-MEMOIRE/RAW/")
 # Laptop
-#setwd("C:/Users/Jordan/OneDrive - UMONS/UMONS/MA2/MEMOIRE/Statistique/R/STAT-MEMOIRE/RAW/")
+#setwd("C:/Users/Jordan/OneDrive - UMONS/UMONS/MA2/MEMOIRE/Statistique/R/STAT-MEMOIRE/RAW/"")
 
 # Import
-data_bee_sp <- read_excel("Site-vs-bee.xls") # pas clean !
-#data_bee_genus <- read_excel("Site-vs-bee_genus.xls") # pas clean !
+SpecCondStat <- read_excel("SpecCondStat.xls")
+```
 
-# Nettoyage
-data_bee_sp <- filter(data_bee_sp, TOPO != "Condorcet" )
-#data_bee_genus <- filter(data_bee_genus, TOPO != "Condorcet" )
+```{r Nettoyage}
+# Nom plus compact
+SCS <- SpecCondStat
 
+## Nettoyage
+# Retirer le site de Condorcet
+SCS <- filter(SCS, TOPO != "Condorcet" )
 
+# Renommer plus simplement
+rename(SCS, "sp" = "SPEC.TAXPRIO" ) -> SCS
+rename(SCS, "Site" = "TOPO" ) -> SCS
 
-# Rename
-rename(data_bee_sp, "Site" = "TOPO") -> data_bee_sp
-#rename(data_bee_genus, "Site" = "TOPO") -> data_bee_genus
+# Retirer les observations contenant l'espèce : "Apis mellifera"
+SCS <- filter(SCS, sp != "Apis mellifera" )
 
-
-
-# Remplacement des noms d'espèces désuets (colonne)
-# Renommer B. sp_
-data_bee_sp <- rename(data_bee_sp, "Bombus (Bombus) sp." = "Bombus (Bombus)  sp_" ) 
-
-# Renommer B. lucorum et B. terrestris sous l'appellation Terrestribombus  sp.
-data_bee_sp <- rename(data_bee_sp, "Bombus1" = "Bombus terrestris" )
-data_bee_sp <- rename(data_bee_sp, "Bombus2" = "Bombus lucorum" ) 
-# Addition des espèces
-data_bee_sp$bombus_sp <- data_bee_sp$Bombus2 + data_bee_sp$Bombus1
-# Supprimer colonne
-data_bee_sp$Bombus1 <- NULL
-data_bee_sp$Bombus2 <- NULL
-# Renommer (vu qu'on travaille ici avec des collonnes il faut les additionner, c'est plus simple si ça aurait été des lignes)
-data_bee_sp <- rename(data_bee_sp, "Terrestribombus  sp." = "bombus_sp")
-data_bee_sp <- select(data_bee_sp, -"Terrestribombus  sp.")
-# Renommer C. ericetorum
-data_bee_sp <- rename(data_bee_sp, "Megachile ericetorum" = "Chalicodoma ericetorum" ) 
-
+# Remplacement des noms d'espèces désuets
+SCS$sp[SCS$sp == "Bombus (Bombus)  sp."] <- "Terrestribombus  sp."
+SCS$sp[SCS$sp == "Bombus lucorum"] <- "Terrestribombus  sp."
+SCS$sp[SCS$sp == "Bombus terrestris"] <- "Terrestribombus  sp."
+SCS$sp[SCS$sp == "Chalicodoma ericetorum"] <- "Megachile ericetorum"
+SCS$sp[SCS$sp == "Halictus tumulorum"] <- "Seladonia tumulorum"
+SCS$sp[SCS$sp == "Halictus tumulorum"] <- "Seladonia tumulorum"
 
 # Remplacement du noms de sites
-data_bee_sp$Site[data_bee_sp$Site == "Les Gourmandes de la Procession"] <- "Gourmandes"
+SCS$Site[SCS$Site == "Les Gourmandes de la Procession"] <- "Gourmandes"
 
 # Conservation des NA pour la heatmap
-hm.data_bee_sp <- data_bee_sp
+#hm.data_bee_sp <- data_bee_sp
 
 
 #### Abbréger le nom des sites
@@ -75,31 +67,46 @@ Potagers <- c("Abbaye St-Denis", "Rue de l'Egalite", "Chasse Cambier", "Mel Legu
 # Liste des Parcs
 Parcs <- c("Village des abeilles", "Siege social", "Parc du Beffroi", "Stievenart", "Parc Bonaert")
 
-data_bee_sp$Code <- fct_collapse(
-    data_bee_sp$Site,
+SCS$Code <- fct_collapse(
+    SCS$Site,
     "Potager" = Potagers,
     "Parc" = Parcs)
 
 # substring prend les premiers caractères, abbreviate abrège comme il le sent
-data_bee_sp$code_site <- paste(substring(data_bee_sp$Code, 0,3),"-", data_bee_sp$Site)
+SCS$code_site <- paste(substring(SCS$Code, 0,3),"-", SCS$Site)
 # retirer les apostrophes
-data_bee_sp$code_site <- gsub(" ", "", data_bee_sp$code_site)
+SCS$code_site <- gsub(" ", "", SCS$code_site)
+```
 
-# Supprimer les espèces 
-data_bee_sp <- select(data_bee_sp, -"Bombus (Bombus) sp.")
-data_bee_sp <- select(data_bee_sp, -"Apis mellifera")
+```{r }
+# Preparation des données 
+data <- select(SCS, sp, N, code_site)
+data <- as.data.frame(data)
+data <- aggregate(N ~ sp + code_site, data = data, sum)
+data <- xtabs(N ~ code_site + sp, data)
+data <- type.convert(data)
 
+# Remplacer les 0 par NA
+data[data == 0] <- NA 
+
+# Rownames => Colonne
+data <- as.data.frame(data)
+data <- tibble::rownames_to_column(data, "Site")
+```
+
+```{r}
+SCS %>%
+  group_by(sp) %>%
+  count(sp) -> df1 
+rename(df1, "tot" = "n" ) -> df1
 ```
 
 ### Heatmap sp vs site
+# Sans filtre d'espèces
 ```{r Heatmap ggplot}
+# Changement de nom
+hm.bee_sp <- data
 
-
-# Remodeler le jeux de données pour le heatmap
-data_bee_sp$Site <- data_bee_sp$code_site
-hm.bee_sp <- data_bee_sp
-hm.bee_sp$Site <- hm.bee_sp$code_site
-hm.bee_sp <- select(data_bee_sp, -code_site, -Code)
 
 hm.bee_sp <- gather(hm.bee_sp, key="sp", value="nbr", 2:ncol(hm.bee_sp)) # On prend pas la première colonne (site) et on va jusqu'à la dernière colonne (2 à 93) (xylo)
 
@@ -115,7 +122,7 @@ hm.bee_sp <- hm.bee_sp %>%
 hm.bee_sp <- select(hm.bee_sp, sp, Site, nbr)
 
 # Début enregistrement .pdf
-pdf(file = "D:/OneDrive - UMONS/UMONS/MA2/MEMOIRE/Rapport de mémoire/figure/heatmap_delete.pdf",   # The directory you want to save the file in
+pdf(file = "D:/OneDrive - UMONS/UMONS/MA2/MEMOIRE/Rapport de mémoire/figure/heatmap.pdf",   # The directory you want to save the file in
     width = 20, # The width of the plot in inches
     height = 10)
 
@@ -125,8 +132,8 @@ ggplot(hm.bee_sp, aes(x = Site, y = sp, fill = nbr)) +
   coord_fixed() +
   guides(fill = guide_colourbar(label = FALSE,
                                 ticks = FALSE)) +
-  theme(axis.text.x = element_text(angle = 90, vjust = 0, size = 3, hjust = 0, colour = mycolors),
-        axis.text.y = element_text(size = 3, hjust = 0,  vjust = 0.4,face="italic"),
+  theme(axis.text.x = element_text(angle = 90, vjust = 0, size = 5, hjust = 0, colour = mycolors),
+        axis.text.y = element_text(size = 5, hjust = 0,  vjust = 0.4,face="italic"),
         legend.position = "left", # position légende
         legend.title = element_text(size = 6), # Taille titre légende texte 
         legend.text = element_text(size = 6), # Taille légende échelle texte 
@@ -144,50 +151,44 @@ ggplot(hm.bee_sp, aes(x = Site, y = sp, fill = nbr)) +
 # Fin enregistrement .pdf
 dev.off()
 
-# 
 # ggsave(filename = "D:/OneDrive - UMONS/UMONS/MA2/MEMOIRE/Rapport de mémoire/figure/heatmap.pdf", device = cairo_pdf)
 # ggsave(filename = "D:/OneDrive - UMONS/UMONS/MA2/MEMOIRE/Rapport de mémoire/figure/heatmap.png")
 ```
 
+### Heatmap sp vs site
+# Filtrer les espèces les plus abondantes
 ```{r Heatmap ggplot}
-# Supprimer les espèces surabondantes qui masque les données
-data_bee_sp <- select(data_bee_sp, -"Bombus pascuorum")
-data_bee_sp <- select(data_bee_sp, -"Osmia bicornis")
 
-# Remodeler le jeux de données pour le heatmap
-data_bee_sp$Site <- data_bee_sp$code_site
-hm.bee_sp <- data_bee_sp
-hm.bee_sp$Site <- hm.bee_sp$code_site
-hm.bee_sp <- select(data_bee_sp, -code_site, -Code)
+# Changement de nom + retirer colonne espèce dominante
+hm.bee_filter <- select(data, -"Bombus pascuorum", -"Osmia bicornis", -"Terrestribombus  sp.") 
 
-hm.bee_sp <- gather(hm.bee_sp, key="sp", value="nbr", 2:ncol(hm.bee_sp)) # On prend pas la première colonne (site) et on va jusqu'à la dernière colonne (2 à 93) (xylo)
 
-hm.bee_sp$sp <- factor(hm.bee_sp$sp)
-hm.bee_sp$Site <- factor(hm.bee_sp$Site, levels = c("Pot-AbbayeSt-Denis","Pot-Ruedel'Egalite","Pot-ChasseCambier","Pot-MelLegumes", "Pot-Gourmandes", "Pot-Jeand'Avesnes", "Pot-ParcduboisdeMons",  "Pot-JardinSuspendu", "Pot-Ecoledel'Esperance","Pot-Fonddupetitmarais", "Par-Villagedesabeilles", "Par-Siegesocial" , "Par-ParcBonaert", "Par-ParcduBeffroi",  "Par-Stievenart"))
+hm.bee_filter <- gather(hm.bee_filter, key="sp", value="nbr", 2:ncol(hm.bee_filter)) # On prend pas la première colonne (site) et on va jusqu'à la dernière colonne (2 à 93) (xylo)
+
+hm.bee_filter$sp <- factor(hm.bee_filter$sp)
+hm.bee_filter$Site <- factor(hm.bee_filter$Site, levels = c("Pot-AbbayeSt-Denis","Pot-Ruedel'Egalite","Pot-ChasseCambier","Pot-MelLegumes", "Pot-Gourmandes", "Pot-Jeand'Avesnes", "Pot-ParcduboisdeMons",  "Pot-JardinSuspendu", "Pot-Ecoledel'Esperance","Pot-Fonddupetitmarais", "Par-Villagedesabeilles", "Par-Siegesocial" , "Par-ParcBonaert", "Par-ParcduBeffroi",  "Par-Stievenart"))
 
 mycolors <- c(rep("#003366",10), rep("#663300",5))
 
-hm.bee_sp <- hm.bee_sp %>%
+hm.bee_filter <- hm.bee_filter %>%
   # convert state to factor and reverse order of levels
   mutate(sp=factor(sp, levels=rev(sort(unique(sp)))))
 
-hm.bee_sp <- select(hm.bee_sp, sp, Site, nbr)
-
-
+hm.bee_filter <- select(hm.bee_filter, sp, Site, nbr)
 
 # Début enregistrement .pdf
 pdf(file = "D:/OneDrive - UMONS/UMONS/MA2/MEMOIRE/Rapport de mémoire/figure/heatmap_delete.pdf",   # The directory you want to save the file in
     width = 20, # The width of the plot in inches
     height = 10)
 
-ggplot(hm.bee_sp, aes(x = Site, y = sp, fill = nbr)) +
+ggplot(hm.bee_filter, aes(x = Site, y = sp, fill = nbr)) +
   labs(title = "Abondance des abeilles sauvages", x = '', y = '') + # Titre et titre axe
   geom_tile(color = "black") +
   coord_fixed() +
   guides(fill = guide_colourbar(label = FALSE,
                                 ticks = FALSE)) +
-  theme(axis.text.x = element_text(angle = 90, vjust = 0, size = 3, hjust = 0, colour = mycolors),
-        axis.text.y = element_text(size = 3, hjust = 0,  vjust = 0.4,face="italic"),
+  theme(axis.text.x = element_text(angle = 90, vjust = 0, size = 4, hjust = 0, colour = mycolors),
+        axis.text.y = element_text(size = 4, hjust = 0,  vjust = 0.4,face="italic"),
         legend.position = "left", # position légende
         legend.title = element_text(size = 6), # Taille titre légende texte 
         legend.text = element_text(size = 6), # Taille légende échelle texte 
@@ -200,12 +201,12 @@ ggplot(hm.bee_sp, aes(x = Site, y = sp, fill = nbr)) +
   #scale_fill_distiller(palette = "YlOrBr", direction = 1, na.value = "grey50")
   scale_fill_viridis(option = "B", direction = -1, na.value = "white")  # couleur
 
-#sum(hm.bee_sp$nbr) # total abeille 
+#sum(hm.bee_filter$nbr) # total abeille 
 
 # Fin enregistrement .pdf
 dev.off()
 
-# ggsave(filename = "D:/OneDrive - UMONS/UMONS/MA2/MEMOIRE/Rapport de mémoire/figure/heatmap_delete.pdf", device = cairo_pdf)
-# ggsave(filename = "D:/OneDrive - UMONS/UMONS/MA2/MEMOIRE/Rapport de mémoire/figure/heatmap_delete.png")
+# ggsave(filename = "D:/OneDrive - UMONS/UMONS/MA2/MEMOIRE/Rapport de mémoire/figure/heatmap.pdf", device = cairo_pdf)
+# ggsave(filename = "D:/OneDrive - UMONS/UMONS/MA2/MEMOIRE/Rapport de mémoire/figure/heatmap.png")
 ```
 
