@@ -19,31 +19,59 @@ library("writexl")
 ## Importation des données
 ```{r Import, message=FALSE, warning=FALSE, include=FALSE, results='hide', paged.print=FALSE}
 # Tour PC
-setwd("D:/OneDrive - UMONS/UMONS/MA2/MEMOIRE/Statistique/R/STAT-MEMOIRE/RAW2/Traits abeilles")
+setwd("D:/OneDrive - UMONS/UMONS/MA2/MEMOIRE/Statistique/R/STAT-MEMOIRE/RAW/Traits abeilles")
 # Laptop
 #setwd("C:/Users/Jordan/OneDrive - UMONS/UMONS/MA2/MEMOIRE/Statistique/R/STAT-MEMOIRE/RAW2/Traits abeilles")
 
-# Import
-traits <- read_excel("Trait-bee-each-site.xlsx")
+SpecCondStat <- read_excel("SpecCondStat_traits.xls")
+
+# Nom plus compact
+SCS <- SpecCondStat
+
+# Retirer le site de Condorcet
+SCS <- filter(SCS, TOPO != "Condorcet" )
+
+# Renommer plus simplement
+rename(SCS, "sp" = "SPEC.TAXPRIO" ) -> SCS
+rename(SCS, "Site" = "TOPO" ) -> SCS
+rename(SCS, "genus" = "SPEC.GEN" ) -> SCS
+rename(SCS, "familly" = "SPEC.GR2" ) -> SCS
+
+# Retirer les observations contenant l'espèce : "Apis mellifera"
+SCS <- filter(SCS, sp != "Apis mellifera" )
+
+# Remplacement des noms d'espèces désuets
+SCS$sp[SCS$sp == "Bombus (Bombus)  sp."] <- "Terrestribombus  sp."
+SCS$sp[SCS$sp == "Bombus lucorum"] <- "Terrestribombus  sp."
+SCS$sp[SCS$sp == "Bombus terrestris"] <- "Terrestribombus  sp."
+SCS$sp[SCS$sp == "Chalicodoma ericetorum"] <- "Megachile ericetorum"
+SCS$genus[SCS$genus == "Chalicodoma"] <- "Megachile"
+SCS$sp[SCS$sp == "Halictus tumulorum"] <- "Seladonia tumulorum"
+SCS$sp[SCS$sp == "Halictus tumulorum"] <- "Seladonia tumulorum"
+
+# Remplacement du noms de sites
+SCS$Site[SCS$Site == "Les Gourmandes de la Procession"] <- "Gourmandes"
 
 # Réécriture des noms de familles
-traits$familly[traits$familly == "ANDRENIDAE"] <- "Andrenidae"
-traits$familly[traits$familly == "APIDAE"] <- "Apidae"
-traits$familly[traits$familly == "COLLETIDAE"] <- "Colletidae"
-traits$familly[traits$familly == "HALICTIDAE"] <- "Halictidae"
-traits$familly[traits$familly == "MEGACHILIDAE"] <- "Megachilidae"
-traits$familly[traits$familly == "MELITTIDAE"] <- "Melittidae"
+SCS$familly[SCS$familly == "ANDRENIDAE"] <- "Andrenidae"
+SCS$familly[SCS$familly == "APIDAE"] <- "Apidae"
+SCS$familly[SCS$familly == "COLLETIDAE"] <- "Colletidae"
+SCS$familly[SCS$familly == "HALICTIDAE"] <- "Halictidae"
+SCS$familly[SCS$familly == "MEGACHILIDAE"] <- "Megachilidae"
+SCS$familly[SCS$familly == "MELITTIDAE"] <- "Melittidae"
 ```
+
+```{r}
+SCS %>%
+  group_by(sp, Site, genus, familly, Lectism) %>%
+  count(sp) -> df
+df$N <- df$n
+```
+
 Par espèce
 ```{r}
-# Addition des espèces avec la socialité
-sociality <- aggregate(N ~ sp + sociality, data = traits, sum)
-# Addition des genres avec le substrat de nidification (sol, cavité, branche, vegetation,...)
-nest_area <- aggregate(N ~ sp +  Nest_position, data = traits, sum)
-# Addition des genres avec la zone de nidification (au dessus du sol ou en dessous)
-nest_substrat <- aggregate(N ~ sp + Nest_area, data = traits, sum)
 # Addition des genres avec le lectisme (oligo ou poly)
-lectism <- aggregate(N ~ sp + Lectism, data = traits, sum)
+lectism <- aggregate(N ~ sp + Lectism, data = df, sum)
 ```
 
 ```{r Espèce}
@@ -92,7 +120,7 @@ lectism_rich[nrow(lectism_rich) + 1,] = c("Pourcentage", pct_rich_oli, pct_rich_
 Par genre
 ```{r}
 # Addition des genres avec la socialité
-lectism_gen <- aggregate(N ~ genus + Lectism, data = traits, sum)
+lectism_gen <- aggregate(N ~ genus + Lectism, data = df, sum)
 ```
 
 ```{r}
@@ -134,6 +162,10 @@ lectism_gen_rich[nrow(lectism_gen_rich) + 1,] = c("Pourcentage", pct_rich_oli,pc
 ```
 
 ```{r}
+my_df <- list(lectism, lectism_abu, lectism_rich, lectism_gen_abu, lectism_gen_rich)
 # Exportation tableur Excel
-write_xlsx(category_IUCN_fam,"D:/OneDrive - UMONS/UMONS/MA2/MEMOIRE/Statistique/R/STAT-MEMOIRE/Output/lectism.xlsx")
+# Brute
+write_xlsx(my_df , "D:/OneDrive - UMONS/UMONS/MA2/MEMOIRE/Statistique/R/STAT-MEMOIRE/Output/lectism.xlsx")
 ```
+
+

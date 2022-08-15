@@ -35,8 +35,6 @@ SpecCondStat <- read_excel("SpecCondStat.xls")
 # Retirer le site de Condorcet
 SCS <- filter(SpecCondStat, TOPO != "Condorcet" )
 
-
-
 # Retirer les observations contenant l'espèce : "Apis mellifera"
 # Renommer plus simplement
 rename(SCS, "familly" = "SPEC.GR2" ) -> SCS
@@ -57,14 +55,20 @@ SCS$sp[SCS$sp == "Halictus tumulorum"] <- "Seladonia tumulorum"
 SCS$Site[SCS$Site == "Les Gourmandes de la Procession"] <- "Gourmandes"
 ```
 
-Nombre de spécimens
+Nombre d'espèces par familles
 ```{r}
-# Sélection des colonnes
-bee_fam <- select(SCS, N, familly)
-# Addition des familly pour l'ensemble des sites
+# Groupe par sp et famille et dénombre nombre de spécimens par sp
+SCS %>% group_by(sp,familly) %>% summarise_at(vars(N),funs(sum(.,na.rm=TRUE))) -> bee_fam
+
+# Remplace le nombre de spécimens par 1
+bee_fam$N[bee_fam$N > 0] <- 1
+
+# Addition des espèces par famille
 bee_fam <- aggregate(N ~ familly, data = bee_fam, sum)
+
 # Ordonne les familly par ordre décroissant d'abondance
 bee_fam <- bee_fam[order(bee_fam $N, decreasing = TRUE),]
+
 # Encode la colonne familly en facteur
 bee_fam$familly <- factor(bee_fam$familly, levels = bee_fam$familly)
 

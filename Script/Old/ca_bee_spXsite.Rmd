@@ -53,7 +53,7 @@ SCS$sp[SCS$sp == "Halictus tumulorum"] <- "Seladonia tumulorum"
 SCS$sp[SCS$sp == "Halictus tumulorum"] <- "Seladonia tumulorum"
 
 # Remplacement du noms de sites
-SCS$sites[SCS$Site == "Les Gourmandes de la Procession"] <- "Gourmandes"
+SCS$Site[SCS$Site == "Les Gourmandes de la Procession"] <- "Gourmandes"
 
 #### Abbréger le nom des sites
 # Liste des Potagers
@@ -228,6 +228,26 @@ SCS %>%
   count(sp) -> df2 
 # df <- filter(df, site == "Siege social")
 df2 <- filter(df2, Site == "Les Gourmandes de la Procession")
+df2 <- df2[,2:3]
+
+ss <- dplyr::inner_join(df2 , df1, by = "sp")
+ss$Percentage <- round((ss$n/ss$tot)*100 , digits = 0)
+# table(df$sp)
+```
+
+```{r}
+# dataframe compte nbr individus par sp tous sites confondu
+SCS %>%
+  group_by(sp) %>%
+  count(sp) -> df1 
+rename(df1, "tot" = "n" ) -> df1
+
+# dataframe compte nbr individus par sp pour le site "XXX"
+SCS %>%
+  group_by(Site, sp) %>%
+  count(sp) -> df2 
+# df <- filter(df, site == "Siege social")
+df2 <- filter(df2, Site == "Parc du bois de Mons")
 df2 <- df2[,2:3]
 
 ss <- dplyr::inner_join(df2 , df1, by = "sp")

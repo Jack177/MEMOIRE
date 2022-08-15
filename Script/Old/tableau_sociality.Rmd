@@ -1,0 +1,153 @@
+---
+title: "IUCN"
+author: "Jordan"
+date: "`r Sys.Date()`"
+output: html_document
+---
+
+## Chargement des paquets
+```{r Library, message=FALSE, warning=FALSE, include=FALSE, results='hide', paged.print=FALSE}
+library("readxl") 
+library(dplyr)
+library(plotly)
+library(ggplot2)
+library(viridis) # couleur daltonien
+library(tidyr) # fonction gather
+library("writexl")
+```
+
+## Importation des données
+```{r Import, message=FALSE, warning=FALSE, include=FALSE, results='hide', paged.print=FALSE}
+# Tour PC
+setwd("D:/OneDrive - UMONS/UMONS/MA2/MEMOIRE/Statistique/R/STAT-MEMOIRE/RAW/Traits abeilles")
+# Laptop
+#setwd("C:/Users/Jordan/OneDrive - UMONS/UMONS/MA2/MEMOIRE/Statistique/R/STAT-MEMOIRE/RAW2/Traits abeilles")
+
+# Import
+traits <- read_excel("Trait-bee-each-site.xlsx")
+
+# Réécriture des noms de familles
+traits$familly[traits$familly == "ANDRENIDAE"] <- "Andrenidae"
+traits$familly[traits$familly == "APIDAE"] <- "Apidae"
+traits$familly[traits$familly == "COLLETIDAE"] <- "Colletidae"
+traits$familly[traits$familly == "HALICTIDAE"] <- "Halictidae"
+traits$familly[traits$familly == "MEGACHILIDAE"] <- "Megachilidae"
+traits$familly[traits$familly == "MELITTIDAE"] <- "Melittidae"
+```
+Par espèce
+```{r}
+# Addition des espèces avec la socialité
+sociality <- aggregate(N ~ sp + sociality, data = traits, sum)
+```
+
+```{r Espèce}
+### Abondance des sp
+# Socialité abondance-espèces
+sociality_abu <-  spread(sociality, key = sociality , value = N)
+# Ajoute une ligne total
+sociality_abu <- janitor::adorn_totals(sociality_abu)
+# Ajoute une colonne total
+sociality_abu$Total <- rowSums(sociality_abu[, c("Cleptoparasite", "Primitivelyeusocial", "Social parasite", "Solitary")])
+
+# Pourcentage abon Clepto
+pct_abu_cle <- round(sociality_abu[nrow(sociality_abu), "Cleptoparasite"]/sociality_abu[nrow(sociality_abu), "Total"], digits = 2)
+# Pourcentage abon Primitivelyeusocial
+pct_abu_pri <- round(sociality_abu[nrow(sociality_abu), "Primitivelyeusocial"]/sociality_abu[nrow(sociality_abu), "Total"], 2)
+# Pourcentage abon Social parasite
+pct_abu_par <- round(sociality_abu[nrow(sociality_abu), "Social parasite"]/sociality_abu[nrow(sociality_abu), "Total"], 2)
+# Pourcentage abon Solitary
+pct_abu_sol <- round(sociality_abu[nrow(sociality_abu), "Solitary"]/sociality_abu[nrow(sociality_abu), "Total"], 2)
+
+sociality_abu[nrow(sociality_abu) + 1,] = c("Pourcentage", pct_abu_cle,pct_abu_pri,pct_abu_par,pct_abu_sol,"")
+
+
+### Richesse 
+sociality_rich <- sociality
+# Changer tous les chiffres d'abondances par 1
+sociality_rich$N[sociality_rich$N > 0] <- 1  
+# Tableau avec colonne (Solitaire, clepto, ...)
+sociality_rich <-  spread(sociality_rich, key = sociality , value = N)
+# Ajoute une ligne total
+sociality_rich <- janitor::adorn_totals(sociality_rich)
+# Ajoute une colonne total
+sociality_rich$Total <- rowSums(sociality_rich[, c("Cleptoparasite", "Primitivelyeusocial", "Social parasite", "Solitary")])
+
+# Pourcentage rich Clepto
+pct_rich_cle <- round(sociality_rich[nrow(sociality_rich), "Cleptoparasite"]/sociality_rich[nrow(sociality_rich), "Total"], digits = 2)
+# Pourcentage rich Primitivelyeusocial
+pct_rich_pri <- round(sociality_rich[nrow(sociality_rich), "Primitivelyeusocial"]/sociality_rich[nrow(sociality_rich), "Total"], 2)
+# Pourcentage rich Social parasite
+pct_rich_par <- round(sociality_rich[nrow(sociality_rich), "Social parasite"]/sociality_rich[nrow(sociality_rich), "Total"], 2)
+# Pourcentage rich Solitary
+pct_rich_sol <- round(sociality_rich[nrow(sociality_rich), "Solitary"]/sociality_rich[nrow(sociality_rich), "Total"], 2)
+
+sociality_rich[nrow(sociality_rich) + 1,] = c("Pourcentage", pct_rich_cle,pct_rich_pri,pct_rich_par,pct_rich_sol,"")
+```
+Par genre
+```{r}
+# Addition des genres avec la socialité
+sociality_gen <- aggregate(N ~ genus + sociality, data = traits, sum)
+```
+
+```{r}
+### Abondance des genres
+# Socialité abondance-espèces
+sociality_gen_abu <-  spread(sociality_gen, key = sociality , value = N)
+# Ajoute une ligne total
+sociality_gen_abu <- janitor::adorn_totals(sociality_gen_abu)
+# Ajoute une colonne total
+sociality_gen_abu$Total <- rowSums(sociality_gen_abu[, c("Cleptoparasite", "Primitivelyeusocial", "Social parasite", "Solitary")])
+
+# Pourcentage abon Clepto
+pct_abu_cle <- round(sociality_gen_abu[nrow(sociality_gen_abu), "Cleptoparasite"]/sociality_gen_abu[nrow(sociality_gen_abu), "Total"], digits = 2)
+# Pourcentage abon Primitivelyeusocial
+pct_abu_pri <- round(sociality_gen_abu[nrow(sociality_gen_abu), "Primitivelyeusocial"]/sociality_gen_abu[nrow(sociality_gen_abu), "Total"], 2)
+# Pourcentage abon Social parasite
+pct_abu_par <- round(sociality_gen_abu[nrow(sociality_gen_abu), "Social parasite"]/sociality_gen_abu[nrow(sociality_gen_abu), "Total"], 2)
+# Pourcentage abon Solitary
+pct_abu_sol <- round(sociality_gen_abu[nrow(sociality_gen_abu), "Solitary"]/sociality_gen_abu[nrow(sociality_gen_abu), "Total"], 2)
+
+sociality_gen_abu[nrow(sociality_gen_abu) + 1,] = c("Pourcentage", pct_abu_cle,pct_abu_pri,pct_abu_par,pct_abu_sol,"")
+
+
+### Richesse des genres
+sociality_gen_rich <- sociality_gen
+# Changer tous les chiffres d'abondances par 1
+sociality_gen_rich$N[sociality_gen_rich$N > 0] <- 1  
+# Tableau avec colonne (Solitaire, clepto, ...)
+sociality_gen_rich <-  spread(sociality_gen_rich, key = sociality , value = N)
+# Ajoute une ligne total
+sociality_gen_rich <- janitor::adorn_totals(sociality_gen_rich)
+# Ajoute une colonne total
+sociality_gen_rich$Total <- rowSums(sociality_gen_rich[, c("Cleptoparasite", "Primitivelyeusocial", "Social parasite", "Solitary")])
+
+# Pourcentage rich Clepto
+pct_rich_cle <- round(sociality_gen_rich[nrow(sociality_gen_rich), "Cleptoparasite"]/sociality_gen_rich[nrow(sociality_gen_rich), "Total"], digits = 2)
+# Pourcentage rich Primitivelyeusocial
+pct_rich_pri <- round(sociality_gen_rich[nrow(sociality_gen_rich), "Primitivelyeusocial"]/sociality_gen_rich[nrow(sociality_gen_rich), "Total"], 2)
+# Pourcentage rich Social parasite
+pct_rich_par <- round(sociality_gen_rich[nrow(sociality_gen_rich), "Social parasite"]/sociality_gen_rich[nrow(sociality_gen_rich), "Total"], 2)
+# Pourcentage rich Solitary
+pct_rich_sol <- round(sociality_gen_rich[nrow(sociality_gen_rich), "Solitary"]/sociality_gen_rich[nrow(sociality_gen_rich), "Total"], 2)
+
+sociality_gen_rich[nrow(sociality_gen_rich) + 1,] = c("Pourcentage", pct_rich_cle,pct_rich_pri,pct_rich_par,pct_rich_sol,"")
+```
+
+```{r}
+my_df <- list(sociality,sociality_abu,sociality_rich,sociality_gen_abu,sociality_gen_rich)
+# Exportation tableur Excel
+# Brute
+write_xlsx(my_df , "D:/OneDrive - UMONS/UMONS/MA2/MEMOIRE/Statistique/R/STAT-MEMOIRE/Output/sociality.xlsx")
+
+# # sociality_abondance 
+# write_xlsx(sociality_abu, "D:/OneDrive - UMONS/UMONS/MA2/MEMOIRE/Statistique/R/STAT-MEMOIRE/Output/sociality.xlsx", sheetName="sociality_abu")
+# 
+# # sociality par sp 
+# write_xlsx(sociality_rich, "D:/OneDrive - UMONS/UMONS/MA2/MEMOIRE/Statistique/R/STAT-MEMOIRE/Output/sociality.xlsx", sheetName="sociality_rich")
+# 
+# # sociality abondance par genre 
+# write_xlsx(sociality_gen_abu, "D:/OneDrive - UMONS/UMONS/MA2/MEMOIRE/Statistique/R/STAT-MEMOIRE/Output/sociality.xlsx", sheetName="sociality_gen_abu")
+# 
+# # sociality par genre 
+# write_xlsx(sociality_gen_rich, "D:/OneDrive - UMONS/UMONS/MA2/MEMOIRE/Statistique/R/STAT-MEMOIRE/Output/sociality.xlsx", sheetName="sociality_gen_rich")
+```

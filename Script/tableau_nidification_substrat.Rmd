@@ -19,127 +19,133 @@ library("writexl")
 ## Importation des données
 ```{r Import, message=FALSE, warning=FALSE, include=FALSE, results='hide', paged.print=FALSE}
 # Tour PC
-setwd("D:/OneDrive - UMONS/UMONS/MA2/MEMOIRE/Statistique/R/STAT-MEMOIRE/RAW2/Traits abeilles")
+setwd("D:/OneDrive - UMONS/UMONS/MA2/MEMOIRE/Statistique/R/STAT-MEMOIRE/RAW/Traits abeilles")
 # Laptop
 #setwd("C:/Users/Jordan/OneDrive - UMONS/UMONS/MA2/MEMOIRE/Statistique/R/STAT-MEMOIRE/RAW2/Traits abeilles")
 
-# Import
-traits <- read_excel("Trait-bee-each-site.xlsx")
+SpecCondStat <- read_excel("SpecCondStat_traits.xls")
+
+# Nom plus compact
+SCS <- SpecCondStat
+
+# Retirer le site de Condorcet
+SCS <- filter(SCS, TOPO != "Condorcet" )
+
+# Renommer plus simplement
+rename(SCS, "sp" = "SPEC.TAXPRIO" ) -> SCS
+rename(SCS, "Site" = "TOPO" ) -> SCS
+rename(SCS, "genus" = "SPEC.GEN" ) -> SCS
+rename(SCS, "familly" = "SPEC.GR2" ) -> SCS
+
+# Retirer les observations contenant l'espèce : "Apis mellifera"
+SCS <- filter(SCS, sp != "Apis mellifera" )
+
+# Remplacement des noms d'espèces désuets
+SCS$sp[SCS$sp == "Bombus (Bombus)  sp."] <- "Terrestribombus  sp."
+SCS$sp[SCS$sp == "Bombus lucorum"] <- "Terrestribombus  sp."
+SCS$sp[SCS$sp == "Bombus terrestris"] <- "Terrestribombus  sp."
+SCS$sp[SCS$sp == "Chalicodoma ericetorum"] <- "Megachile ericetorum"
+SCS$genus[SCS$genus == "Chalicodoma"] <- "Megachile"
+SCS$sp[SCS$sp == "Halictus tumulorum"] <- "Seladonia tumulorum"
+SCS$sp[SCS$sp == "Halictus tumulorum"] <- "Seladonia tumulorum"
+
+# Remplacement du noms de sites
+SCS$Site[SCS$Site == "Les Gourmandes de la Procession"] <- "Gourmandes"
 
 # Réécriture des noms de familles
-traits$familly[traits$familly == "ANDRENIDAE"] <- "Andrenidae"
-traits$familly[traits$familly == "APIDAE"] <- "Apidae"
-traits$familly[traits$familly == "COLLETIDAE"] <- "Colletidae"
-traits$familly[traits$familly == "HALICTIDAE"] <- "Halictidae"
-traits$familly[traits$familly == "MEGACHILIDAE"] <- "Megachilidae"
-traits$familly[traits$familly == "MELITTIDAE"] <- "Melittidae"
+SCS$familly[SCS$familly == "ANDRENIDAE"] <- "Andrenidae"
+SCS$familly[SCS$familly == "APIDAE"] <- "Apidae"
+SCS$familly[SCS$familly == "COLLETIDAE"] <- "Colletidae"
+SCS$familly[SCS$familly == "HALICTIDAE"] <- "Halictidae"
+SCS$familly[SCS$familly == "MEGACHILIDAE"] <- "Megachilidae"
+SCS$familly[SCS$familly == "MELITTIDAE"] <- "Melittidae"
 ```
+
+```{r}
+SCS %>%
+  group_by(sp, Site, genus, familly, Nest_area) %>%
+  count(sp) -> df
+df$N <- df$n
+```
+
 Par espèce
 ```{r}
-# Addition des espèces avec la socialité
-sociality <- aggregate(N ~ sp + sociality, data = traits, sum)
-# Addition des genres avec le substrat de nidification (sol, cavité, branche, vegetation,...)
-nest_area <- aggregate(N ~ sp +  Nest_position, data = traits, sum)
 # Addition des genres avec la zone de nidification (au dessus du sol ou en dessous)
-nest_substrat <- aggregate(N ~ sp + Nest_area, data = traits, sum)
-# Addition des genres avec le lectisme (oligo ou poly)
-lectism <- aggregate(N ~ sp + Lectism, data = traits, sum)
+nest_substrat <- aggregate(N ~ sp + Nest_area, data = df, sum)
+```
+
+
+```{r Espèce}
+### Abondance 
+
+nest_substrat_ab <-  spread(nest_substrat, key = Nest_area , value = N)
+# Ajoute une ligne total
+nest_substrat_ab <- janitor::adorn_totals(nest_substrat_ab)
+# Ajoute une colonne total
+nest_substrat_ab$Total <- rowSums(nest_substrat_ab[, c("Cavities"  , "Snails",  "Stems" , "Variable" ,"Vegetation", "Wood" ,"Soil", "Walls")])
+
+
+# Pourcentage rich Cavities
+pct_ab_cav <- round(nest_substrat_ab[nrow(nest_substrat_ab), "Cavities"]/nest_substrat_ab[nrow(nest_substrat_ab), "Total"], 2)
+# Pourcentage rich Next to stems
+#pct_ab_nex <- round(nest_substrat_ab[nrow(nest_substrat_ab), "Next to stems"]/nest_substrat_ab[nrow(nest_substrat_ab), "Total"], 2)
+# Pourcentage rich Snails
+pct_ab_sna <- round(nest_substrat_ab[nrow(nest_substrat_ab), "Snails"]/nest_substrat_ab[nrow(nest_substrat_ab), "Total"], 2)
+# Pourcentage rich Stems
+pct_ab_ste <- round(nest_substrat_ab[nrow(nest_substrat_ab), "Stems"]/nest_substrat_ab[nrow(nest_substrat_ab), "Total"], digits = 2)
+# Pourcentage rich Variable
+pct_ab_var <- round(nest_substrat_ab[nrow(nest_substrat_ab), "Variable"]/nest_substrat_ab[nrow(nest_substrat_ab), "Total"], 2)
+# Pourcentage rich Vegetation
+pct_ab_veg <- round(nest_substrat_ab[nrow(nest_substrat_ab), "Vegetation"]/nest_substrat_ab[nrow(nest_substrat_ab), "Total"], 2)
+# Pourcentage rich Wood
+pct_ab_woo <- round(nest_substrat_ab[nrow(nest_substrat_ab), "Wood"]/nest_substrat_ab[nrow(nest_substrat_ab), "Total"], 2)
+# Pourcentage rich Soil
+pct_ab_soi <- round(nest_substrat_ab[nrow(nest_substrat_ab), "Soil"]/nest_substrat_ab[nrow(nest_substrat_ab), "Total"], digits = 2)
+# Pourcentage rich Walls
+pct_ab_wal <- round(nest_substrat_ab[nrow(nest_substrat_ab), "Walls"]/nest_substrat_ab[nrow(nest_substrat_ab), "Total"], 2)
+
+nest_substrat_ab[nrow(nest_substrat_ab) + 1,] = c("Pourcentage", pct_ab_cav,pct_ab_sna,pct_ab_soi,pct_ab_ste, pct_ab_var,pct_ab_veg,pct_ab_wal,pct_ab_woo,"")
 ```
 
 ```{r Espèce}
-### Abondance des sp
-# Socialité abondance-espèces
-sociality_abu <-  spread(sociality, key = sociality , value = N)
-# Ajoute une ligne total
-sociality_abu <- janitor::adorn_totals(sociality_abu)
-# Ajoute une colonne total
-sociality_abu$Total <- rowSums(sociality_abu[, c("Cleptoparasite", "Primitivelyeusocial", "Social parasite", "Solitary")])
-
-# Pourcentage abon Clepto
-pct_abu_cle <- round(sociality_abu[nrow(sociality_abu), "Cleptoparasite"]/sociality_abu[nrow(sociality_abu), "Total"], digits = 2)
-# Pourcentage abon Primitivelyeusocial
-pct_abu_pri <- round(sociality_abu[nrow(sociality_abu), "Primitivelyeusocial"]/sociality_abu[nrow(sociality_abu), "Total"], 2)
-# Pourcentage abon Social parasite
-pct_abu_par <- round(sociality_abu[nrow(sociality_abu), "Social parasite"]/sociality_abu[nrow(sociality_abu), "Total"], 2)
-# Pourcentage abon Solitary
-pct_abu_sol <- round(sociality_abu[nrow(sociality_abu), "Solitary"]/sociality_abu[nrow(sociality_abu), "Total"], 2)
-
-sociality_abu[nrow(sociality_abu) + 1,] = c("Pourcentage", pct_abu_cle,pct_abu_pri,pct_abu_par,pct_abu_sol,"")
-
-
 ### Richesse 
-sociality_rich <- sociality
+nest_substrat_rich <- nest_substrat
 # Changer tous les chiffres d'abondances par 1
-sociality_rich$N[sociality_rich$N > 0] <- 1  
+nest_substrat_rich$N[nest_substrat_rich$N > 0] <- 1  
 # Tableau avec colonne (Solitaire, clepto, ...)
-sociality_rich <-  spread(sociality_rich, key = sociality , value = N)
+nest_substrat_rich <-  spread(nest_substrat_rich, key = Nest_area , value = N)
 # Ajoute une ligne total
-sociality_rich <- janitor::adorn_totals(sociality_rich)
+nest_substrat_rich <- janitor::adorn_totals(nest_substrat_rich)
 # Ajoute une colonne total
-sociality_rich$Total <- rowSums(sociality_rich[, c("Cleptoparasite", "Primitivelyeusocial", "Social parasite", "Solitary")])
-
-# Pourcentage rich Clepto
-pct_rich_cle <- round(sociality_rich[nrow(sociality_rich), "Cleptoparasite"]/sociality_rich[nrow(sociality_rich), "Total"], digits = 2)
-# Pourcentage rich Primitivelyeusocial
-pct_rich_pri <- round(sociality_rich[nrow(sociality_rich), "Primitivelyeusocial"]/sociality_rich[nrow(sociality_rich), "Total"], 2)
-# Pourcentage rich Social parasite
-pct_rich_par <- round(sociality_rich[nrow(sociality_rich), "Social parasite"]/sociality_rich[nrow(sociality_rich), "Total"], 2)
-# Pourcentage rich Solitary
-pct_rich_sol <- round(sociality_rich[nrow(sociality_rich), "Solitary"]/sociality_rich[nrow(sociality_rich), "Total"], 2)
-
-sociality_rich[nrow(sociality_rich) + 1,] = c("Pourcentage", pct_rich_cle,pct_rich_pri,pct_rich_par,pct_rich_sol,"")
-```
-Par genre
-```{r}
-# Addition des genres avec la socialité
-sociality_gen <- aggregate(N ~ genus + sociality, data = traits, sum)
-```
-
-```{r}
-### Abondance des genres
-# Socialité abondance-espèces
-sociality_gen_abu <-  spread(sociality_gen, key = sociality , value = N)
-# Ajoute une ligne total
-sociality_gen_abu <- janitor::adorn_totals(sociality_gen_abu)
-# Ajoute une colonne total
-sociality_gen_abu$Total <- rowSums(sociality_gen_abu[, c("Cleptoparasite", "Primitivelyeusocial", "Social parasite", "Solitary")])
-
-# Pourcentage abon Clepto
-pct_abu_cle <- round(sociality_gen_abu[nrow(sociality_gen_abu), "Cleptoparasite"]/sociality_gen_abu[nrow(sociality_gen_abu), "Total"], digits = 2)
-# Pourcentage abon Primitivelyeusocial
-pct_abu_pri <- round(sociality_gen_abu[nrow(sociality_gen_abu), "Primitivelyeusocial"]/sociality_gen_abu[nrow(sociality_gen_abu), "Total"], 2)
-# Pourcentage abon Social parasite
-pct_abu_par <- round(sociality_gen_abu[nrow(sociality_gen_abu), "Social parasite"]/sociality_gen_abu[nrow(sociality_gen_abu), "Total"], 2)
-# Pourcentage abon Solitary
-pct_abu_sol <- round(sociality_gen_abu[nrow(sociality_gen_abu), "Solitary"]/sociality_gen_abu[nrow(sociality_gen_abu), "Total"], 2)
-
-sociality_gen_abu[nrow(sociality_gen_abu) + 1,] = c("Pourcentage", pct_abu_cle,pct_abu_pri,pct_abu_par,pct_abu_sol,"")
+nest_substrat_rich$Total <- rowSums(nest_substrat_rich[, c("Cavities"  , "Snails",  "Stems" , "Variable" ,"Vegetation", "Wood" ,"Soil", "Walls")])
 
 
-### Richesse des genres
-sociality_gen_rich <- sociality_gen
-# Changer tous les chiffres d'abondances par 1
-sociality_gen_rich$N[sociality_gen_rich$N > 0] <- 1  
-# Tableau avec colonne (Solitaire, clepto, ...)
-sociality_gen_rich <-  spread(sociality_gen_rich, key = sociality , value = N)
-# Ajoute une ligne total
-sociality_gen_rich <- janitor::adorn_totals(sociality_gen_rich)
-# Ajoute une colonne total
-sociality_gen_rich$Total <- rowSums(sociality_gen_rich[, c("Cleptoparasite", "Primitivelyeusocial", "Social parasite", "Solitary")])
+# Pourcentage rich Cavities
+pct_rich_cav <- round(nest_substrat_rich[nrow(nest_substrat_rich), "Cavities"]/nest_substrat_rich[nrow(nest_substrat_rich), "Total"], 2)
+# Pourcentage rich Next to stems
+#pct_rich_nex <- round(nest_substrat_rich[nrow(nest_substrat_rich), "Next to stems"]/nest_substrat_rich[nrow(nest_substrat_rich), "Total"], 2)
+# Pourcentage rich Snails
+pct_rich_sna <- round(nest_substrat_rich[nrow(nest_substrat_rich), "Snails"]/nest_substrat_rich[nrow(nest_substrat_rich), "Total"], 2)
+# Pourcentage rich Stems
+pct_rich_ste <- round(nest_substrat_rich[nrow(nest_substrat_rich), "Stems"]/nest_substrat_rich[nrow(nest_substrat_rich), "Total"], digits = 2)
+# Pourcentage rich Variable
+pct_rich_var <- round(nest_substrat_rich[nrow(nest_substrat_rich), "Variable"]/nest_substrat_rich[nrow(nest_substrat_rich), "Total"], 2)
+# Pourcentage rich Vegetation
+pct_rich_veg <- round(nest_substrat_rich[nrow(nest_substrat_rich), "Vegetation"]/nest_substrat_rich[nrow(nest_substrat_rich), "Total"], 2)
+# Pourcentage rich Wood
+pct_rich_woo <- round(nest_substrat_rich[nrow(nest_substrat_rich), "Wood"]/nest_substrat_rich[nrow(nest_substrat_rich), "Total"], 2)
+# Pourcentage rich Soil
+pct_rich_soi <- round(nest_substrat_rich[nrow(nest_substrat_rich), "Soil"]/nest_substrat_rich[nrow(nest_substrat_rich), "Total"], digits = 2)
+# Pourcentage rich Walls
+pct_rich_wal <- round(nest_substrat_rich[nrow(nest_substrat_rich), "Walls"]/nest_substrat_rich[nrow(nest_substrat_rich), "Total"], 2)
 
-# Pourcentage rich Clepto
-pct_rich_cle <- round(sociality_gen_rich[nrow(sociality_gen_rich), "Cleptoparasite"]/sociality_gen_rich[nrow(sociality_gen_rich), "Total"], digits = 2)
-# Pourcentage rich Primitivelyeusocial
-pct_rich_pri <- round(sociality_gen_rich[nrow(sociality_gen_rich), "Primitivelyeusocial"]/sociality_gen_rich[nrow(sociality_gen_rich), "Total"], 2)
-# Pourcentage rich Social parasite
-pct_rich_par <- round(sociality_gen_rich[nrow(sociality_gen_rich), "Social parasite"]/sociality_gen_rich[nrow(sociality_gen_rich), "Total"], 2)
-# Pourcentage rich Solitary
-pct_rich_sol <- round(sociality_gen_rich[nrow(sociality_gen_rich), "Solitary"]/sociality_gen_rich[nrow(sociality_gen_rich), "Total"], 2)
-
-sociality_gen_rich[nrow(sociality_gen_rich) + 1,] = c("Pourcentage", pct_rich_cle,pct_rich_pri,pct_rich_par,pct_rich_sol,"")
+nest_substrat_rich[nrow(nest_substrat_rich) + 1,] = c("Pourcentage", pct_rich_cav,pct_rich_sna,pct_rich_soi,pct_rich_ste, pct_rich_var,pct_rich_veg,pct_rich_wal,pct_rich_woo,"")
 ```
 
+
 ```{r}
+my_df <- list(nest_substrat_ab,nest_substrat_rich)
+
 # Exportation tableur Excel
-write_xlsx(category_IUCN_fam,"D:/OneDrive - UMONS/UMONS/MA2/MEMOIRE/Statistique/R/STAT-MEMOIRE/Output/sociality.xlsx")
+write_xlsx(my_df, "D:/OneDrive - UMONS/UMONS/MA2/MEMOIRE/Statistique/R/STAT-MEMOIRE/Output/nest_substrat.xlsx")
 ```

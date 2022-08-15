@@ -57,7 +57,7 @@ category_IUCN_sp <-  spread(IUCN_sp, key = category , value = N)
 category_IUCN_sp <- janitor::adorn_totals(category_IUCN_sp)
 
 # Rajouter les catégories manquante
-category_IUCN_sp$CR <- rep(0, nrow(category_IUCN_sp))  
+#category_IUCN_sp$CR <- rep(0, nrow(category_IUCN_sp))  
 category_IUCN_sp$EN <- rep(0, nrow(category_IUCN_sp)) 
 
 # Ajoute une colonne total

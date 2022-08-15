@@ -14,12 +14,15 @@ library(ggplot2)
 library(forcats )
 library(reshape2)
 library("readxl") 
+
+
 ```
 
-## Importation des données
-```{r Import, message=FALSE, warning=FALSE, include=FALSE, results='hide', paged.print=FALSE}
+# Note !!! : j'ai supprimé les Apis mellifera sur l'Excel !!
+à refaire si nouvelle donnée encodée !!
+```{r Nettoyage}
 # Tour PC
-setwd("D:/OneDrive - UMONS/UMONS/MA2/MEMOIRE/Statistique/R/STAT-MEMOIRE/RAW/Traits abeilles")
+setwd("D:/OneDrive - UMONS/UMONS/MA2/MEMOIRE/Statistique/R/STAT-MEMOIRE/RAW2/Traits abeilles")
 # Laptop
 #setwd("C:/Users/Jordan/OneDrive - UMONS/UMONS/MA2/MEMOIRE/Statistique/R/STAT-MEMOIRE/RAW2/Traits abeilles")
 
@@ -34,8 +37,7 @@ SCS <- filter(SCS, TOPO != "Condorcet" )
 # Renommer plus simplement
 rename(SCS, "sp" = "SPEC.TAXPRIO" ) -> SCS
 rename(SCS, "site" = "TOPO" ) -> SCS
-rename(SCS, "genus" = "SPEC.GEN" ) -> SCS
-rename(SCS, "familly" = "SPEC.GR2" ) -> SCS
+
 
 # Retirer les observations contenant l'espèce : "Apis mellifera"
 SCS <- filter(SCS, sp != "Apis mellifera" )
@@ -45,31 +47,41 @@ SCS$sp[SCS$sp == "Bombus (Bombus)  sp."] <- "Terrestribombus  sp."
 SCS$sp[SCS$sp == "Bombus lucorum"] <- "Terrestribombus  sp."
 SCS$sp[SCS$sp == "Bombus terrestris"] <- "Terrestribombus  sp."
 SCS$sp[SCS$sp == "Chalicodoma ericetorum"] <- "Megachile ericetorum"
-SCS$genus[SCS$genus == "Chalicodoma"] <- "Megachile"
 SCS$sp[SCS$sp == "Halictus tumulorum"] <- "Seladonia tumulorum"
 SCS$sp[SCS$sp == "Halictus tumulorum"] <- "Seladonia tumulorum"
 
 # Remplacement du noms de sites
-SCS$site[SCS$site == "Les Gourmandes de la Procession"] <- "Gourmandes"
+SCS$sites[SCS$site == "Les Gourmandes de la Procession"] <- "Gourmandes"
+
+
+# Filter les Bombus abondant
+#SCS <- filter(SCS, sp != "Terrestribombus  sp." | sp != "Bombus pascuorum" | sp != "Bombus (Bombus)  sp.")
+
+
+```
+
+
+Importation des données.
+```{r}
+# Tour PC
+setwd("D:/OneDrive - UMONS/UMONS/MA2/MEMOIRE/Statistique/R/STAT-MEMOIRE/RAW2/Traits abeilles")
+# Laptop
+#setwd("C:/Users/Jordan/OneDrive - UMONS/UMONS/MA2/MEMOIRE/Statistique/R/STAT-MEMOIRE/RAW2/Traits abeilles")
+
+# Import
+traits <- read_excel("Trait-bee-each-site.xlsx")
 
 # Réécriture des noms de familles
-SCS$familly[SCS$familly == "ANDRENIDAE"] <- "Andrenidae"
-SCS$familly[SCS$familly == "APIDAE"] <- "Apidae"
-SCS$familly[SCS$familly == "COLLETIDAE"] <- "Colletidae"
-SCS$familly[SCS$familly == "HALICTIDAE"] <- "Halictidae"
-SCS$familly[SCS$familly == "MEGACHILIDAE"] <- "Megachilidae"
-SCS$familly[SCS$familly == "MELITTIDAE"] <- "Melittidae"
+traits$familly[traits$familly == "ANDRENIDAE"] <- "Andrenidae"
+traits$familly[traits$familly == "APIDAE"] <- "Apidae"
+traits$familly[traits$familly == "COLLETIDAE"] <- "Colletidae"
+traits$familly[traits$familly == "HALICTIDAE"] <- "Halictidae"
+traits$familly[traits$familly == "MEGACHILIDAE"] <- "Megachilidae"
+traits$familly[traits$familly == "MELITTIDAE"] <- "Melittidae"
+
+# Remplacement du noms de sites
+traits$sites[traits$site == "Les Gourmandes de la Procession"] <- "Gourmandes"
 ```
-
-```{r}
-SCS %>%
-  group_by(sp, site, genus, familly, Nest_area) %>%
-  count(sp) -> traits
-traits$N <- traits$n
-```
-
-
-
 ```{r}
 SCS %>%
   group_by(sp, site) %>%
@@ -125,34 +137,26 @@ ggplot(df, aes(x = site, y = n, fill = Nest_area, label = n)) +
 ```
 
 ```{r}
-# Juste cette partie pour le nbr de spécimens par Nest_area
 SCS %>%
-  group_by(Nest_area, site,sp) %>%
-  count(Nest_area) -> df 
-# Ajout pour compter slmt le nbr d'espèce pour pas être masqué par Bombus
-df$n[df$n > 0] <- 1
-
-df %>%
   group_by(Nest_area, site) %>%
-  count(Nest_area) -> df
-
+  count(Nest_area) -> df 
 ```
 
 Barplot abondance par site selon nidification 
 ```{r}
 #mycolors <- c("seashell4", "sienna1", "wheat", "tan4", "olivedrab1", "cadetblue2", "yellowgreen", "burlywood4")
-mycolors <- c("Cavities" = "seashell4", "Next to stems" =  "sienna1", "Snails" = "gold", "Soil" = "#BC9369", "Stems" = "greenyellow", "Variable" = "lightblue", "Vegetation" = "chartreuse3", "Wood" = "burlywood4", "Walls" = "darkorange4")
+mycolors <- c("Cavities" = "seashell4", "Next to stems" =  "sienna1", "Snails" = "wheat", "Soil" = "#BC9369", "Stems" = "greenyellow", "Variable" = "lightblue", "Vegetation" = "chartreuse3", "Wood" = "burlywood4")
 
 # Ordonner par "Soil"
-df$Nest_area <- factor(df$Nest_area, levels = c( "Cavities" , "Next to stems" , "Snails",  "Stems" , "Variable" ,"Vegetation",  "Wood","Soil", "Walls"))
+df$Nest_area <- factor(df$Nest_area, levels = c( "Cavities" , "Next to stems" , "Snails",  "Stems" , "Variable" ,"Vegetation",  "Wood","Soil"))
 df$site=factor(df$site, levels = df[with(df,order(n,decreasing = T)) ,][df[with(df,order(n,decreasing = T)) ,]$Nest_area=="Soil",]$site)
-df <- filter(df, Nest_area != "Walls")
+
 
 ggplot(df, aes(x = site, y = n, fill = Nest_area, label = n)) +
   geom_bar(stat = "identity") +
   geom_text(size = 3, position = position_stack(vjust = 0.5)) +
   scale_fill_manual("", values = mycolors ) +
-  labs(title = "", x = "", y = "Nombre d'espèces") + # Titre et titre axe
+  labs(title = "", x = "", y = "Nombre d'individus") + # Titre et titre axe
   # scale_fill_brewer(palette="Pastel1")
   theme(axis.text.x = element_text(angle = 90, vjust = 0, size = 10, hjust = 0),
         axis.text.y = element_text(size = 10, hjust = 0,  vjust = 0.4,face="bold"),

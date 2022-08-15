@@ -20,7 +20,7 @@ Importation des données.
 ```{r Import}
 # Import
 # Tour PC
-setwd("D:/OneDrive - UMONS/UMONS/MA2/MEMOIRE/Statistique/R/STAT-MEMOIRE/RAW2")
+setwd("D:/OneDrive - UMONS/UMONS/MA2/MEMOIRE/Statistique/R/STAT-MEMOIRE/RAW")
 # Laptop
 #setwd("C:/Users/Jordan/OneDrive - UMONS/UMONS/MA2/MEMOIRE/Statistique/R/STAT-MEMOIRE/RAW2")
 
@@ -43,17 +43,19 @@ rename(SCS, "plante" = "COND.TAXPRIO" ) -> SCS
 rename(SCS, "pl_fam" = "COND.GR2" ) -> SCS
 rename(SCS, "sites" = "TOPO" ) -> SCS
 
-# Retirer les observations contenant l'espèce : "XXX"
-# SCS <- filter(SCS, SPEC.TAXPRIO != "Bombus (Bombus)  sp." )
+# Retirer les observations contenant l'espèce : "Apis mellifera"
+SCS <- filter(SCS, sp != "Apis mellifera" )
 
 # Remplacement des noms d'espèces désuets
-SCS$sp[SCS$sp == "Bombus lucorum"] <- "Bombus (Bombus)  sp."
-SCS$sp[SCS$sp == "Terrestribombus  sp."] <- "Bombus (Bombus)  sp."
+SCS$sp[SCS$sp == "Bombus (Bombus)  sp."] <- "Terrestribombus  sp."
+SCS$sp[SCS$sp == "Bombus lucorum"] <- "Terrestribombus  sp."
+SCS$sp[SCS$sp == "Bombus terrestris"] <- "Terrestribombus  sp."
 SCS$sp[SCS$sp == "Chalicodoma ericetorum"] <- "Megachile ericetorum"
+SCS$sp[SCS$sp == "Halictus tumulorum"] <- "Seladonia tumulorum"
 SCS$sp[SCS$sp == "Halictus tumulorum"] <- "Seladonia tumulorum"
 
 # Remplacement du noms de sites
-SCS$sites[SCS$sites == "Les Gourmandes de la Procession"] <- "Gourmandes de la Procession"
+SCS$Site[SCS$sites == "Les Gourmandes de la Procession"] <- "Gourmandes"
 ```
 
 ```{r Matrice espèces abeilles vs espèces plantes}
@@ -93,6 +95,18 @@ plotweb(reseau, arrow="down.center", method="normal",
                              adjustcolor('darkturquoise', alpha.f = 0.5)))) 
 ```
 
+```{r}
+par(font = 3)
+plotweb(reseau, arrow="down.center", method="normal", 
+        text.rot=90, high.lablength=500, low.lablength=500, # lablenght = nbr caractère limité
+        col.high = "darkorange1", col.low = "forestgreen", y.lim = c(-1.5, 4),bor.col.interaction = NA, #remove the black border color
+    col.interaction = t(ifelse(reseau[,] < 15,
+                             adjustcolor('grey10', alpha.f = 0.5), #add alpha to colors
+                             adjustcolor('grey10', alpha.f = 0.5)))) 
+```
+
+
+
 ```{r Matrice genre abeilles vs famille des plantes}
 # Preparation des données
 data_bee_genus_vs_plante <- select(SCS, genus, N, pl_fam)
@@ -105,6 +119,7 @@ data_bee_genus_vs_plante <- as.data.frame(data_bee_genus_vs_plante)
 # Transforme rownams en vrai colonne
 data_bee_genus_vs_plante <- tibble::rownames_to_column(data_bee_genus_vs_plante, "Fleurs")
 ```
+
 ```{r}
 # Nom plus compact et isolation des chunks
 reseau_gen_fam <- data_bee_genus_vs_plante
