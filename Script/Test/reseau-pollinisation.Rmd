@@ -43,8 +43,7 @@ rename(SCS, "plante" = "COND.TAXPRIO" ) -> SCS
 rename(SCS, "pl_fam" = "COND.GR2" ) -> SCS
 rename(SCS, "sites" = "TOPO" ) -> SCS
 
-# Retirer les observations contenant l'espèce : "Apis mellifera"
-SCS <- filter(SCS, sp != "Apis mellifera" )
+
 
 # Remplacement des noms d'espèces désuets
 SCS$sp[SCS$sp == "Bombus (Bombus)  sp."] <- "Terrestribombus  sp."
@@ -54,8 +53,17 @@ SCS$sp[SCS$sp == "Chalicodoma ericetorum"] <- "Megachile ericetorum"
 SCS$sp[SCS$sp == "Halictus tumulorum"] <- "Seladonia tumulorum"
 SCS$sp[SCS$sp == "Halictus tumulorum"] <- "Seladonia tumulorum"
 
+SCS$plante[SCS$plante == "COMPOSITAE"] <- "delete_this_shit"
+
+SCS <- select(SCS, sp, genus, plante, pl_fam, sites, N)
+
+# Retirer les observations contenant l'espèce : "Apis mellifera"
+SCS <- filter(SCS, sp != "Apis mellifera" )
+# NOTE : supprime également tous les NA ! 1902 =>  728 obs
+SCS <- filter(SCS, plante != "delete_this_shit" )
+
 # Remplacement du noms de sites
-SCS$Site[SCS$sites == "Les Gourmandes de la Procession"] <- "Gourmandes"
+SCS$sites[SCS$sites == "Les Gourmandes de la Procession"] <- "Gourmandes"
 ```
 
 ```{r Matrice espèces abeilles vs espèces plantes}

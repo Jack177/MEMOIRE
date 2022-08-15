@@ -1,0 +1,262 @@
+---
+title: "IUCN"
+author: "Jordan"
+date: "`r Sys.Date()`"
+output: html_document
+---
+
+## Chargement des paquets
+```{r Library, message=FALSE, warning=FALSE, include=FALSE, results='hide', paged.print=FALSE}
+library("readxl") 
+library(dplyr)
+library(plotly)
+library(ggplot2)
+library(viridis) # couleur daltonien
+library(tidyr) # fonction gather
+library("writexl")
+```
+
+## Importation des données
+```{r Import, message=FALSE, warning=FALSE, include=FALSE, results='hide', paged.print=FALSE}
+# Tour PC
+setwd("D:/OneDrive - UMONS/UMONS/MA2/MEMOIRE/Statistique/R/STAT-MEMOIRE/RAW/Traits abeilles")
+# Laptop
+#setwd("C:/Users/Jordan/OneDrive - UMONS/UMONS/MA2/MEMOIRE/Statistique/R/STAT-MEMOIRE/RAW2/Traits abeilles")
+
+SpecCondStat <- read_excel("SpecCondStat_traits.xls")
+
+# Nom plus compact
+SCS <- SpecCondStat
+
+# Retirer le site de Condorcet
+SCS <- filter(SCS, TOPO != "Condorcet" )
+
+# Renommer plus simplement
+rename(SCS, "sp" = "SPEC.TAXPRIO" ) -> SCS
+rename(SCS, "Site" = "TOPO" ) -> SCS
+rename(SCS, "genus" = "SPEC.GEN" ) -> SCS
+rename(SCS, "familly" = "SPEC.GR2" ) -> SCS
+rename(SCS, "plante" = "COND.TAXPRIO" ) -> SCS
+rename(SCS, "plante_gen" = "COND.GEN" ) -> SCS
+rename(SCS, "plante_fam" = "COND.GR2" ) -> SCS
+
+# Retirer les observations contenant l'espèce : "Apis mellifera"
+SCS <- filter(SCS, sp != "Apis mellifera" )
+
+# Remplacement des noms d'espèces désuets
+SCS$sp[SCS$sp == "Bombus (Bombus)  sp."] <- "Terrestribombus  sp."
+SCS$sp[SCS$sp == "Bombus lucorum"] <- "Terrestribombus  sp."
+SCS$sp[SCS$sp == "Bombus terrestris"] <- "Terrestribombus  sp."
+SCS$sp[SCS$sp == "Chalicodoma ericetorum"] <- "Megachile ericetorum"
+SCS$genus[SCS$genus == "Chalicodoma"] <- "Megachile"
+SCS$sp[SCS$sp == "Halictus tumulorum"] <- "Seladonia tumulorum"
+SCS$sp[SCS$sp == "Halictus tumulorum"] <- "Seladonia tumulorum"
+
+# Remplacement du noms de sites
+SCS$Site[SCS$Site == "Les Gourmandes de la Procession"] <- "Gourmandes"
+
+# Réécriture des noms de familles
+SCS$familly[SCS$familly == "ANDRENIDAE"] <- "Andrenidae"
+SCS$familly[SCS$familly == "APIDAE"] <- "Apidae"
+SCS$familly[SCS$familly == "COLLETIDAE"] <- "Colletidae"
+SCS$familly[SCS$familly == "HALICTIDAE"] <- "Halictidae"
+SCS$familly[SCS$familly == "MEGACHILIDAE"] <- "Megachilidae"
+SCS$familly[SCS$familly == "MELITTIDAE"] <- "Melittidae"
+```
+
+```{r}
+SCS %>%
+  group_by(plante, sp) %>%
+  count(plante) -> df
+```
+
+Par espèce
+```{r}
+# Addition des genres avec le lectisme (oligo ou poly)
+floral <- aggregate(n ~ plante, data = df, sum)
+```
+
+```{r Exploration familly}
+# 
+ggplot(floral, aes(x=reorder(plante, + n), y=n)) +
+  geom_bar(stat="identity", fill = "dodgerblue4") + coord_flip() + 
+  geom_text(aes(label=n), vjust=0.4, hjust = 0, color="black", fontface = "bold", size=2) +
+  labs(title = "", x = '', y = "Nombre d'abeilles butinant observées") +
+  theme(axis.title.x = element_text(face="bold", size = 7), # Titre axe x
+        axis.title.y = element_text(face="bold", size = 10), # Titre axe y
+        axis.text.x = element_text(face="bold", color= "black", size=7, hjust=0), # Echelle x
+        axis.text.y = element_text(face="bold", color= "black", size=7), # Echelle y
+        panel.grid.major = element_blank(),panel.grid.minor = element_blank(),
+        panel.background = element_rect(fill='white', colour='black'),
+        legend.position = "none") 
+```
+
+
+
+Quelles sont les abeilles sur les plantes ?
+```{r}
+SCS %>%
+  group_by(plante, sp, genus) %>%
+  count(plante) -> df
+
+Bellis <- filter(df, plante == "Bellis perennis")
+```
+Quelles sont les genres d'abeilles sur les plantes ?
+```{r}
+
+SCS %>%
+  group_by(plante, sp, genus) %>%
+  count(plante) -> df
+
+df$n[df$n > 0] <- 1 
+
+df %>%
+  group_by(plante, genus) %>%
+  count(plante) -> df
+
+Bellis <- filter(df, plante == "Bellis perennis")
+```
+
+
+
+
+Par genre
+
+```{r}
+SCS %>%
+  group_by(plante_gen, sp) %>%
+  count(plante_gen) -> df
+```
+
+```{r}
+# 
+floral <- aggregate(n ~ plante_gen, data = df, sum)
+```
+
+```{r Exploration familly}
+# 
+ggplot(floral, aes(x=reorder(plante_gen, + n), y=n)) +
+  geom_bar(stat="identity", fill = "dodgerblue4") + coord_flip() + 
+  geom_text(aes(label=n), vjust=0.4, hjust = 0, color="black", fontface = "bold", size=2) +
+  labs(title = "", x = '', y = "Nombre d'abeilles butinant observées") +
+  theme(axis.title.x = element_text(face="bold", size = 7), # Titre axe x
+        axis.title.y = element_text(face="bold", size = 10), # Titre axe y
+        axis.text.x = element_text(face="bold", color= "black", size=7, hjust=0), # Echelle x
+        axis.text.y = element_text(face="bold", color= "black", size=7), # Echelle y
+        panel.grid.major = element_blank(),panel.grid.minor = element_blank(),
+        panel.background = element_rect(fill='white', colour='black'),
+        legend.position = "none") 
+```
+
+
+
+```{r}
+SCS %>%
+  group_by(plante_fam, sp) %>%
+  count(plante_fam) -> df
+```
+
+Par famille
+```{r}
+# Addition des genres avec le lectisme (oligo ou poly)
+floral <- aggregate(n ~ plante_fam, data = df, sum)
+```
+
+```{r Exploration familly}
+# 
+ggplot(floral, aes(x=reorder(plante_fam, + n), y=n)) +
+  geom_bar(stat="identity", fill = "dodgerblue4") + coord_flip() + 
+  geom_text(aes(label=n), vjust=0.4, hjust = 0, color="black", fontface = "bold", size=2) +
+  labs(title = "", x = '', y = "Nombre d'abeilles butinant observées") +
+  theme(axis.title.x = element_text(face="bold", size = 7), # Titre axe x
+        axis.title.y = element_text(face="bold", size = 10), # Titre axe y
+        axis.text.x = element_text(face="bold", color= "black", size=7, hjust=0), # Echelle x
+        axis.text.y = element_text(face="bold", color= "black", size=7), # Echelle y
+        panel.grid.major = element_blank(),panel.grid.minor = element_blank(),
+        panel.background = element_rect(fill='white', colour='black'),
+        legend.position = "none") 
+```
+
+Nombre d'espèces par plantes (sp, genre, famille)
+
+Par espèces
+```{r}
+SCS %>%
+  group_by(plante, sp) %>%
+  count(plante) -> floral_sp_rich
+
+floral_sp_rich$n[floral_sp_rich$n > 0] <- 1 
+floral_sp_rich <- aggregate(n ~ plante, data = floral_sp_rich, sum)
+```
+
+```{r Exploration familly}
+floral <- floral_sp_rich
+ 
+ggplot(floral, aes(x=reorder(plante, + n), y=n)) +
+  geom_bar(stat="identity", fill = "dodgerblue4") + coord_flip() + 
+  geom_text(aes(label=n), vjust=0.4, hjust = 0, color="black", fontface = "bold", size=2) +
+  labs(title = "", x = '', y = "Nombre d'espèces d'abeilles observées") +
+  theme(axis.title.x = element_text(face="bold", size = 7), # Titre axe x
+        axis.title.y = element_text(face="bold", size = 10), # Titre axe y
+        axis.text.x = element_text(face="bold", color= "black", size=7, hjust=0), # Echelle x
+        axis.text.y = element_text(face="bold", color= "black", size=7), # Echelle y
+        panel.grid.major = element_blank(),panel.grid.minor = element_blank(),
+        panel.background = element_rect(fill='white', colour='black'),
+        legend.position = "none") 
+```
+
+Par genre
+```{r}
+SCS %>%
+  group_by(plante_gen, sp) %>%
+  count(plante_gen) -> floral_gen_rich
+
+floral_gen_rich$n[floral_gen_rich$n > 0] <- 1 
+floral_gen_rich <- aggregate(n ~ plante_gen, data = floral_gen_rich, sum)
+```
+
+```{r Exploration familly}
+floral <- floral_gen_rich
+ 
+ggplot(floral, aes(x=reorder(plante_gen, + n), y=n)) +
+  geom_bar(stat="identity", fill = "dodgerblue4") + coord_flip() + 
+  geom_text(aes(label=n), vjust=0.4, hjust = 0, color="black", fontface = "bold", size=2) +
+  labs(title = "", x = '', y = "Nombre d'abeilles butinant observées") +
+  theme(axis.title.x = element_text(face="bold", size = 7), # Titre axe x
+        axis.title.y = element_text(face="bold", size = 10), # Titre axe y
+        axis.text.x = element_text(face="bold", color= "black", size=7, hjust=0), # Echelle x
+        axis.text.y = element_text(face="bold", color= "black", size=7), # Echelle y
+        panel.grid.major = element_blank(),panel.grid.minor = element_blank(),
+        panel.background = element_rect(fill='white', colour='black'),
+        legend.position = "none") 
+```
+
+Par famille
+```{r}
+SCS %>%
+  group_by(plante_fam, sp) %>%
+  count(plante_fam) -> floral_fam_rich
+
+floral_fam_rich$n[floral_fam_rich$n > 0] <- 1 
+floral_fam_rich <- aggregate(n ~ plante_fam, data = floral_fam_rich, sum)
+```
+
+```{r Exploration familly}
+floral <- floral_fam_rich
+ 
+ggplot(floral, aes(x=reorder(plante_fam, + n), y=n)) +
+  geom_bar(stat="identity", fill = "dodgerblue4") + coord_flip() + 
+  geom_text(aes(label=n), vjust=0.4, hjust = 0, color="black", fontface = "bold", size=2) +
+  labs(title = "", x = '', y = "Nombre d'abeilles butinant observées") +
+  theme(axis.title.x = element_text(face="bold", size = 7), # Titre axe x
+        axis.title.y = element_text(face="bold", size = 10), # Titre axe y
+        axis.text.x = element_text(face="bold", color= "black", size=7, hjust=0), # Echelle x
+        axis.text.y = element_text(face="bold", color= "black", size=7), # Echelle y
+        panel.grid.major = element_blank(),panel.grid.minor = element_blank(),
+        panel.background = element_rect(fill='white', colour='black'),
+        legend.position = "none") 
+```
+
+
+
+
