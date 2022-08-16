@@ -36,7 +36,7 @@ SCS <- filter(SCS, TOPO != "Condorcet" )
 
 # Renommer plus simplement
 rename(SCS, "sp" = "SPEC.TAXPRIO" ) -> SCS
-rename(SCS, "Site" = "TOPO" ) -> SCS
+rename(SCS, "site" = "TOPO" ) -> SCS
 
 # Retirer les observations contenant l'espèce : "Apis mellifera"
 SCS <- filter(SCS, sp != "Apis mellifera" )
@@ -50,7 +50,7 @@ SCS$sp[SCS$sp == "Halictus tumulorum"] <- "Seladonia tumulorum"
 SCS$sp[SCS$sp == "Halictus tumulorum"] <- "Seladonia tumulorum"
 
 # Remplacement du noms de sites
-SCS$Site[SCS$Site == "Les Gourmandes de la Procession"] <- "Gourmandes"
+SCS$site[SCS$site == "Les Gourmandes de la Procession"] <- "Gourmandes"
 
 
 ```
@@ -75,7 +75,7 @@ traits$familly[traits$familly == "MEGACHILIDAE"] <- "Megachilidae"
 traits$familly[traits$familly == "MELITTIDAE"] <- "Melittidae"
 
 # Remplacement du noms de sites
-traits$sites[traits$site == "Les Gourmandes de la Procession"] <- "Gourmandes"
+traits$site[traits$site == "Les Gourmandes de la Procession"] <- "Gourmandes"
 ```
 
 ```{r}

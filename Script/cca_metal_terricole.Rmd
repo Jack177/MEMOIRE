@@ -1,0 +1,162 @@
+---
+title: "cca"
+author: "Jordan"
+date: "`r Sys.Date()`"
+output: html_document
+---
+
+
+```{r}
+# Load the required packages
+library(dplyr)
+library(vegan) # specpool () estimateR() poolaccum() estaccumR()
+library(ggplot2)
+library(forcats )
+library("readxl") 
+```
+
+Importation des données.
+```{r Import}
+# Import
+# Tour PC
+setwd("D:/OneDrive - UMONS/UMONS/MA2/MEMOIRE/Statistique/R/STAT-MEMOIRE/RAW")
+# Laptop
+#setwd("C:/Users/Jordan/OneDrive - UMONS/UMONS/MA2/MEMOIRE/Statistique/R/STAT-MEMOIRE/RAW2")
+
+# Import
+soil <- read_excel("Soil_R.xlsx")
+SpecCondStat <- read_excel("Traits abeilles/SpecCondStat_traits.xls")
+```
+
+```{r Nettoyage}
+# Nom plus compact et isolation des chunks
+SCS <- SpecCondStat
+
+# Retirer le site de Condorcet
+SCS <- filter(SCS, TOPO != "Condorcet" )
+
+# Renommer plus simplement
+rename(SCS, "sp" = "SPEC.TAXPRIO" ) -> SCS
+rename(SCS, "genus" = "SPEC.GEN" ) -> SCS
+rename(SCS, "plante" = "COND.TAXPRIO" ) -> SCS
+rename(SCS, "pl_fam" = "COND.GR2" ) -> SCS
+rename(SCS, "site" = "TOPO" ) -> SCS
+
+
+# Remplacement des noms d'espèces désuets
+SCS$sp[SCS$sp == "Bombus (Bombus)  sp."] <- "Terrestribombus  sp."
+SCS$sp[SCS$sp == "Bombus lucorum"] <- "Terrestribombus  sp."
+SCS$sp[SCS$sp == "Bombus terrestris"] <- "Terrestribombus  sp."
+SCS$sp[SCS$sp == "Chalicodoma ericetorum"] <- "Megachile ericetorum"
+SCS$sp[SCS$sp == "Halictus tumulorum"] <- "Seladonia tumulorum"
+SCS$sp[SCS$sp == "Halictus tumulorum"] <- "Seladonia tumulorum"
+
+SCS$plante[SCS$plante == "COMPOSITAE"] <- "delete_this_shit"
+
+# Retirer les observations contenant l'espèce : "Apis mellifera"
+SCS <- filter(SCS, sp != "Apis mellifera" )
+# NOTE : supprime également tous les NA ! 1902 =>  728 obs
+SCS <- filter(SCS, plante != "delete_this_shit" )
+
+# Remplacement du noms de sites
+SCS$site[SCS$site == "Les Gourmandes de la Procession"] <- "Gourmandes"
+soil$Site[soil$Site == "Les Gourmandes de la Procession"] <- "Gourmandes"
+
+
+# Garder pour rownames
+soil_site_name <- select(soil, Site)
+# Garder les métaux seulement
+metal <- soil[, c("As", "Cd", "Cr", "Cu", "Hg", "Pb", "Ni", "Zn")]
+row.names(metal) <- soil_site_name$Site
+
+SCS <- select(SCS, site, sp, Nest_area, N)
+```
+
+
+
+```{r}
+terricole <- filter(SCS, Nest_area == "Soil")
+
+# Preparation des données 
+terricole <- select(terricole, sp, N, site)
+terricole <- as.data.frame(terricole)
+terricole <- aggregate(N ~ sp + site, data = terricole, sum)
+terricole <- xtabs(N ~ site + sp, terricole)
+terricole <- type.convert(terricole)
+```
+
+
+
+
+
+```{r}
+# https://blogs.ncl.ac.uk/mep/2018/04/08/reproducible-publication-quality-multivariate-plots-in-r/
+library(ggrepel)
+
+varechem <- as.data.frame(metal[c( "As", "Cr","Cd", "Hg", "Pb","Ni")])
+varespec <- as.data.frame(terricole)
+vare_cca <- cca(varespec ~ ., metal[c( "As", "Cr","Cd", "Hg", "Pb","Ni")])
+
+
+vare_spp_sco <- scores(vare_cca, display = "species")
+vare_sam_sco <- scores(vare_cca, display = "sites")
+vare_env_sco <- scores(vare_cca, display = "bp")
+vare_spp_tbl <- as_tibble(vare_spp_sco)
+vare_sam_tbl <- as_tibble(vare_sam_sco)
+vare_env_tbl <- as_tibble(vare_env_sco)
+vare_spp_tbl <- mutate(vare_spp_tbl, vgntxt=rownames(vare_spp_sco),
+                       ccatype = "species")
+vare_sam_tbl <- mutate(vare_sam_tbl, vgntxt=rownames(vare_sam_sco),
+                       ccatype = "sites")
+vare_env_tbl <- mutate(vare_env_tbl, vgntxt=rownames(vare_env_sco),
+                       ccatype = "bp")
+
+ggplot(vare_spp_tbl, aes(x = CCA1, y = CCA2, label = vgntxt)) +
+       geom_point() +
+       geom_text_repel(seed = 123)
+
+
+
+rescaled <- vare_env_tbl %>% 
+            select(CCA1, CCA2) %>%
+            as.matrix() * 1.5
+vare_tbl <- select(vare_env_tbl, vgntxt, ccatype) %>%
+            bind_cols(as_tibble(rescaled)) %>%
+            bind_rows(vare_spp_tbl)
+
+ggplot() +
+  geom_point(aes(x=CCA1, y=CCA2), data=filter(vare_tbl, ccatype=="species"))  +
+  geom_text_repel(aes(x=CCA1, y=CCA2, label=vgntxt, size=3.5),
+                  data=vare_tbl, seed=123) + 
+  geom_segment(aes(x=0, y=0, xend=CCA1, yend=CCA2), arrow=arrow(length = unit(0.2,"cm")),
+               data=filter(vare_tbl, ccatype=="bp"), color="blue") +
+  coord_fixed() +
+  theme_classic() +
+  theme(legend.position="none")
+```
+
+```{r}
+# cca(formula = spe ~ Argile + `Limon fin` + `Limon grossier` + `Sable fin` + `Sable grossier`, data = as.data.frame(Granulo_scale))
+# test l'ensemble de la CCA si le modèle explique une quantité significatif de la variation dans les données
+anova(vare_cca) 
+# test pour chacune des var env
+anova(vare_cca, by = "term", permutations = 999)
+
+RsquareAdj(vare_cca)
+```
+
+
+```{r}
+vif.cca(vare_cca)
+```
+
+
+```{r}
+summary(vare_cca)
+```
+
+
+```{r}
+permutest(vare_cca, permutations = 999)
+permutest(vare_cca, by = "term", permutations = 999)
+```

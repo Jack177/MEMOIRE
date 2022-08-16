@@ -112,24 +112,27 @@ data_bee_sp <- type.convert(data_bee_sp)
 
 ```{r}
 #vegan::plot.cca(spe.cca)
-plot(spe.cca, scaling = 3, display ="wa")
-plot(spe.cca, scaling = 3, display ="lc")
-plot(spe.cca, scaling = 3, display ="bp")
-plot(spe.cca, scaling = 3, display ="reg")
-plot(spe.cca, scaling = 3, display ="cn")
-plot(spe.cca, scaling = 3, display ="all")
+# plot(spe.cca, scaling = 3, display ="wa")
+# plot(spe.cca, scaling = 3, display ="lc")
+# plot(spe.cca, scaling = 3, display ="bp")
+# plot(spe.cca, scaling = 3, display ="reg")
+# plot(spe.cca, scaling = 3, display ="cn")
+# plot(spe.cca, scaling = 3, display ="all")
+# ```
+# 
+# ```{r}
+# plot(spe.cca, scaling = 0, display ="all") # score brute non mise à l'échelle
+# plot(spe.cca, scaling = 1, display ="all") # site : eigenvelues mise à l'échelle en fonction des sites 
+# plot(spe.cca, scaling = 2, display ="all") # espèce : eigenvelues mise à l'échelle en fonction des espèces 
+# plot(spe.cca, scaling = 3, display ="all") # symétrique : eigenvelues mise à l'échelle en fonction des espèces et sites (racine carré des eigenvalues)
+# ```
+
 ```
 
-```{r}
-plot(spe.cca, scaling = 0, display ="all") # score brute non mise à l'échelle
-plot(spe.cca, scaling = 1, display ="all") # site : eigenvelues mise à l'échelle en fonction des sites 
-plot(spe.cca, scaling = 2, display ="all") # espèce : eigenvelues mise à l'échelle en fonction des espèces 
-plot(spe.cca, scaling = 3, display ="all") # symétrique : eigenvelues mise à l'échelle en fonction des espèces et sites (racine carré des eigenvalues)
-```
 
 ```{r}
-# CCA scaling 1 biplot without species (using lc site scores)
-plot(spe.cca, scaling = 1, display = c("lc", "cn"), main = "Biplot CCA spe ~ env3 - scaling 1")
+# # CCA scaling 1 biplot without species (using lc site scores)
+# plot(spe.cca, scaling = 1, display = c("lc", "cn"), main = "Biplot CCA spe ~ env3 - scaling 1")
 ```
 
 
@@ -200,7 +203,7 @@ library(ggrepel)
 
 varechem <- as.data.frame(metal[c( "As", "Cr","Cd", "Hg", "Pb","Ni")])
 varespec <- as.data.frame(data_bee_sp)
-vare_cca <- cca(spe ~ ., metal[c( "As", "Cr","Cd", "Hg", "Pb","Ni")])
+vare_cca <- cca(varespec ~ ., metal[c( "As", "Cr","Cd", "Hg", "Pb","Ni")])
 
 
 vare_spp_sco <- scores(vare_cca, display = "species")
@@ -238,7 +241,15 @@ ggplot() +
   coord_fixed() +
   theme_classic() +
   theme(legend.position="none")
+
+summary(vare_cca)
+RsquareAdj(vare_cca)
 ```
+```{r}
+permutest(vare_cca, permutations = 999)
+permutest(vare_cca, by = "term", permutations = 999)
+```
+
 
 ```{r}
 # cca(formula = spe ~ Argile + `Limon fin` + `Limon grossier` + `Sable fin` + `Sable grossier`, data = as.data.frame(Granulo_scale))
@@ -275,6 +286,7 @@ summary(spe.cca)
 
 ```{r}
 permutest(spe.cca, permutations = 999)
+permutest(spe.cca, by = "term", permutations = 999)
 ```
 
 ```{r}

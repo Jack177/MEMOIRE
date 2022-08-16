@@ -1,0 +1,110 @@
+---
+title: "Garder rapport SpecCondStat"
+author: "Jordan"
+date: "`r Sys.Date()`"
+output: html_document
+---
+
+## Chargement des paquets
+
+```{r Library, message=FALSE, warning=FALSE, include=FALSE, results='hide', paged.print=FALSE}
+library("readxl") 
+library(dplyr)
+library(plotly)
+library(ggplot2)
+library(viridis) # couleur daltonien
+library(tidyr) # fonction gather
+library(qcc)
+library(RColorBrewer)
+library(vegan) # Un premier lot de fonctions pour ordination
+library(grid) # Annotation sur le graphique
+
+```
+
+## Importation des données
+```{r Import, message=FALSE, warning=FALSE, include=FALSE, results='hide', paged.print=FALSE}
+# Tour PC
+setwd("D:/OneDrive - UMONS/UMONS/MA2/MEMOIRE/Statistique/R/STAT-MEMOIRE/RAW")
+# Laptop
+#setwd("C:/Users/Jordan/OneDrive - UMONS/UMONS/MA2/MEMOIRE/Statistique/R/STAT-MEMOIRE/RAW2")
+
+# Import
+SCS <- read_excel("SpecCondStat.xls")
+```
+
+
+```{r Nettoyage}
+# Nom plus compact
+SCS <- SpecCondStat
+
+## Nettoyage
+# Retirer le site de Condorcet
+SCS <- filter(SCS, TOPO != "Condorcet" )
+
+# Renommer plus simplement
+rename(SCS, "sp" = "SPEC.TAXPRIO" ) -> SCS
+rename(SCS, "Site" = "TOPO" ) -> SCS
+
+# Retirer les observations contenant l'espèce : "Apis mellifera"
+SCS <- filter(SCS, sp != "Apis mellifera" )
+
+# Remplacement des noms d'espèces désuets
+SCS$sp[SCS$sp == "Bombus (Bombus)  sp."] <- "Terrestribombus  sp."
+SCS$sp[SCS$sp == "Bombus lucorum"] <- "Terrestribombus  sp."
+SCS$sp[SCS$sp == "Bombus terrestris"] <- "Terrestribombus  sp."
+SCS$sp[SCS$sp == "Chalicodoma ericetorum"] <- "Megachile ericetorum"
+SCS$sp[SCS$sp == "Halictus tumulorum"] <- "Seladonia tumulorum"
+SCS$sp[SCS$sp == "Halictus tumulorum"] <- "Seladonia tumulorum"
+
+# Remplacement du noms de sites
+SCS$Site[SCS$Site == "Les Gourmandes de la Procession"] <- "Gourmandes"
+```
+
+
+```{r}
+# Sélection des colonnes
+bee_sp <- select(SCS, N, sp)
+# Addition des sp pour l'ensemble des sites
+bee_sp <- aggregate(N ~ sp, data = bee_sp, sum)
+# Ordonne les sp par ordre décroissant d'abondance
+bee_sp <- bee_sp[order(bee_sp $N, decreasing = TRUE),]
+# Encode la colonne sp en facteur
+bee_sp$sp <- factor(bee_sp$sp, levels = bee_sp$sp)
+# Accumulation de l'abondance
+bee_sp$cumulative <- cumsum(bee_sp$N)
+```
+
+
+
+
+
+
+
+```{r pareto.chart qcc}
+# Ne sera pas utilisé finalement
+
+# Nombre de singleton et doubleton
+length(which(bee_sp$N == 1))
+length(which(bee_sp$N == 2))
+#pdf(file = "D:/OneDrive - UMONS/UMONS/MA2/MEMOIRE/Rapport de mémoire/figure/pareto_chart.pdf",   # The directory you want to save the file in
+ #   width = 20, # The width of the plot in inches
+  #  height = 10)
+
+# Rajouter avec ppt les singletons et doubletons (doublet/couple)
+qcc.options(bg.margin="white")
+pareto.bee_sp <- bee_sp$N
+names(pareto.bee_sp) <- bee_sp$sp
+pareto.chart(pareto.bee_sp, cumperc = seq(0, 100, by = 10), 
+             ylab = "Abondance", ylab2 = "Pourcentage cumulative",
+             main = "Espèce par rang d'abondance",
+             col = "blue", border = "green",add.stats=TRUE) 
+
+#dev.off()
+
+# ggsave ne fonctionne par avec cette fonction
+# ggsave(filename = "pareto_chart.pdf", device = cairo_pdf)
+# ggsave(filename = "pareto_chart.png")
+```
+
+
+
