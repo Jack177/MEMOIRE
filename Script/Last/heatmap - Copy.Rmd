@@ -1,0 +1,91 @@
+---
+title: "Garder pour rapport"
+author: "Jordan"
+date: "`r Sys.Date()`"
+output: pdf_document
+---
+
+## Chargement des paquets
+
+```{r Library, message=FALSE, warning=FALSE, include=FALSE, results='hide', paged.print=FALSE}
+library("readxl") 
+library(dplyr)
+library(plotly)
+library(ggplot2)
+library(viridis) # couleur daltonien
+library(tidyr) # fonction gather
+library(gplots)
+library(RColorBrewer)
+library(reshape2)
+library(forcats)
+```
+
+## Importation des données
+```{r Import, message=FALSE, warning=FALSE, include=FALSE, results='hide', paged.print=FALSE}
+# Tour PC
+# Laptop
+setwd("C:/Users/Jordan/OneDrive - UMONS/UMONS/MA2/MEMOIRE/Statistique/R/STAT-MEMOIRE/RAW/")
+
+# Import
+SpecCondStat <- read_excel("SpecCondStat.xls")
+```
+
+```{r Nettoyage}
+# Nom plus compact
+SCS <- SpecCondStat
+
+## Nettoyage
+# Retirer le site de Condorcet
+SCS <- filter(SCS, TOPO != "Condorcet" )
+
+# Renommer plus simplement
+rename(SCS, "sp" = "SPEC.TAXPRIO" ) -> SCS
+rename(SCS, "Site" = "TOPO" ) -> SCS
+
+# Retirer les observations contenant l'espèce : "Apis mellifera"
+SCS <- filter(SCS, sp != "Apis mellifera" )
+
+# Remplacement des noms d'espèces désuets
+SCS$sp[SCS$sp == "Bombus (Bombus)  sp."] <- "Terrestribombus  sp."
+SCS$sp[SCS$sp == "Bombus lucorum"] <- "Terrestribombus  sp."
+SCS$sp[SCS$sp == "Bombus terrestris"] <- "Terrestribombus  sp."
+SCS$sp[SCS$sp == "Chalicodoma ericetorum"] <- "Megachile ericetorum"
+SCS$sp[SCS$sp == "Halictus tumulorum"] <- "Seladonia tumulorum"
+SCS$sp[SCS$sp == "Halictus tumulorum"] <- "Seladonia tumulorum"
+
+# Remplacement du noms de sites
+SCS$Site[SCS$Site == "Les Gourmandes de la Procession"] <- "Gourmandes"
+
+# Conservation des NA pour la heatmap
+#hm.data_bee_sp <- data_bee_sp
+
+
+
+
+```
+
+```{r }
+# Preparation des données 
+data <- select(SCS, sp, N, Site)
+data <- as.data.frame(data)
+data <- aggregate(N ~ sp + Site, data = data, sum)
+data <- xtabs(N ~ Site + sp, data)
+data <- type.convert(data)
+
+# Remplacer les 0 par NA
+data[data == 0] <- NA 
+
+# Rownames => Colonne
+data <- as.data.frame(data)
+data <- tibble::rownames_to_column(data, "Site")
+```
+
+
+```{r}
+SCS %>%
+  group_by(sp, Site) %>%
+  count(sp) -> df1 
+rename(df1, "tot" = "n" ) -> df1
+```
+```
+

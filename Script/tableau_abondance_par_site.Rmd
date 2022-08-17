@@ -24,7 +24,7 @@ Importation des données.
 # Tour PC
 setwd("D:/OneDrive - UMONS/UMONS/MA2/MEMOIRE/Statistique/R/STAT-MEMOIRE/RAW")
 # Laptop
-#setwd("C:/Users/Jordan/OneDrive - UMONS/UMONS/MA2/MEMOIRE/Statistique/R/STAT-MEMOIRE/RAW2")
+#setwd("C:/Users/Jordan/OneDrive - UMONS/UMONS/MA2/MEMOIRE/Statistique/R/STAT-MEMOIRE/RAW")
 
 SpecCondStat <- read_excel("SpecCondStat.xls")
 
@@ -148,6 +148,7 @@ richesse <- total
 
 richesse
 ```
+
 ```{r}
 # FUUUUUUSIIIIOOON ! AHhhh !!!
 resume_total <- dplyr::left_join(abondance, richesse, by = "Sites")
@@ -157,6 +158,28 @@ resume_total <- select(resume_total, Sites, abon, rich, Type.y)
 resume_total[nrow(resume_total), 3] <- NA
 # Renommer proprement
 rename(resume_total, "Type" = "Type.y" ) -> resume_total
+
+
+
+out$AsyEst -> df
+df <- select(df, Site, Diversity , Observed)
+spread(out1, Diversity, Observed ) -> df
+df$`Shannon diversity` <- round(df$`Shannon diversity`,0)
+df$`Species richness` <- round(df$`Species richness`, 0)
+df$`Simpson diversity` <- round(df$`Simpson diversity`, 0)
+
+
+rename(df, "N0" = "Species richness" ) -> df
+rename(df, "N1" = "Shannon diversity" ) -> df
+rename(df, "N2" = "Simpson diversity" ) -> df
+rename(df, "Sites" = "Site" ) -> df
+
+
+
+resume_total <- dplyr::left_join(resume_total, df, by = "Sites")
+
+resume_total <- select(resume_total, Sites, abon, N0, N1, N2, Type)
+
 ```
 
 ```{r}
@@ -164,7 +187,8 @@ out <- iNEXT(as.data.frame(t(data_bee_sp)), q = c(0,1,2), datatype ="abundance",
 ```
 
 ```{r}
-out$AsyEst -> out1
+
+
 
 # Matrice Hill
 DataInfotabee <-type.convert(out$DataInfo)
