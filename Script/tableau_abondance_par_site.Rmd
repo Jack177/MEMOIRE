@@ -183,49 +183,49 @@ resume_total <- select(resume_total, Sites, abon, N0, N1, N2, Type)
 ```
 
 ```{r}
-out <- iNEXT(as.data.frame(t(data_bee_sp)), q = c(0,1,2), datatype ="abundance", size=NULL, endpoint=NULL, knots=40, se=TRUE, conf=0.95, nboot=50) 
+#out <- iNEXT(as.data.frame(t(data_bee_sp)), q = c(0,1,2), datatype ="abundance", size=NULL, endpoint=NULL, knots=40, se=TRUE, conf=0.95, nboot=50) 
 ```
 
 ```{r}
 
-
-
-# Matrice Hill
-DataInfotabee <-type.convert(out$DataInfo)
-
-iNextEsttab <-type.convert(out$iNextEst)
-AsyEsttab <-type.convert(out$AsyEst)
-
-# Explication colonne estimateD() http://cran.nexr.com/web/packages/iNextPD/vignettes/Introduction.html
-# the diversity estimate of order q (qPD), the 95% lower and upper confidence limits of diversity (qD.95.LCL, qD.95.UCL), and the sample coverage estimate (SC) along with the 95% lower and upper confidence limits of sample coverage (SC.95.LCL, SC.95.UCL). These sample coverage estimates with conf% confidence intervals are used for plotting the sample completeness curve and coverage-based R/E curves.
-
-hill <- estimateD(t(data_bee_sp), base="coverage") # par défaut conf = 0.95
-hillmatrix0= hill[hill[,"order"]==0,]
-hillmatrix1= hill[hill[,"order"]==1,]
-hillmatrix2= hill[hill[,"order"]==2,]
-hillmatrix = hillmatrix0[,c(1,2,4)]
-hillmatrix$SC0 = out$DataInfo$SC
-hillmatrix[,c("N0","N0rU","N0rL")]=hillmatrix0[,c("qD","qD.UCL","qD.LCL")] # q = ordre, D = diversité, UCL = UpperConfidenceLimits, LCL = LowerCL
-hillmatrix[,c("N1","N1rU","N1rL")]=hillmatrix1[,c("qD","qD.UCL","qD.LCL")] # Je retire NOr => N0, idem N1 et N2
-hillmatrix[,c("N2","N2rU","N2rL")]=hillmatrix2[,c("qD","qD.UCL","qD.LCL")]
-rownames(hillmatrix)= rownames(data_bee_sp)
-
-# Rownames to column
-hillmatrix <- tibble::rownames_to_column(as.data.frame(hillmatrix), "Sites")
-hillmatrix$N0 <- round(hillmatrix$N0)
-hillmatrix$N1 <- round(hillmatrix$N1)
-hillmatrix$N2 <- round(hillmatrix$N2)
-hillmatrix <- select(hillmatrix, Sites,N0,N1,N2)
+# 
+# 
+# # Matrice Hill
+# DataInfotabee <-type.convert(out$DataInfo)
+# 
+# iNextEsttab <-type.convert(out$iNextEst)
+# AsyEsttab <-type.convert(out$AsyEst)
+# 
+# # Explication colonne estimateD() http://cran.nexr.com/web/packages/iNextPD/vignettes/Introduction.html
+# # the diversity estimate of order q (qPD), the 95% lower and upper confidence limits of diversity (qD.95.LCL, qD.95.UCL), and the sample coverage estimate (SC) along with the 95% lower and upper confidence limits of sample coverage (SC.95.LCL, SC.95.UCL). These sample coverage estimates with conf% confidence intervals are used for plotting the sample completeness curve and coverage-based R/E curves.
+# 
+# hill <- estimateD(t(data_bee_sp), base="coverage") # par défaut conf = 0.95
+# hillmatrix0= hill[hill[,"order"]==0,]
+# hillmatrix1= hill[hill[,"order"]==1,]
+# hillmatrix2= hill[hill[,"order"]==2,]
+# hillmatrix = hillmatrix0[,c(1,2,4)]
+# hillmatrix$SC0 = out$DataInfo$SC
+# hillmatrix[,c("N0","N0rU","N0rL")]=hillmatrix0[,c("qD","qD.UCL","qD.LCL")] # q = ordre, D = diversité, UCL = UpperConfidenceLimits, LCL = LowerCL
+# hillmatrix[,c("N1","N1rU","N1rL")]=hillmatrix1[,c("qD","qD.UCL","qD.LCL")] # Je retire NOr => N0, idem N1 et N2
+# hillmatrix[,c("N2","N2rU","N2rL")]=hillmatrix2[,c("qD","qD.UCL","qD.LCL")]
+# rownames(hillmatrix)= rownames(data_bee_sp)
+# 
+# # Rownames to column
+# hillmatrix <- tibble::rownames_to_column(as.data.frame(hillmatrix), "Sites")
+# hillmatrix$N0 <- round(hillmatrix$N0)
+# hillmatrix$N1 <- round(hillmatrix$N1)
+# hillmatrix$N2 <- round(hillmatrix$N2)
+# hillmatrix <- select(hillmatrix, Sites,N0,N1,N2)
 ```
 
 ```{r}
 # FUUUUUUSIIIIOOON ! AHhhh !!! SSJ4
-resume_total <- dplyr::left_join(resume_total,hillmatrix, by = "Sites")
-
-# Selection des colonnes
-resume_total <- select(resume_total, Sites, abon, rich, N0, N1, N2, Type)
-rename(resume_total, "Nombre d'individus observées" = "abon" ) -> resume_total
-rename(resume_total, "Nombre d'espèces observées" = "rich" ) -> resume_total
+# resume_total <- dplyr::left_join(resume_total,hillmatrix, by = "Sites")
+# 
+# # Selection des colonnes
+# resume_total <- select(resume_total, Sites, abon, N0, N1, N2, Type)
+# rename(resume_total, "Nombre d'individus observées" = "abon" ) -> resume_total
+# #rename(resume_total, "Nombre d'espèces observées" = "richesse" ) -> resume_total
 ```
 
 
