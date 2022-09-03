@@ -53,16 +53,51 @@ row.names(granulo_simple) <- granulo_simple$code_site
 theme_set(theme_bw())
 granulo_simple %>%
   ggtern(aes(
-    x = Sable,
-    y = Argile,
-    z = Limon,
-    color = code_site
+    x =  Silt,
+    y = Clay,
+    z = Sand,
+    color = Site
   )) +
   theme(legend.title = element_blank()) +
-  geom_point(size = 5) +
+  geom_point(aes(fill = Site), size = 5) +
   theme_showarrows() +
-    labs(yarrow = "Argile (%)",  #<<
-       zarrow = "Limon (%)",  #<<
-       xarrow = "Sable (%)")   #<
+    labs(yarrow = "Clay (%)",  #<<
+       zarrow = "Sand (%)",  #<<
+       xarrow = "Silt (%)")   #<
 ```
 
+
+```{r}
+theme_set(theme_bw())
+granulo_simple %>%
+  ggtern(aes(
+    x = Sand,
+    y = Clay,
+    z = Silt,
+    color = Site
+  )) +
+  theme(legend.title = element_blank()) +
+  geom_point(aes(fill = Site , shape = Type), size = 5) +
+  theme_showarrows() +
+    labs(yarrow = "Clay (%)",  #<<
+       zarrow = "Silt (%)",  #<<
+       xarrow = "Sand (%)")   #<
+```
+
+
+```{r}
+theme_set(theme_bw())
+granulo_simple %>%
+  ggtern(aes(
+    x = Sand,
+    y = Clay,
+    z = Silt,
+    color = Sand
+  )) +
+  theme(legend.title = element_blank()) +
+  geom_point(aes(fill = Site , shape = Type), size = 5) +
+  theme_showarrows() +
+    labs(yarrow = "Clay (%)",  #<<
+       zarrow = "Silt (%)",  #<<
+       xarrow = "Sand (%)")   #<
+```

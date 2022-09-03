@@ -23,12 +23,12 @@ library(forcats)
 ## Importation des données
 ```{r Import, message=FALSE, warning=FALSE, include=FALSE, results='hide', paged.print=FALSE}
 # Tour PC
-setwd("D:/OneDrive - UMONS/UMONS/MA2/MEMOIRE/Statistique/R/STAT-MEMOIRE/RAW/")
+setwd("D:/OneDrive - UMONS/UMONS/MA2/MEMOIRE/Statistique/R/STAT-MEMOIRE/RAW/Traits abeilles")
 # Laptop
-#setwd("C:/Users/Jordan/OneDrive - UMONS/UMONS/MA2/MEMOIRE/Statistique/R/STAT-MEMOIRE/RAW/"")
+#setwd("C:/Users/Jordan/OneDrive - UMONS/UMONS/MA2/MEMOIRE/Statistique/R/STAT-MEMOIRE/RAW2/Traits abeilles")
 
-# Import
-SpecCondStat <- read_excel("SpecCondStat.xls")
+SpecCondStat <- read_excel("SpecCondStat_traits.xls")
+
 ```
 
 ```{r Nettoyage}
@@ -78,8 +78,10 @@ SCS$code_site <- paste(substring(SCS$Code, 0,3),"-", SCS$Site)
 SCS$code_site <- gsub(" ", "", SCS$code_site)
 ```
 
-
-
+Filtre espèces terricoles
+```{r}
+#data <- filter(SCS, Nest_area == "Soil")
+```
 
 ```{r }
 # Preparation des données 
@@ -100,59 +102,6 @@ data <- tibble::rownames_to_column(data, "Site")
 
 
 ### Heatmap sp vs site
-# Sans filtre d'espèces
-```{r Heatmap ggplot}
-# Changement de nom
-hm.bee_sp <- data
-
-
-hm.bee_sp <- gather(hm.bee_sp, key="sp", value="nbr", 2:ncol(hm.bee_sp)) # On prend pas la première colonne (site) et on va jusqu'à la dernière colonne (2 à 93) (xylo)
-
-hm.bee_sp$sp <- factor(hm.bee_sp$sp)
-hm.bee_sp$Site <- factor(hm.bee_sp$Site, levels = c("Pot-AbbayeSt-Denis","Pot-Ruedel'Egalite","Pot-ChasseCambier","Pot-MelLegumes", "Pot-Gourmandes", "Pot-Jeand'Avesnes", "Pot-ParcduboisdeMons",  "Pot-JardinSuspendu", "Pot-Ecoledel'Esperance","Pot-Fonddupetitmarais", "Par-Villagedesabeilles", "Par-Siegesocial" , "Par-ParcBonaert", "Par-ParcduBeffroi",  "Par-Stievenart"))
-
-mycolors <- c(rep("#003366",10), rep("#663300",5))
-
-hm.bee_sp <- hm.bee_sp %>%
-  # convert state to factor and reverse order of levels
-  mutate(sp=factor(sp, levels=rev(sort(unique(sp)))))
-
-hm.bee_sp <- select(hm.bee_sp, sp, Site, nbr)
-
-# Début enregistrement .pdf
-# pdf(file = "D:/OneDrive - UMONS/UMONS/MA2/MEMOIRE/Statistique/R/STAT-MEMOIRE/Output/heatmap.pdf",   # The directory you want to save the file in
-#     width = 20, # The width of the plot in inches
-#     height = 10)
-
-ggplot(hm.bee_sp, aes(x = Site, y = sp, fill = nbr)) +
-  labs(title = "", x = '', y = '') + # Titre et titre axe
-  geom_tile(color = "black") +
-  coord_fixed() +
-  guides(fill = guide_colourbar(label = FALSE,
-                                ticks = FALSE)) +
-  theme(axis.text.x = element_text(angle = 90, vjust = 0, size = 5, hjust = 0, colour = mycolors),
-        axis.text.y = element_text(angle = 45, size = 5, hjust = 0,  vjust = 0.4,face="italic"),
-        legend.position = "left", # position légende
-        legend.title = element_text(size = 6), # Taille titre légende texte 
-        legend.text = element_text(size = 6), # Taille légende échelle texte 
-        plot.title = element_text(size = 8, hjust = 0.5), # Taille titre texte 
-        legend.key.size = unit(1.5, "cm"),
-        legend.key.width = unit(.25,"cm")) + # taille barre légende
-  scale_y_discrete(position = "right") + # y label à droite
-  guides(fill = guide_colourbar(title = "Abondance")) + # Titre légende
-  #scale_fill_distiller(palette = "Reds", direction = +1)  # couleur
-  #scale_fill_distiller(palette = "YlOrBr", direction = 1, na.value = "grey50")
-  scale_fill_viridis(option = "B", direction = -1, na.value = "white")  # couleur
-
-#sum(hm.bee_sp$nbr) # total abeille 
-
-# Fin enregistrement .pdf
-# dev.off()
-
-# ggsave(filename = "D:/OneDrive - UMONS/UMONS/MA2/MEMOIRE/Rapport de mémoire/figure/heatmap.pdf", device = cairo_pdf)
-# ggsave(filename = "D:/OneDrive - UMONS/UMONS/MA2/MEMOIRE/Rapport de mémoire/figure/heatmap.png")
-```
-### Heatmap sp vs site
 # Filtre espèces terricoles
 ```{r Heatmap ggplot}
 # Changement de nom
@@ -164,6 +113,7 @@ hm.bee_sp <- gather(hm.bee_sp, key="sp", value="nbr", 2:ncol(hm.bee_sp)) # On pr
 hm.bee_sp$sp <- factor(hm.bee_sp$sp)
 hm.bee_sp$Site <- factor(hm.bee_sp$Site, levels = c("Pot-AbbayeSt-Denis","Pot-Ruedel'Egalite","Pot-ChasseCambier","Pot-MelLegumes", "Pot-Gourmandes", "Pot-Jeand'Avesnes", "Pot-ParcduboisdeMons",  "Pot-JardinSuspendu", "Pot-Ecoledel'Esperance","Pot-Fonddupetitmarais", "Par-Villagedesabeilles", "Par-Siegesocial" , "Par-ParcBonaert", "Par-ParcduBeffroi",  "Par-Stievenart"))
 
+
 mycolors <- c(rep("#003366",10), rep("#663300",5))
 
 hm.bee_sp <- hm.bee_sp %>%
@@ -178,9 +128,10 @@ hm.bee_sp <- select(hm.bee_sp, sp, Site, nbr)
 #     height = 10)
 
 ggplot(hm.bee_sp, aes(x = Site, y = sp, fill = nbr)) +
-  labs(title = "", x = '', y = '') + # Titre et titre axe
-  geom_tile(color = "black") +
+  labs(title = "M", x = '', y = '') + # Titre et titre axe
+  geom_tile(color = "black") + #couleur grille
   coord_fixed() +
+  #coord_flip() + # 180°
   guides(fill = guide_colourbar(label = FALSE,
                                 ticks = FALSE)) +
   theme(axis.text.x = element_text(angle = 90, vjust = 0, size = 5, hjust = 0, colour = mycolors),
@@ -188,21 +139,21 @@ ggplot(hm.bee_sp, aes(x = Site, y = sp, fill = nbr)) +
         legend.position = "left", # position légende
         legend.title = element_text(size = 6), # Taille titre légende texte 
         legend.text = element_text(size = 6), # Taille légende échelle texte 
-        plot.title = element_text(size = 8, hjust = 0.5), # Taille titre texte 
-        legend.key.size = unit(1.5, "cm"),
-        legend.key.width = unit(.25,"cm")) + # taille barre légende
+        plot.title = element_text(size = 28, hjust = 0.5, colour = "white"), # Taille titre texte 
+        legend.key.size = unit(.25, "cm"),
+        legend.key.width = unit(.25,"cm"),) + # taille barre légende) + #transparent legend panel
   scale_y_discrete(position = "right") + # y label à droite
   guides(fill = guide_colourbar(title = "Abondance")) + # Titre légende
   #scale_fill_distiller(palette = "Reds", direction = +1)  # couleur
   #scale_fill_distiller(palette = "YlOrBr", direction = 1, na.value = "grey50")
   scale_fill_viridis(option = "B", direction = -1, na.value = "white")  # couleur
+  
 
 #sum(hm.bee_sp$nbr) # total abeille 
 
 # Fin enregistrement .pdf
 # dev.off()
-
-# ggsave(filename = "D:/OneDrive - UMONS/UMONS/MA2/MEMOIRE/Rapport de mémoire/figure/heatmap.pdf", device = cairo_pdf)
+#ggsave(filename = "D:/OneDrive - UMONS/UMONS/MA2/MEMOIRE/Statistique/R/STAT-MEMOIRE/Output/heatmap_terricole.png", bg='transparent')
 # ggsave(filename = "D:/OneDrive - UMONS/UMONS/MA2/MEMOIRE/Rapport de mémoire/figure/heatmap.png")
 ```
 
