@@ -1,0 +1,49 @@
+---
+title: "etiquette"
+author: "Jordan Benrezkallah"
+date: "9/14/2022"
+output: html_document
+---
+
+```{r}
+library("readxl") 
+library("writexl")
+library(dplyr)
+```
+
+Importation des données.
+```{r Import}
+# Import
+# Tour PC
+#setwd("D:/OneDrive - UMONS/UMONS/MA2/MEMOIRE/Statistique/R/STAT-MEMOIRE/RAW")
+# Laptop
+setwd("C:/Users/Jordan/OneDrive - UMONS/UMONS/MA2/MEMOIRE/Statistique/R/STAT-MEMOIRE/RAW")
+
+SpecCondStat <- read_excel("SpecCondStat.xls")
+```
+
+```{r Nettoyage}
+# Nom plus compact
+SCS <- SpecCondStat
+
+# Renommer plus simplement
+rename(SCS, "sp" = "SPEC.TAXPRIO" ) -> SCS
+
+# Remplacement des noms d'espèces désuets
+SCS$sp[SCS$sp == "Bombus (Bombus)  sp."] <- "Terrestribombus  sp."
+SCS$sp[SCS$sp == "Bombus lucorum"] <- "Terrestribombus  sp."
+SCS$sp[SCS$sp == "Bombus terrestris"] <- "Terrestribombus  sp."
+SCS$sp[SCS$sp == "Chalicodoma ericetorum"] <- "Megachile ericetorum"
+SCS$sp[SCS$sp == "Halictus tumulorum"] <- "Seladonia tumulorum"
+SCS$sp[SCS$sp == "Halictus tumulorum"] <- "Seladonia tumulorum"
+```
+
+```{r}
+etiquette <- select(SCS, sp, SEX)
+```
+
+```{r}
+# Exportation tableur Excel
+write_xlsx(etiquette, "C:/Users/Jordan/OneDrive - UMONS/UMONS/MA2/MEMOIRE/Etiquette/Etiquette_memoire_identification.xlsx")
+```
+
