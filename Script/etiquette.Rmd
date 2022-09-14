@@ -26,6 +26,9 @@ SpecCondStat <- read_excel("SpecCondStat.xls")
 # Nom plus compact
 SCS <- SpecCondStat
 
+# Retirer le site de Condorcet
+SCS <- filter(SCS, TOPO != "Condorcet")
+
 # Renommer plus simplement
 rename(SCS, "sp" = "SPEC.TAXPRIO" ) -> SCS
 
@@ -40,6 +43,7 @@ SCS$sp[SCS$sp == "Halictus tumulorum"] <- "Seladonia tumulorum"
 
 ```{r}
 etiquette <- select(SCS, sp, SEX)
+etiquette <- etiquette[order(etiquette$sp, etiquette$SEX),]
 ```
 
 ```{r}
