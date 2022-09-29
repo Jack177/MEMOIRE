@@ -13,18 +13,17 @@ library(vegan) # specpool () estimateR() poolaccum() estaccumR()
 library(ggplot2)
 library(tidyr)
 library(stringr)
-library(fossil)
+#library(fossil)
 library(forcats) # fct_collapse
-library(iNEXT)
 ```
 
 Importation des données.
 ```{r Import}
 # Import
 # Tour PC
-setwd("D:/OneDrive - UMONS/UMONS/MA2/MEMOIRE/Statistique/R/STAT-MEMOIRE/RAW")
+#setwd("D:/OneDrive - UMONS/UMONS/MA2/MEMOIRE/Statistique/R/STAT-MEMOIRE/RAW")
 # Laptop
-#setwd("C:/Users/Jordan/OneDrive - UMONS/UMONS/MA2/MEMOIRE/Statistique/R/STAT-MEMOIRE/RAW")
+setwd("C:/Users/Jordan/OneDrive - UMONS/UMONS/MA2/MEMOIRE/Statistique/R/STAT-MEMOIRE/RAW")
 
 SpecCondStat <- read_excel("SpecCondStat.xls")
 
@@ -180,6 +179,7 @@ resume_total <- dplyr::left_join(resume_total, df, by = "Sites")
 
 resume_total <- select(resume_total, Sites, abon, N0, N1, N2, Type)
 
+tableau <- arrange(resume_total,  N0)
 ```
 
 ```{r}
@@ -231,7 +231,7 @@ resume_total <- select(resume_total, Sites, abon, N0, N1, N2, Type)
 
 ```{r}
 # Exportation tableur Excel
-write_xlsx(resume_total,"D:/OneDrive - UMONS/UMONS/MA2/MEMOIRE/Statistique/R/STAT-MEMOIRE/Output/tableau_abondance_par_site.xlsx")
+write_xlsx(tableau, "D:/OneDrive - UMONS/UMONS/MA2/MEMOIRE/Statistique/R/STAT-MEMOIRE/Output/tableau_HILL.xlsx")
 ```
 
 
