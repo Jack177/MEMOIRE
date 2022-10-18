@@ -19,9 +19,9 @@ library("writexl")
 ## Importation des données
 ```{r Import, message=FALSE, warning=FALSE, include=FALSE, results='hide', paged.print=FALSE}
 # Tour PC
-setwd("D:/OneDrive - UMONS/UMONS/MA2/MEMOIRE/Statistique/R/STAT-MEMOIRE/RAW/Traits abeilles")
+#setwd("D:/OneDrive - UMONS/UMONS/MA2/MEMOIRE/Statistique/R/STAT-MEMOIRE/RAW/Traits abeilles")
 # Laptop
-#setwd("C:/Users/Jordan/OneDrive - UMONS/UMONS/MA2/MEMOIRE/Statistique/R/STAT-MEMOIRE/RAW2/Traits abeilles")
+setwd("C:/Users/Jordan/OneDrive - UMONS/UMONS/MA2/MEMOIRE/Statistique/R/STAT-MEMOIRE/RAW2/Traits abeilles")
 
 SpecCondStat <- read_excel("SpecCondStat_traits.xls")
 
@@ -62,6 +62,12 @@ SCS$familly[SCS$familly == "COLLETIDAE"] <- "Colletidae"
 SCS$familly[SCS$familly == "HALICTIDAE"] <- "Halictidae"
 SCS$familly[SCS$familly == "MEGACHILIDAE"] <- "Megachilidae"
 SCS$familly[SCS$familly == "MELITTIDAE"] <- "Melittidae"
+
+# Supprimer les espèces 
+# SCS <- select(SCS, -"Terrestribombus  sp.")
+# SCS <- select(SCS, -"Apis mellifera")
+
+
 ```
 
 ```{r}

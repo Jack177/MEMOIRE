@@ -5,48 +5,37 @@ date: "`r Sys.Date()`"
 output: html_document
 ---
 
-
 ```{r}
-# Load the required packages
-library("readxl") 
-library(dplyr)
-library(vegan) # specpool () estimateR() poolaccum() estaccumR()
-library(ggplot2)
-library(ggfortify)
-library(tidyr)
-library(plotly)
-library(ggplot2)
-library(taxize)
-library(iNEXT)
-library(RColorBrewer)
-library(reshape2)
+source("start.R")
 ```
 
 Importation des données.
 ```{r Import}
-# Import
-# Tour PC
-setwd("D:/OneDrive - UMONS/UMONS/MA2/MEMOIRE/Statistique/R/STAT-MEMOIRE/RAW")
-# Laptop
-#setwd("C:/Users/Jordan/OneDrive - UMONS/UMONS/MA2/MEMOIRE/Statistique/R/STAT-MEMOIRE/RAW2")
-
-granulo <- read_excel("granulo.xlsx")
-granulo_simple <- read_excel("granulo.xlsx", sheet = "simple")
-
+granulo <- read_excel("C:/Users/Jordan/OneDrive - UMONS/UMONS/MA2/MEMOIRE/Statistique/R/STAT-MEMOIRE/RAW/granulo.xlsx")
+granulo_simple <- read_excel("C:/Users/Jordan/OneDrive - UMONS/UMONS/MA2/MEMOIRE/Statistique/R/STAT-MEMOIRE/RAW/granulo.xlsx", sheet = "simple")
+soil <- read_excel("C:/Users/Jordan/OneDrive - UMONS/UMONS/MA2/MEMOIRE/Statistique/R/STAT-MEMOIRE/RAW/Soil_R.xlsx")
 ```
+
+
+```{r}
+#### Abbréger le nom des sites
+# Liste des Potagers
+Potagers <- c("Abbaye St-Denis", "Rue de l'Egalite", "Chasse Cambier", "Mel Legumes", "Gourmandes", "Jean d'Avesnes", "Parc du bois de Mons", "Jardin Suspendu", "Ecole de l'Esperance", "Fond du petit marais")
+# Liste des Parcs
+Parcs <- c("Village des abeilles", "Siege social", "Parc du Beffroi", "Stievenart", "Parc Bonaert")
+
+SCS$Code <- fct_collapse(
+    SCS$site,
+    "Potager" = Potagers,
+    "Parc" = Parcs)
+```
+
 
 ```{r abbréger nom des sites}
 granulo <- granulo_simple
 
-### Granulo
-# Créer une colonne Code en fonction des types de sites
-granulo$Code <- fct_collapse(
-    granulo$Site,
-    "Potager" = Potagers,
-    "Parc" = Parcs)
-
 # substring prend les premiers caractères, abbreviate abrège comme il le sent
-granulo$code_site <- paste(substring(granulo$Code, 0,3),"-", abbreviate(granulo$Site))
+granulo$code_site <- paste(substring(granulo$Code, 0,3),"-", abbreviate(granulo$site))
 # retirer les apostrophes
 granulo$code_site <- gsub("'", "", granulo$code_site)
 ```
@@ -57,7 +46,7 @@ granulo$code_site <- gsub("'", "", granulo$code_site)
 Granulo_site_name <- select(granulo, code_site)
 # Granulo <- granulo[,2:7]
 Granulo <- granulo[,2:4]
-row.names(Granulo) <- Granulo_site_name$code_site
+#row.names(Granulo) <- Granulo_site_name$code_site
 ```
 
 ```{r}
@@ -93,16 +82,16 @@ screeplot(pca_g2, bstick = TRUE)
 ```{r}
 
 # Début enregistrement .pdf
-pdf(file = "D:/OneDrive - UMONS/UMONS/MA2/MEMOIRE/Rapport de mémoire/figure/PCA_granulo.pdf",   # The directory you want to save the file in
-    width = 8.27, # The width of the plot in inches
-    height = 8.27)
+#pdf(file = "D:/OneDrive - UMONS/UMONS/MA2/MEMOIRE/Rapport de mémoire/figure/PCA_granulo.pdf",   # The directory you want to save the file in
+    # width = 8.27, # The width of the plot in inches
+    # height = 8.27)
 
 
 # Code d'origine 
 # https://www.benjaminbell.co.uk/2018/02/principal-components-analysis-pca-in-r.html
 p <- pca_g2
 # Renommer pour avoir les labels avec abréviation sans apostrophe
-rownames(p$x) <- gsub("'", "", abbreviate(soil$Site))
+rownames(p$x) <- gsub("'", "", abbreviate(soil$site))
 
 pch.group <- c(rep(21, times=10), rep(22, times=5))
 col.group <- c(rep("skyblue2", times=10), rep("gold", times=5))
@@ -135,7 +124,7 @@ l.pos <- replace(l.pos, hi, "3")
 text(l.x, l.y, labels=row.names(p$rotation), col="red", pos=l.pos)
 
 # Fin enregistrement .pdf
-dev.off()
+# dev.off()
 ```
 
 

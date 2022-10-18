@@ -5,57 +5,62 @@ date: "`r Sys.Date()`"
 output: pdf_document
 ---
 
+
+```{r}
+source("../start.R")
+```
+
 ## Chargement des paquets
 
 ```{r Library, message=FALSE, warning=FALSE, include=FALSE, results='hide', paged.print=FALSE}
-library("readxl") 
-library(dplyr)
-library(plotly)
-library(ggplot2)
-library(viridis) # couleur daltonien
-library(tidyr) # fonction gather
-library(gplots)
-library(RColorBrewer)
-library(reshape2)
-library(forcats)
+# library("readxl") 
+# library(dplyr)
+# library(plotly)
+# library(ggplot2)
+# library(viridis) # couleur daltonien
+# library(tidyr) # fonction gather
+# library(gplots)
+# library(RColorBrewer)
+# library(reshape2)
+# library(forcats)
 ```
 
 ## Importation des données
 ```{r Import, message=FALSE, warning=FALSE, include=FALSE, results='hide', paged.print=FALSE}
 # Tour PC
 #setwd("D:/OneDrive - UMONS/UMONS/MA2/MEMOIRE/Statistique/R/STAT-MEMOIRE/RAW/")
-# Laptop
-setwd("C:/Users/Jordan/OneDrive - UMONS/UMONS/MA2/MEMOIRE/Statistique/R/STAT-MEMOIRE/RAW/")
-
-# Import
-SpecCondStat <- read_excel("SpecCondStat.xls")
+# # Laptop
+# setwd("C:/Users/Jordan/OneDrive - UMONS/UMONS/MA2/MEMOIRE/Statistique/R/STAT-MEMOIRE/RAW/")
+# 
+# # Import
+# SpecCondStat <- read_excel("SpecCondStat.xls")
 ```
 
 ```{r Nettoyage}
-# Nom plus compact
-SCS <- SpecCondStat
-
-## Nettoyage
-# Retirer le site de Condorcet
-SCS <- filter(SCS, TOPO != "Condorcet" )
-
-# Renommer plus simplement
-rename(SCS, "sp" = "SPEC.TAXPRIO" ) -> SCS
-rename(SCS, "Site" = "TOPO" ) -> SCS
-
-# Retirer les observations contenant l'espèce : "Apis mellifera"
-SCS <- filter(SCS, sp != "Apis mellifera" )
-
-# Remplacement des noms d'espèces désuets
-SCS$sp[SCS$sp == "Bombus (Bombus)  sp."] <- "Terrestribombus  sp."
-SCS$sp[SCS$sp == "Bombus lucorum"] <- "Terrestribombus  sp."
-SCS$sp[SCS$sp == "Bombus terrestris"] <- "Terrestribombus  sp."
-SCS$sp[SCS$sp == "Chalicodoma ericetorum"] <- "Megachile ericetorum"
-SCS$sp[SCS$sp == "Halictus tumulorum"] <- "Seladonia tumulorum"
-SCS$sp[SCS$sp == "Halictus tumulorum"] <- "Seladonia tumulorum"
-
-# Remplacement du noms de sites
-SCS$Site[SCS$Site == "Les Gourmandes de la Procession"] <- "Gourmandes"
+# # Nom plus compact
+# SCS <- SpecCondStat
+# 
+# ## Nettoyage
+# # Retirer le site de Condorcet
+# SCS <- filter(SCS, TOPO != "Condorcet" )
+# 
+# # Renommer plus simplement
+# rename(SCS, "sp" = "SPEC.TAXPRIO" ) -> SCS
+# rename(SCS, "site" = "TOPO" ) -> SCS
+# 
+# # Retirer les observations contenant l'espèce : "Apis mellifera"
+# SCS <- filter(SCS, sp != "Apis mellifera" )
+# 
+# # Remplacement des noms d'espèces désuets
+# SCS$sp[SCS$sp == "Bombus (Bombus)  sp."] <- "Terrestribombus  sp."
+# SCS$sp[SCS$sp == "Bombus lucorum"] <- "Terrestribombus  sp."
+# SCS$sp[SCS$sp == "Bombus terrestris"] <- "Terrestribombus  sp."
+# SCS$sp[SCS$sp == "Chalicodoma ericetorum"] <- "Megachile ericetorum"
+# SCS$sp[SCS$sp == "Halictus tumulorum"] <- "Seladonia tumulorum"
+# SCS$sp[SCS$sp == "Halictus tumulorum"] <- "Seladonia tumulorum"
+# 
+# # Remplacement du noms de sites
+# SCS$site[SCS$site == "Les Gourmandes de la Procession"] <- "Gourmandes"
 
 # Conservation des NA pour la heatmap
 #hm.data_bee_sp <- data_bee_sp
@@ -68,12 +73,12 @@ Potagers <- c("Abbaye St-Denis", "Rue de l'Egalite", "Chasse Cambier", "Mel Legu
 Parcs <- c("Village des abeilles", "Siege social", "Parc du Beffroi", "Stievenart", "Parc Bonaert")
 
 SCS$Code <- fct_collapse(
-    SCS$Site,
+    SCS$site,
     "Potager" = Potagers,
     "Parc" = Parcs)
 
 # substring prend les premiers caractères, abbreviate abrège comme il le sent
-SCS$code_site <- paste(substring(SCS$Code, 0,3),"-", SCS$Site)
+SCS$code_site <- paste(substring(SCS$Code, 0,3),"-", SCS$site)
 # retirer les apostrophes
 SCS$code_site <- gsub(" ", "", SCS$code_site)
 ```
@@ -94,7 +99,7 @@ data[data == 0] <- NA
 
 # Rownames => Colonne
 data <- as.data.frame(data)
-data <- tibble::rownames_to_column(data, "Site")
+data <- tibble::rownames_to_column(data, "site")
 ```
 
 
@@ -109,7 +114,7 @@ hm.bee_sp <- data
 hm.bee_sp <- gather(hm.bee_sp, key="sp", value="nbr", 2:ncol(hm.bee_sp)) # On prend pas la première colonne (site) et on va jusqu'à la dernière colonne (2 à 93) (xylo)
 
 hm.bee_sp$sp <- factor(hm.bee_sp$sp)
-hm.bee_sp$Site <- factor(hm.bee_sp$Site, levels = c("Pot-AbbayeSt-Denis","Pot-Ruedel'Egalite","Pot-ChasseCambier","Pot-MelLegumes", "Pot-Gourmandes", "Pot-Jeand'Avesnes", "Pot-ParcduboisdeMons",  "Pot-JardinSuspendu", "Pot-Ecoledel'Esperance","Pot-Fonddupetitmarais", "Par-Villagedesabeilles", "Par-Siegesocial" , "Par-ParcBonaert", "Par-ParcduBeffroi",  "Par-Stievenart"))
+hm.bee_sp$site <- factor(hm.bee_sp$site, levels = c("Pot-AbbayeSt-Denis","Pot-Ruedel'Egalite","Pot-ChasseCambier","Pot-MelLegumes", "Pot-Gourmandes", "Pot-Jeand'Avesnes", "Pot-ParcduboisdeMons",  "Pot-JardinSuspendu", "Pot-Ecoledel'Esperance","Pot-Fonddupetitmarais", "Par-Villagedesabeilles", "Par-Siegesocial" , "Par-ParcBonaert", "Par-ParcduBeffroi",  "Par-Stievenart"))
 
 mycolors <- c(rep("#003366",10), rep("#663300",5))
 
@@ -117,14 +122,10 @@ hm.bee_sp <- hm.bee_sp %>%
   # convert state to factor and reverse order of levels
   mutate(sp=factor(sp, levels=rev(sort(unique(sp)))))
 
-hm.bee_sp <- select(hm.bee_sp, sp, Site, nbr)
+hm.bee_sp <- select(hm.bee_sp, sp, site, nbr)
 
-# Début enregistrement .pdf
-# pdf(file = "D:/OneDrive - UMONS/UMONS/MA2/MEMOIRE/Statistique/R/STAT-MEMOIRE/Output/heatmap.pdf",   # The directory you want to save the file in
-#     width = 20, # The width of the plot in inches
-#     height = 10)
 
-ggplot(hm.bee_sp, aes(x = Site, y = sp, fill = nbr)) +
+ggplot(hm.bee_sp, aes(x = site, y = sp, fill = nbr)) +
   labs(title = "", x = '', y = '') + # Titre et titre axe
   geom_tile(color = "black") +
   coord_fixed() +
@@ -145,12 +146,6 @@ ggplot(hm.bee_sp, aes(x = Site, y = sp, fill = nbr)) +
   scale_fill_viridis(option = "B", direction = -1, na.value = "white")  # couleur
 
 #sum(hm.bee_sp$nbr) # total abeille 
-
-# Fin enregistrement .pdf
-# dev.off()
-
-# ggsave(filename = "D:/OneDrive - UMONS/UMONS/MA2/MEMOIRE/Rapport de mémoire/figure/heatmap.pdf", device = cairo_pdf)
-# ggsave(filename = "D:/OneDrive - UMONS/UMONS/MA2/MEMOIRE/Rapport de mémoire/figure/heatmap.png")
 ```
 ### Heatmap sp vs site
 # Filtre espèces terricoles
@@ -162,7 +157,7 @@ hm.bee_sp <- data
 hm.bee_sp <- gather(hm.bee_sp, key="sp", value="nbr", 2:ncol(hm.bee_sp)) # On prend pas la première colonne (site) et on va jusqu'à la dernière colonne (2 à 93) (xylo)
 
 hm.bee_sp$sp <- factor(hm.bee_sp$sp)
-hm.bee_sp$Site <- factor(hm.bee_sp$Site, levels = c("Pot-AbbayeSt-Denis","Pot-Ruedel'Egalite","Pot-ChasseCambier","Pot-MelLegumes", "Pot-Gourmandes", "Pot-Jeand'Avesnes", "Pot-ParcduboisdeMons",  "Pot-JardinSuspendu", "Pot-Ecoledel'Esperance","Pot-Fonddupetitmarais", "Par-Villagedesabeilles", "Par-Siegesocial" , "Par-ParcBonaert", "Par-ParcduBeffroi",  "Par-Stievenart"))
+hm.bee_sp$site <- factor(hm.bee_sp$site, levels = c("Pot-AbbayeSt-Denis","Pot-Ruedel'Egalite","Pot-ChasseCambier","Pot-MelLegumes", "Pot-Gourmandes", "Pot-Jeand'Avesnes", "Pot-ParcduboisdeMons",  "Pot-JardinSuspendu", "Pot-Ecoledel'Esperance","Pot-Fonddupetitmarais", "Par-Villagedesabeilles", "Par-Siegesocial" , "Par-ParcBonaert", "Par-ParcduBeffroi",  "Par-Stievenart"))
 
 mycolors <- c(rep("#003366",10), rep("#663300",5))
 
@@ -170,14 +165,14 @@ hm.bee_sp <- hm.bee_sp %>%
   # convert state to factor and reverse order of levels
   mutate(sp=factor(sp, levels=rev(sort(unique(sp)))))
 
-hm.bee_sp <- select(hm.bee_sp, sp, Site, nbr)
+hm.bee_sp <- select(hm.bee_sp, sp, site, nbr)
 
 # Début enregistrement .pdf
 # pdf(file = "D:/OneDrive - UMONS/UMONS/MA2/MEMOIRE/Statistique/R/STAT-MEMOIRE/Output/heatmap.pdf",   # The directory you want to save the file in
 #     width = 20, # The width of the plot in inches
 #     height = 10)
 
-ggplot(hm.bee_sp, aes(x = Site, y = sp, fill = nbr)) +
+ggplot(hm.bee_sp, aes(x = site, y = sp, fill = nbr)) +
   labs(title = "", x = '', y = '') + # Titre et titre axe
   geom_tile(color = "black") +
   coord_fixed() +
@@ -217,7 +212,7 @@ hm.bee_filter <- select(data, -"Bombus pascuorum", -"Osmia bicornis", -"Terrestr
 hm.bee_filter <- gather(hm.bee_filter, key="sp", value="nbr", 2:ncol(hm.bee_filter)) # On prend pas la première colonne (site) et on va jusqu'à la dernière colonne (2 à 93) (xylo)
 
 hm.bee_filter$sp <- factor(hm.bee_filter$sp)
-hm.bee_filter$Site <- factor(hm.bee_filter$Site, levels = c("Pot-AbbayeSt-Denis","Pot-Ruedel'Egalite","Pot-ChasseCambier","Pot-MelLegumes", "Pot-Gourmandes", "Pot-Jeand'Avesnes", "Pot-ParcduboisdeMons",  "Pot-JardinSuspendu", "Pot-Ecoledel'Esperance","Pot-Fonddupetitmarais", "Par-Villagedesabeilles", "Par-Siegesocial" , "Par-ParcBonaert", "Par-ParcduBeffroi",  "Par-Stievenart"))
+hm.bee_filter$site <- factor(hm.bee_filter$site, levels = c("Pot-AbbayeSt-Denis","Pot-Ruedel'Egalite","Pot-ChasseCambier","Pot-MelLegumes", "Pot-Gourmandes", "Pot-Jeand'Avesnes", "Pot-ParcduboisdeMons",  "Pot-JardinSuspendu", "Pot-Ecoledel'Esperance","Pot-Fonddupetitmarais", "Par-Villagedesabeilles", "Par-Siegesocial" , "Par-ParcBonaert", "Par-ParcduBeffroi",  "Par-Stievenart"))
 
 mycolors <- c(rep("#003366",10), rep("#663300",5))
 
@@ -225,14 +220,14 @@ hm.bee_filter <- hm.bee_filter %>%
   # convert state to factor and reverse order of levels
   mutate(sp=factor(sp, levels=rev(sort(unique(sp)))))
 
-hm.bee_filter <- select(hm.bee_filter, sp, Site, nbr)
+hm.bee_filter <- select(hm.bee_filter, sp, site, nbr)
 
 # Début enregistrement .pdf
-pdf(file = "D:/OneDrive - UMONS/UMONS/MA2/MEMOIRE/Rapport de mémoire/figure/heatmap_delete.pdf",   # The directory you want to save the file in
+pdf(file = "C:/Users/Jordan/OneDrive - UMONS/UMONS/MA2/MEMOIRE/Rapport de mémoire/figure/heatmap_delete.pdf",   # The directory you want to save the file in
     width = 20, # The width of the plot in inches
     height = 10)
 
-ggplot(hm.bee_filter, aes(x = Site, y = sp, fill = nbr)) +
+ggplot(hm.bee_filter, aes(x = site, y = sp, fill = nbr)) +
   labs(title = "Abondance des abeilles sauvages", x = '', y = '') + # Titre et titre axe
   geom_tile(color = "black") +
   coord_fixed() +
