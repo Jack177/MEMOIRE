@@ -1,0 +1,72 @@
+---
+title: "Liste"
+author: "Jordan Benrezkallah"
+date: '2022-11-27'
+output: html_document
+---
+
+```{r}
+source("../start.R")
+```
+
+
+```{r}
+# Load the required packages
+# library(dplyr)
+# library(vegan) # specpool () estimateR() poolaccum() estaccumR()
+# library(ggplot2)
+# library(forcats )
+# library(reshape2)
+# library("readxl") 
+
+```
+
+
+
+```{r}
+SCS %>%
+  group_by(sp, site) %>%
+  count(sp) -> df0 
+rename(df0, "tot" = "n" ) -> df0
+A_sp_site <- filter(df0, tot == "1")
+```
+
+```{r}
+SCS %>%
+  group_by(sp) %>%
+  count(sp) -> df1 
+rename(df1, "tot" = "n" ) -> B_sp
+```
+
+```{r}
+SCS %>%
+  group_by(sp, SEX, family) %>%
+  count(sp) -> df2
+rename(df2, "tot" = "n" ) -> C_sex_sp
+```
+
+```{r}
+SCS %>%
+  group_by(genus) %>%
+  count(genus) -> df3
+rename(df3, "tot" = "n" ) -> D_genus
+```
+
+
+```{r}
+SCS %>%
+  group_by(family, sp ) %>%
+  count(sp) -> df4 
+rename(df4, "tot" = "n" ) -> B2_sp
+```
+
+```{r}
+list <- B2_sp$sp
+```
+
+
+```{r}
+# Exportation tableur Excel
+library("writexl")
+write_xlsx(B2_sp,"C:/Users/Jordan/OneDrive - UMONS/UMONS/MA2/MEMOIRE/Statistique/R/STAT-MEMOIRE/Output/list_sp_label.xlsx")
+```

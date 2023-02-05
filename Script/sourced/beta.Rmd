@@ -6,50 +6,16 @@ output: html_document
 ---
 
 ```{r}
-library(ggplot2)
-library(vegan)
-library(dplyr)
-library(readxl)
+source("../start.R")
+```
+
+```{r}
 library(iNEXT)
 library("pheatmap")
 ```
 
-Importation des données.
-```{r Import}
-# Import
-# Tour PC
-setwd("D:/OneDrive - UMONS/UMONS/MA2/MEMOIRE/Statistique/R/STAT-MEMOIRE/RAW2")
-# Laptop
-#setwd("C:/Users/Jordan/OneDrive - UMONS/UMONS/MA2/MEMOIRE/Statistique/R/STAT-MEMOIRE/RAW2")
-
-SpecCondStat <- read_excel("SpecCondStat.xls")
-
-
-# Nom plus compact
-SCS <- SpecCondStat
-
-## Nettoyage
-# Retirer le site de Condorcet
-SCS <- filter(SCS, TOPO != "Condorcet" )
-
-# Renommer plus simplement
-rename(SCS, "sp" = "SPEC.TAXPRIO" ) -> SCS
-rename(SCS, "Site" = "TOPO" ) -> SCS
-
-# Retirer les observations contenant l'espèce : "Apis mellifera"
-SCS <- filter(SCS, sp != "Apis mellifera" )
-
-# Remplacement des noms d'espèces désuets
-SCS$sp[SCS$sp == "Bombus (Bombus)  sp."] <- "Terrestribombus  sp."
-SCS$sp[SCS$sp == "Bombus lucorum"] <- "Terrestribombus  sp."
-SCS$sp[SCS$sp == "Bombus terrestris"] <- "Terrestribombus  sp."
-SCS$sp[SCS$sp == "Chalicodoma ericetorum"] <- "Megachile ericetorum"
-SCS$sp[SCS$sp == "Halictus tumulorum"] <- "Seladonia tumulorum"
-SCS$sp[SCS$sp == "Halictus tumulorum"] <- "Seladonia tumulorum"
-
-# Remplacement du noms de sites
-SCS$Site[SCS$Site == "Les Gourmandes de la Procession"] <- "Gourmandes"
-
+Remaniement des données
+```{r Reshuffle}
 
 #### Abbréger le nom des sites
 # Liste des Potagers
@@ -58,12 +24,12 @@ Potagers <- c("Abbaye St-Denis", "Rue de l'Egalite", "Chasse Cambier", "Mel Legu
 Parcs <- c("Village des abeilles", "Siege social", "Parc du Beffroi", "Stievenart", "Parc Bonaert")
 
 SCS$Code <- fct_collapse(
-    SCS$Site,
+    SCS$site,
     "Potager" = Potagers,
     "Parc" = Parcs)
 
 # substring prend les premiers caractères, abbreviate abrège comme il le sent
-SCS$code_site <- paste(substring(SCS$Code, 0,3),"-", SCS$Site)
+SCS$code_site <- paste(substring(SCS$Code, 0,3),"-", SCS$site)
 # retirer les apostrophes
 SCS$code_site <- gsub(" ", "", SCS$code_site)
 ```
@@ -78,6 +44,10 @@ data_bee_sp <- type.convert(data_bee_sp)
 ```
 # Matrice non-raréfié
 ## Abondance
+Bray-Curtis donne plus d'importance aux espèces abondantes. 
+Il ignore les doubles zéros.
+Pour éviter de donner un poids trop important aux espèces dominantes, il est possible de transformé les données (ex. : log(x+1), double carrée, .).
+
 ```{r}
 # Matrice dissimilarité d'abondance
 dis <- vegdist(sqrt (data_bee_sp), method = 'bray', diag =TRUE)
@@ -86,6 +56,8 @@ pheatmap(D_chisq_R, display_numbers = round(D_chisq_R, 2))
 # exporter en 8x8
 ```
 ## Occurence
+
+Les indices d'occurence donne plus de poids aux espèces rares, car toutes les espèces présentes ont le même poids.
 ```{r}
 # Matrice dissimilarité d'occurence
 occurence <- as.data.frame(data_bee_sp) %>%
@@ -109,7 +81,8 @@ D_chisq_R <- as.matrix(dis)
 pheatmap(D_chisq_R, display_numbers = round(D_chisq_R, 2))
 # exporter en 8x8
 ```
-Ca n'a pas de sens de raréfié des données de présence absence
+
+Ca n'a pas de sens de raréfié des données de présence-absence
 ```{r}
 # Matrice dissimilarité d'occurence
 # 

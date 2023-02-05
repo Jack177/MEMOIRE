@@ -22,9 +22,9 @@ library("readxl")
 à refaire si nouvelle donnée encodée !!
 ```{r Nettoyage}
 # Tour PC
-setwd("D:/OneDrive - UMONS/UMONS/MA2/MEMOIRE/Statistique/R/STAT-MEMOIRE/RAW/Traits abeilles")
+#setwd("D:/OneDrive - UMONS/UMONS/MA2/MEMOIRE/Statistique/R/STAT-MEMOIRE/RAW/Traits abeilles")
 # Laptop
-#setwd("C:/Users/Jordan/OneDrive - UMONS/UMONS/MA2/MEMOIRE/Statistique/R/STAT-MEMOIRE/RAW2/Traits abeilles")
+setwd("C:/Users/Jordan/OneDrive - UMONS/UMONS/MA2/MEMOIRE/Statistique/R/STAT-MEMOIRE/RAW/Traits abeilles")
 
 SpecCondStat <- read_excel("SpecCondStat_traits.xls")
 
@@ -37,6 +37,7 @@ SCS <- filter(SCS, TOPO != "Condorcet" )
 # Renommer plus simplement
 rename(SCS, "sp" = "SPEC.TAXPRIO" ) -> SCS
 rename(SCS, "site" = "TOPO" ) -> SCS
+rename(SCS, "family" = "SPEC.GR2" ) -> SCS
 
 # Retirer les observations contenant l'espèce : "Apis mellifera"
 SCS <- filter(SCS, sp != "Apis mellifera" )
@@ -91,6 +92,13 @@ SCS %>%
   group_by(sp) %>%
   count(sp) -> df1 
 rename(df1, "tot" = "n" ) -> df1
+```
+
+```{r}
+SCS %>%
+  group_by(sp, SEX, family) %>%
+  count(sp) -> df2
+rename(df2, "tot" = "n" ) -> df2
 ```
 
 

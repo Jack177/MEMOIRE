@@ -7,7 +7,7 @@ output: pdf_document
 
 
 ```{r}
-source("../start.R")
+#source("../start.R")
 ```
 
 ## Chargement des paquets
@@ -28,7 +28,7 @@ source("../start.R")
 ## Importation des données
 ```{r Import, message=FALSE, warning=FALSE, include=FALSE, results='hide', paged.print=FALSE}
 # Tour PC
-#setwd("D:/OneDrive - UMONS/UMONS/MA2/MEMOIRE/Statistique/R/STAT-MEMOIRE/RAW/")
+#setwd("D:/OneDrive - UMONS/UMONS/MA2/MEMOIRE/Statistique/R/STAT-MEMOIRE/Script/Last")
 # # Laptop
 # setwd("C:/Users/Jordan/OneDrive - UMONS/UMONS/MA2/MEMOIRE/Statistique/R/STAT-MEMOIRE/RAW/")
 # 
