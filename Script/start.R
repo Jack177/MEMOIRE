@@ -78,7 +78,7 @@ SCS$sp[SCS$sp == "Chalicodoma ericetorum"] <- "Megachile ericetorum"
 SCS$sp[SCS$sp == "Halictus tumulorum"] <- "Seladonia tumulorum"
 
 # Retirer les observations contenant l'espèce : "Apis mellifera"
-SCS <- filter(SCS, sp != "Apis mellifera" )
+SCS <- filter(SCS, sp != "Apis mellifera")
 
 # Remplacement du noms de sites
 SCS$site[SCS$site == "Les Gourmandes de la Procession"] <- "Gourmandes"

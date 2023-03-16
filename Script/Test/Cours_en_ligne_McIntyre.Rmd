@@ -475,7 +475,7 @@ Average est celui qui est généralement utilisé, surtout en écologie, suivi d
 
 Commencer avec quelle approche une matrice de distance/dissimilarité: quel type ?
 pourcentage ?
-bcp de zaro ? si oui, on exclue euclédien, Manhattan et Canberra.
+bcp de zéro ? si oui, on exclue euclédien, Manhattan et Canberra.
 Chi² désaccentue l'abondance des espèces, s'il y a bcp ce n'est pas le meilleur choix.
 Bray-Curtis : par défaut
 

@@ -7,7 +7,7 @@ output: pdf_document
 
 
 ```{r}
-#source("../start.R")
+source("../start.R")
 ```
 
 ## Chargement des paquets

@@ -22,43 +22,10 @@ library(grid) # Annotation sur le graphique
 ```
 
 ## Importation des données
-```{r Import, message=FALSE, warning=FALSE, include=FALSE, results='hide', paged.print=FALSE}
-# Tour PC
-setwd("D:/OneDrive - UMONS/UMONS/MA2/MEMOIRE/Statistique/R/STAT-MEMOIRE/RAW")
-# Laptop
-#setwd("C:/Users/Jordan/OneDrive - UMONS/UMONS/MA2/MEMOIRE/Statistique/R/STAT-MEMOIRE/RAW2")
-
-# Import
-SCS <- read_excel("SpecCondStat.xls")
+```{r}
+source("start.R")
 ```
 
-
-```{r Nettoyage}
-# Nom plus compact
-SCS <- SpecCondStat
-
-## Nettoyage
-# Retirer le site de Condorcet
-SCS <- filter(SCS, TOPO != "Condorcet" )
-
-# Renommer plus simplement
-rename(SCS, "sp" = "SPEC.TAXPRIO" ) -> SCS
-rename(SCS, "Site" = "TOPO" ) -> SCS
-
-# Retirer les observations contenant l'espèce : "Apis mellifera"
-SCS <- filter(SCS, sp != "Apis mellifera" )
-
-# Remplacement des noms d'espèces désuets
-SCS$sp[SCS$sp == "Bombus (Bombus)  sp."] <- "Terrestribombus  sp."
-SCS$sp[SCS$sp == "Bombus lucorum"] <- "Terrestribombus  sp."
-SCS$sp[SCS$sp == "Bombus terrestris"] <- "Terrestribombus  sp."
-SCS$sp[SCS$sp == "Chalicodoma ericetorum"] <- "Megachile ericetorum"
-SCS$sp[SCS$sp == "Halictus tumulorum"] <- "Seladonia tumulorum"
-SCS$sp[SCS$sp == "Halictus tumulorum"] <- "Seladonia tumulorum"
-
-# Remplacement du noms de sites
-SCS$Site[SCS$Site == "Les Gourmandes de la Procession"] <- "Gourmandes"
-```
 
 
 ```{r}
@@ -81,9 +48,9 @@ length(which(bee_sp$N == 1))
 length(which(bee_sp$N == 2))
 
 # Début enregistrement .pdf
-pdf(file = "D:/OneDrive - UMONS/UMONS/MA2/MEMOIRE/Rapport de mémoire/figure/pareto_chart_ggplot.pdf",   # The directory you want to save the file in
-    width = 20, # The width of the plot in inches
-    height = 10)
+# pdf(file = "D:/OneDrive - UMONS/UMONS/MA2/MEMOIRE/Rapport de mémoire/figure/pareto_chart_ggplot.pdf",   # The directory you want to save the file in
+#     width = 20, # The width of the plot in inches
+#     height = 10)
 
 # Pourcentage cumulative
 bee_sp$cumulative <- 100 * bee_sp$cumulative/tail(bee_sp$cumulative, n=1)
@@ -110,7 +77,7 @@ ggplot(bee_sp, aes(x = sp)) +
         panel.grid.minor.y = element_line(colour = "gainsboro", size = 0.1, linetype = "dashed")) 
 
 # Fin enregistrement .pdf
-dev.off()
+# dev.off()
 
 # Enregistrement avec ggsave()
 # ggsave(filename = "pareto_chart.pdf", device = cairo_pdf)

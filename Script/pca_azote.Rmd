@@ -23,7 +23,6 @@ library(ggfortify)
 library(tidyr)
 library(plotly)
 library(ggplot2)
-library(taxize)
 library(iNEXT)
 library(RColorBrewer)
 library(reshape2)
@@ -33,9 +32,9 @@ Importation des données.
 ```{r Import}
 # Import
 # Tour PC
-setwd("D:/OneDrive - UMONS/UMONS/MA2/MEMOIRE/Statistique/R/STAT-MEMOIRE/RAW")
+#setwd("D:/OneDrive - UMONS/UMONS/MA2/MEMOIRE/Statistique/R/STAT-MEMOIRE/RAW")
 # Laptop
-#setwd("C:/Users/Jordan/OneDrive - UMONS/UMONS/MA2/MEMOIRE/Statistique/R/STAT-MEMOIRE/RAW")
+setwd("C:/Users/Jordan/OneDrive - UMONS/UMONS/MA2/MEMOIRE/Statistique/R/STAT-MEMOIRE/RAW")
 
 soil <- read_excel("Soil_R.xlsx")
 ```

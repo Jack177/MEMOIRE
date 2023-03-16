@@ -63,7 +63,7 @@ Les indices d'occurence donne plus de poids aux espèces rares, car toutes les e
 occurence <- as.data.frame(data_bee_sp) %>%
   transmute_all(~if_else(. > 0, 1, 0))
 occurence_r <- (occurence)
-D_jacc_R <- as.matrix(vegdist(occurence_r, method = "jaccard"))
+D_jacc_R <- as.matrix(vegdist(occurence_r, method = "jac", binary = TRUE))
 pheatmap(D_jacc_R, display_numbers = round(D_jacc_R, 2))
 ```
 # Matrice raréfié
