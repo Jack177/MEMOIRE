@@ -2,7 +2,7 @@
 library(dplyr)
 library(tidyr) # fonction gather
 library(vegan) # specpool () estimateR() poolaccum() estaccumR()
-library(iNEXT)
+#library(iNEXT)
 library(ggplot2)
 library("readxl") 
 library(forcats)

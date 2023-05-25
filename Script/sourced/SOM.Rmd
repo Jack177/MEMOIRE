@@ -1,0 +1,57 @@
+---
+title: "SOM"
+author: "Jordan Benrezkallah"
+date: '2023-04-21'
+output: html_document
+---
+```{r}
+source("../start.R")
+library(kohonen)
+# Import
+soil <- read_excel("../../RAW/Soil_R.xlsx")
+granulo <- read_excel("../../RAW/granulo.xlsx")
+```
+
+```{r }
+granulo$Texture <- as.factor(granulo$Texture)
+
+
+# Preparation des données 
+data_bee_sp <- select(SCS, sp, N, site)
+data_bee_sp <- as.data.frame(data_bee_sp)
+data_bee_sp <- aggregate(N ~ sp + site, data = data_bee_sp, sum)
+data_bee_sp <- xtabs(N ~ site + sp, data_bee_sp)
+data_bee_sp <- type.convert(data_bee_sp)
+```
+
+```{r}
+#Sélection et standardisation des données
+granulo %>%
+  select(, -Site, -Texture) %>%
+  scale() %>%
+  as.matrix() ->
+  granulo_mat
+```
+
+```{r}
+# Creation de la grille
+granulo_som <- som(granulo_mat, grid = somgrid(2, 2, topo = "hexagonal"))
+#Visualisation de l'apprentissage
+plot(granulo_som, type = "changes")
+```
+
+```{r}
+# Visualiser la grille
+colors15 <- c("#e6194B", "#3cb44b", "#ffe119", "#4363d8", "#f58231", "#911eb4",
+  "#42d4f4", "#f032e6", "#bfef45", "#fabebe", "#469990", "#e6beff", "#9A6324",
+  "#fffac8", "#800000", "#aaffc3")
+plot(granulo_som, type = "mapping", shape = "straight", col = colors15[granulo$Texture])
+```
+
+```{r}
+par(mfrow = c(2, 3))
+for (var in c("Argile", "Limon fin", "Limon grossier", "Sable fin", "Sable grossier"))
+  plot(granulo_som, type = "property", property = granulo_som$codes[[1]][, var],
+    main = var, palette.name = viridis::inferno)
+```
+

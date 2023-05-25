@@ -21,12 +21,13 @@ library(tidyr) # fonction gather
 ## Importation des données
 ```{r Import, message=FALSE, warning=FALSE, include=FALSE, results='hide', paged.print=FALSE}
 # Tour PC
-#setwd("D:/OneDrive - UMONS/UMONS/MA2/MEMOIRE/Statistique/R/STAT-MEMOIRE/RAW")
+setwd("D:/OneDrive - UMONS/UMONS/MA2/MEMOIRE/Statistique/R/STAT-MEMOIRE/RAW")
 # Laptop
-setwd("C:/Users/Jordan/OneDrive - UMONS/UMONS/MA2/MEMOIRE/Statistique/R/STAT-MEMOIRE/RAW")
+
+#setwd("C:/Users/Jordan/OneDrive - UMONS/UMONS/MA2/MEMOIRE/Statistique/R/STAT-MEMOIRE/RAW")
 
 # Import
-IUCN_redlist <- read_excel("IUCN_bee_sp-each-site(genus-and-familly).xlsx")
+IUCN_redlist <- read_excel("D:/OneDrive - UMONS/UMONS/MA2/MEMOIRE/Statistique/R/STAT-MEMOIRE/RAW/IUCN_bee_sp-each-site(genus-and-familly).xlsx")
 
 # Réécriture des noms de familles
 IUCN_redlist$familly[IUCN_redlist$familly == "ANDRENIDAE"] <- "Andrenidae"
